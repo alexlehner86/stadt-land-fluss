@@ -1,6 +1,5 @@
 .app-header {
     position: relative;
-    color: white;
     padding: 3vmin 1rem;
     text-align: center;
 }
@@ -29,3 +28,15 @@
     background-color: rgba(255, 255, 255, 0.5);
 }
 
+.app-header.green-theme {
+    background-color: darkgreen;
+    color: white;
+}
+.app-header.orange-theme {
+    background-color: orange;
+    color: black;
+}
+.app-header.pink-theme {
+    background-color: purple;
+    color: white;
+}

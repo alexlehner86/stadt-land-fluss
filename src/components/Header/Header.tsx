@@ -1,24 +1,24 @@
 import React, { Component } from 'react';
 import './Header.css';
 import { Button, Menu, MenuItem } from '@material-ui/core';
-import { HeaderBackgroundColors } from '../../constants/color-picker.constant';
+import { HeaderThemes, HeaderTheme } from '../../constants/themes.constant';
 
 interface HeaderProps {
+    switchTheme: (newTheme: HeaderTheme) => any;
+    theme: HeaderTheme;
     username: string;
 }
 interface HeaderState {
     anchorEl: EventTarget | null;
-    backgroundColor: string;
 }
 
 export class Header extends Component<HeaderProps, HeaderState> {
-    public state = { anchorEl: null, backgroundColor: 'purple' };
+    public state = { anchorEl: null };
 
     public render() {
         return (
             <header
-                className="app-header"
-                style={{ backgroundColor: this.state.backgroundColor }}
+                className={'app-header ' + this.props.theme.className}
             >
                 <h1>Stadt-Land-Fluss</h1>
                 <p>Nutzer: {this.props.username}</p>
@@ -37,10 +37,10 @@ export class Header extends Component<HeaderProps, HeaderState> {
                     open={Boolean(this.state.anchorEl)}
                     onClose={this.handleClose}
                 >
-                    {HeaderBackgroundColors.map((item, index) => (
+                    {HeaderThemes.map((item, index) => (
                         <MenuItem
                             key={'color-picker-menu-item-' + index}
-                            onClick={() => this.handleMenuItemClick(item.color)}
+                            onClick={() => this.handleMenuItemClick(item)}
                         >{item.displayName}</MenuItem>
                     ))}
                 </Menu>
@@ -49,21 +49,15 @@ export class Header extends Component<HeaderProps, HeaderState> {
     }
 
     private handleClick = (event: any) => {
-        this.setAnchorEl(event.currentTarget);
+        this.setState({ anchorEl: event.currentTarget });
     };
 
     private handleClose = (color: string) => {
-        this.setAnchorEl(null);
+        this.setState({ anchorEl: null });
     };
 
-    private handleMenuItemClick = (backgroundColor: string) => {
-        this.setState({
-            anchorEl: null,
-            backgroundColor
-        });
+    private handleMenuItemClick = (selectedTheme: HeaderTheme) => {
+        this.setState({ anchorEl: null });
+        this.props.switchTheme(selectedTheme);
     };
-
-    private setAnchorEl(anchorEl: EventTarget | null) {
-        this.setState({ anchorEl });
-    }
 }
