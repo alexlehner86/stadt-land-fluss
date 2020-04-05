@@ -5,20 +5,21 @@ import React, { Component } from 'react';
 import { BrowserRouter, Route } from 'react-router-dom';
 import { Header } from './components/Header/Header';
 import { PUBNUB_CONFIG } from './config/pubnub.config';
-import { HeaderTheme, HeaderThemes } from './constants/themes.constant';
+import { AppTheme, AppThemes } from './constants/themes.constant';
 import { Dashboard } from './containers/Dashboard/Dashboard';
+import { JoinGame } from './containers/JoinGame/JoinGame';
 import { NewGame } from './containers/NewGame/NewGame';
 
 const pubNubClient = new PubNub(PUBNUB_CONFIG);
 // const channels = ['awesomeChannel12345'];
 
 interface AppState {
-    headerTheme: HeaderTheme;
+    activeTheme: AppTheme;
 }
 
 class App extends Component<any, AppState> {
     public state: AppState = {
-        headerTheme: HeaderThemes[0],
+        activeTheme: AppThemes[0],
     };
 
     public render() {
@@ -26,14 +27,17 @@ class App extends Component<any, AppState> {
             <PubNubProvider client={pubNubClient}>
                 <div className="app-container">
                     <Header
-                        theme={this.state.headerTheme}
+                        theme={this.state.activeTheme}
                         username="Alex"
                         switchTheme={this.switchThemeHandler}
                     />
                     <BrowserRouter>
-                        <main className="app-main">
-                            <Route path="/newgame" exact render={() => <NewGame />} />
-                            <Route path="/" render={() => <Dashboard />} />
+                        <main className={'app-main ' + this.state.activeTheme.className}>
+                            <div className="main-content-wrapper">
+                                <Route path="/" exact component={Dashboard} />
+                                <Route path="/newgame" exact component={NewGame} />
+                                <Route path="/joingame" exact component={JoinGame} />
+                            </div>
                         </main>
                     </BrowserRouter>
                 </div>
@@ -41,8 +45,8 @@ class App extends Component<any, AppState> {
         );
     }
 
-    private switchThemeHandler = (newTheme: HeaderTheme) => {
-        this.setState({ headerTheme: newTheme });
+    private switchThemeHandler = (newTheme: AppTheme) => {
+        this.setState({ activeTheme: newTheme });
     }
 }
 

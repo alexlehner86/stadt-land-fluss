@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import './Header.css';
 import { Button, Menu, MenuItem } from '@material-ui/core';
-import { HeaderThemes, HeaderTheme } from '../../constants/themes.constant';
+import { AppThemes, AppTheme } from '../../constants/themes.constant';
 
 interface HeaderProps {
-    switchTheme: (newTheme: HeaderTheme) => any;
-    theme: HeaderTheme;
+    switchTheme: (newTheme: AppTheme) => any;
+    theme: AppTheme;
     username: string;
 }
 interface HeaderState {
@@ -37,7 +37,7 @@ export class Header extends Component<HeaderProps, HeaderState> {
                     open={Boolean(this.state.anchorEl)}
                     onClose={this.handleClose}
                 >
-                    {HeaderThemes.map((item, index) => (
+                    {AppThemes.map((item, index) => (
                         <MenuItem
                             key={'color-picker-menu-item-' + index}
                             onClick={() => this.handleMenuItemClick(item)}
@@ -56,7 +56,7 @@ export class Header extends Component<HeaderProps, HeaderState> {
         this.setState({ anchorEl: null });
     };
 
-    private handleMenuItemClick = (selectedTheme: HeaderTheme) => {
+    private handleMenuItemClick = (selectedTheme: AppTheme) => {
         this.setState({ anchorEl: null });
         this.props.switchTheme(selectedTheme);
     };

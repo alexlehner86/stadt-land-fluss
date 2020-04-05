@@ -1,0 +1,14 @@
+.dashboard-container .link-container {
+    display: flex;
+    justify-content: space-around;
+    padding: 0.5rem 0
+}
+
+.dashboard-container .link-container a {
+    flex: 0 0 40%;
+    background-color: rgba(0, 0, 0, 0.1);
+    color: black;
+    padding: 1rem 0.8rem;
+    border-radius: 5px;
+    text-align: center;
+}

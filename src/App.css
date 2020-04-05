@@ -1,3 +1,40 @@
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
 .app-main {
+    flex: 1 1 0rem;
     padding: 1rem;
+}
+.app-main.green-theme {
+    background:
+        linear-gradient(rgba(60, 143, 80, 0.3), rgba(60, 143, 80, 0.3)),
+        url('/assets/leaves-pattern.jpg');
+    background-size: 15%;
+}
+.app-main.orange-theme {
+    background:
+        linear-gradient(rgba(228, 169, 7, 0.3), rgba(228, 169, 7, 0.3)),
+        url('/assets/beach-pattern.jpg');
+    background-size: 20%;
+}
+.app-main.pink-theme {
+    background:
+        linear-gradient(rgba(133, 14, 103, 0.3), rgba(133, 14, 103, 0.3)),
+        url('/assets/music-pattern.jpg');
+    background-size: 30%;
+}
+
+.main-content-wrapper {
+    max-width: 30rem;
+    margin: 1rem auto;
+}
+
+.material-card-style {
+    background-color: white;
+    border-radius: 5px;
+    padding: 1rem;
+    box-shadow: 0 2px 3px #aaa;
 }
