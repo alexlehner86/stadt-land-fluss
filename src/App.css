@@ -16,7 +16,7 @@
 }
 .app-main.orange-theme {
     background:
-        linear-gradient(rgba(228, 169, 7, 0.3), rgba(228, 169, 7, 0.3)),
+        linear-gradient(rgba(240, 188, 47, 0.5), rgba(240, 188, 47, 0.5)),
         url('/assets/beach-pattern.jpg');
     background-size: 20%;
 }
@@ -37,4 +37,16 @@
     border-radius: 5px;
     padding: 1rem;
     box-shadow: 0 2px 3px #aaa;
+}
+
+.app-form {
+    margin-top: 1.5rem;
+}
+.app-form-input.MuiFormControl-root {
+    margin-bottom: 1rem;
+}
+
+.button-wrapper {
+    display: flex;
+    justify-content: center;
 }

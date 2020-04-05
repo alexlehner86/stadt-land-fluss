@@ -1,3 +1,8 @@
+import { createMuiTheme, Theme } from '@material-ui/core/styles';
+import green from '@material-ui/core/colors/green';
+import orange from '@material-ui/core/colors/orange';
+import purple from '@material-ui/core/colors/purple';
+
 export enum APP_THEMES {
     green = 'green',
     orange = 'orange',
@@ -10,10 +15,26 @@ export interface AppTheme {
     className: string;
     /** The text displayed in the header's color picker dropdown */
     displayName: string;
+    muiTheme: Theme;
 }
 
 export const AppThemes: AppTheme[] = [
-    { theme: APP_THEMES.green, className: 'green-theme', displayName: 'Grün' },
-    { theme: APP_THEMES.orange, className: 'orange-theme', displayName: 'Orange' },
-    { theme: APP_THEMES.pink, className: 'pink-theme', displayName: 'Pink' },
+    {
+        theme: APP_THEMES.green,
+        className: 'green-theme',
+        displayName: 'Grün',
+        muiTheme: createMuiTheme({ palette: { primary: green } })
+    },
+    {
+        theme: APP_THEMES.orange,
+        className: 'orange-theme',
+        displayName: 'Orange',
+        muiTheme: createMuiTheme({ palette: { primary: orange } })
+    },
+    {
+        theme: APP_THEMES.pink,
+        className: 'pink-theme',
+        displayName: 'Pink',
+        muiTheme: createMuiTheme({ palette: { primary: purple } })
+    },
 ]

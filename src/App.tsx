@@ -1,17 +1,13 @@
 import './App.css';
-import PubNub from 'pubnub';
-import { PubNubProvider } from 'pubnub-react';
+import { ThemeProvider } from '@material-ui/core';
 import React, { Component } from 'react';
 import { BrowserRouter, Route } from 'react-router-dom';
 import { Header } from './components/Header/Header';
-import { PUBNUB_CONFIG } from './config/pubnub.config';
 import { AppTheme, AppThemes } from './constants/themes.constant';
 import { Dashboard } from './containers/Dashboard/Dashboard';
 import { JoinGame } from './containers/JoinGame/JoinGame';
 import { NewGame } from './containers/NewGame/NewGame';
-
-const pubNubClient = new PubNub(PUBNUB_CONFIG);
-// const channels = ['awesomeChannel12345'];
+import { PlayGame } from './containers/PlayGame/PlayGame';
 
 interface AppState {
     activeTheme: AppTheme;
@@ -24,7 +20,7 @@ class App extends Component<any, AppState> {
 
     public render() {
         return (
-            <PubNubProvider client={pubNubClient}>
+            <ThemeProvider theme={this.state.activeTheme.muiTheme}>
                 <div className="app-container">
                     <Header
                         theme={this.state.activeTheme}
@@ -37,11 +33,12 @@ class App extends Component<any, AppState> {
                                 <Route path="/" exact component={Dashboard} />
                                 <Route path="/newgame" exact component={NewGame} />
                                 <Route path="/joingame" exact component={JoinGame} />
+                                <Route path="/play" exact component={PlayGame} />
                             </div>
                         </main>
                     </BrowserRouter>
                 </div>
-            </PubNubProvider>
+            </ThemeProvider>
         );
     }
 
