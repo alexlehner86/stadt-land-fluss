@@ -2,11 +2,15 @@ import React, { Component } from 'react';
 import './Header.css';
 import { Button, Menu, MenuItem } from '@material-ui/core';
 import { AppThemes, AppTheme } from '../../constants/themes.constant';
+import { connect } from 'react-redux';
+import { AppState } from '../../store/app.reducer';
 
-interface HeaderProps {
+interface HeaderPropsFromStore {
+    playerName: string | null;
+}
+interface HeaderProps extends HeaderPropsFromStore {
     switchTheme: (newTheme: AppTheme) => any;
     theme: AppTheme;
-    username: string;
 }
 interface HeaderState {
     anchorEl: EventTarget | null;
@@ -16,12 +20,13 @@ export class Header extends Component<HeaderProps, HeaderState> {
     public state = { anchorEl: null };
 
     public render() {
+        const playerNameParagraph = this.props.playerName ? (<p>Name: {this.props.playerName}</p>) : null;
         return (
             <header
                 className={'app-header ' + this.props.theme.className}
             >
                 <h1>Stadt-Land-Fluss</h1>
-                <p>Nutzer: {this.props.username}</p>
+                {playerNameParagraph}
                 <Button
                     className="color-picker-button"
                     aria-controls="color-picker-menu"
@@ -61,3 +66,10 @@ export class Header extends Component<HeaderProps, HeaderState> {
         this.props.switchTheme(selectedTheme);
     };
 }
+
+const mapStateToProps = (state: AppState): HeaderPropsFromStore => {
+    return {
+        playerName: state.playerName
+    };
+}
+export default connect(mapStateToProps)(Header);
