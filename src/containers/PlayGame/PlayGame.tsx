@@ -7,10 +7,12 @@ import { connect } from 'react-redux';
 import { RouterProps } from 'react-router';
 import { PUBNUB_CONFIG } from '../../config/pubnub.config';
 import { AppState } from '../../store/app.reducer';
+import PubNubEventHandler from '../../components/PubNubEventHandler/PubNubEventHandler';
+import { PlayerInfo } from '../../models/player.interface';
 
 interface PlayGamePropsFromStore {
-    isAdmin: boolean;
     gameId: string | null;
+    isAdmin: boolean;
     playerName: string | null;
 }
 interface PlayGameProps extends PlayGamePropsFromStore, RouterProps { }
@@ -20,7 +22,12 @@ const pubNubClient = new PubNub(PUBNUB_CONFIG);
 class PlayGame extends Component<PlayGameProps> {
     public render() {
         if (this.props.gameId === null) {
-            return '';
+            return null;
+        }
+        const playerInfo: PlayerInfo = {
+            id: PUBNUB_CONFIG.uuid as string,
+            isAdmin: this.props.isAdmin,
+            name: this.props.playerName as string
         }
         let invitePlayersElement = null;
         if (this.props.isAdmin) {
@@ -28,6 +35,7 @@ class PlayGame extends Component<PlayGameProps> {
         }
         return (
             <PubNubProvider client={pubNubClient}>
+                <PubNubEventHandler gameChannel={this.props.gameId} playerInfo={playerInfo} />
                 <div className="material-card-style">
                     <p>Warten auf Mitspieler...</p>
                     {invitePlayersElement}
@@ -38,9 +46,25 @@ class PlayGame extends Component<PlayGameProps> {
 
     public componentDidMount() {
         if (this.props.gameId === null) {
-            this.props.history.push('/')
+            this.props.history.push('/');
+            return;
+        }
+        if (this.props.isAdmin) {
+            this.sendMessage('hier kommen die wichtigen INfos vom game admin');
         }
     }
+
+    private sendMessage = (message: string) => {
+        pubNubClient.publish(
+            {
+                channel: this.props.gameId as string,
+                message,
+                storeInHistory: true,
+                ttl: 5
+            },
+            (status, response) => console.log('publish callback', status, response)
+        );
+    };
 }
 
 const mapStateToProps = (state: AppState): PlayGamePropsFromStore => {

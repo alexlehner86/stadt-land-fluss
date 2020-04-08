@@ -5,7 +5,7 @@ import { BrowserRouter, Route } from 'react-router-dom';
 import Header from './components/Header/Header';
 import { AppTheme, AppThemes } from './constants/themes.constant';
 import { Dashboard } from './containers/Dashboard/Dashboard';
-import { JoinGame } from './containers/JoinGame/JoinGame';
+import JoinGame from './containers/JoinGame/JoinGame';
 import NewGame from './containers/NewGame/NewGame';
 import PlayGame from './containers/PlayGame/PlayGame';
 

@@ -1,17 +1,23 @@
 import './JoinGame.css';
 import { Button, TextField } from '@material-ui/core';
 import DirectionsWalkIcon from '@material-ui/icons/DirectionsWalk';
-import React, { ChangeEvent, Component, FormEvent } from 'react';
+import React, { ChangeEvent, Component, Dispatch, FormEvent } from 'react';
+import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
+import { AppAction, setGameData, SetGameDataPayload } from '../../store/app.actions';
 
+interface JoinGameDispatchProps {
+    onSetGameData: (payload: SetGameDataPayload) => void
+}
+interface JoinGameProps extends JoinGameDispatchProps, RouteComponentProps {}
 interface JoinGameState {
     idInput: string;
     nameInput: string;
     validateInputs: boolean;
 }
 
-export class JoinGame extends Component<RouteComponentProps, JoinGameState> {
+class JoinGame extends Component<JoinGameProps, JoinGameState> {
     public state: JoinGameState = {
         idInput: '',
         nameInput: '',
@@ -72,8 +78,24 @@ export class JoinGame extends Component<RouteComponentProps, JoinGameState> {
     }
 
     private handleSubmit = (event: FormEvent) => {
-        this.setState({ validateInputs: true });
-        console.log('submitted: ', this.state);
         event.preventDefault();
+        this.setState({ validateInputs: true });
+        if (this.state.idInput && this.state.nameInput) {
+            this.props.onSetGameData({
+                gameId: this.state.idInput,
+                isAdmin: false,
+                playerName: this.state.nameInput
+            });
+            this.props.history.push('/play')
+        }
     }
 }
+
+const mapDispatchToProps = (dispatch: Dispatch<AppAction>): JoinGameDispatchProps => {
+    return {
+        onSetGameData: (payload: SetGameDataPayload) => {
+            dispatch(setGameData(payload))
+        }
+    }
+};
+export default connect(null, mapDispatchToProps)(JoinGame);
