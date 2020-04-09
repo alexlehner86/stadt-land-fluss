@@ -1,5 +1,4 @@
 import Chip from '@material-ui/core/Chip';
-import Paper from '@material-ui/core/Paper';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import DoneIcon from '@material-ui/icons/Done';
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
@@ -33,7 +32,7 @@ interface ChipsArrayProps {
 const ChipsArray = (props: ChipsArrayProps) => {
     const classes = useStyles();
     return (
-        <Paper className={classes.root}>
+        <div className={classes.root}>
             {props.chipsArray.map((chip, index) => (
                 <Chip
                     key={`chip-to-${props.chipType}-${index}`}
@@ -44,7 +43,7 @@ const ChipsArray = (props: ChipsArrayProps) => {
                     deleteIcon={props.chipType === 'selected' ? <HighlightOffIcon /> : <DoneIcon />}
                 />
             ))}
-        </Paper>
+        </div>
     );
 }
 

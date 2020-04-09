@@ -1,13 +1,16 @@
 import { AppAction, SET_GAME_DATA, SetGameDataAction } from './app.actions';
+import { GameConfig } from '../models/game-config.interface';
 
 export interface AppState {
     gameId: string | null;
+    gameConfig: GameConfig | null;
     isAdmin: boolean;
     playerName: string | null;
 }
 
 const initialState: AppState = {
     gameId: null,
+    gameConfig: null,
     isAdmin: false,
     playerName: null
 };

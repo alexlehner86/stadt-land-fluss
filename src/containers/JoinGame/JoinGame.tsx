@@ -82,6 +82,7 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
         this.setState({ validateInputs: true });
         if (this.state.idInput && this.state.nameInput) {
             this.props.onSetGameData({
+                gameConfig: null,
                 gameId: this.state.idInput,
                 isAdmin: false,
                 playerName: this.state.nameInput

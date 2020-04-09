@@ -5,10 +5,15 @@ import React, { ChangeEvent, Component, Dispatch, FormEvent } from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { v4 as uuidv4 } from 'uuid';
-import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
-import { MAX_NUMBER_OF_ROUNDS, MIN_NUMBER_OF_ROUNDS } from '../../constants/game.constant';
-import { AppAction, setGameData, SetGameDataPayload } from '../../store/app.actions';
 import ChipsArray, { ChipType } from '../../components/ChipsArray/ChipsArray';
+import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
+import {
+    AVAILABLE_CATEGORIES,
+    MAX_NUMBER_OF_ROUNDS,
+    MIN_NUMBER_OF_ROUNDS,
+    STANDARD_CATEGORIES,
+} from '../../constants/game.constant';
+import { AppAction, setGameData, SetGameDataPayload } from '../../store/app.actions';
 
 enum CategoryArray {
     available = 'available',
@@ -29,10 +34,10 @@ interface NewGameState {
 
 class NewGame extends Component<NewGameProps, NewGameState> {
     public state: NewGameState = {
-        availableCategories: ['Band', 'Film/Serie'],
+        availableCategories: AVAILABLE_CATEGORIES,
         nameInput: '',
         numberOfRoundsInput: MIN_NUMBER_OF_ROUNDS,
-        selectedCategories: ['Stadt', 'Land', 'Fluss'],
+        selectedCategories: STANDARD_CATEGORIES,
         validateInputs: false
     };
 
@@ -59,24 +64,23 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                         type="number"
                         value={this.state.numberOfRoundsInput}
                         onChange={this.handleNumberOfRoundsInputChange}
-                        className="app-form-input"
                         variant="outlined"
                         fullWidth
                         required
                     />
-                    <p>Ausgewählte Kategorien:</p>
+                    <p className="category-array-label">Ausgewählte Kategorien:</p>
                     <ChipsArray
                         chipsArray={this.state.selectedCategories}
                         chipType={ChipType.selected}
                         removeChip={(chipToRemove) => this.updateCategoryArrays(chipToRemove, CategoryArray.selected)}
                     />
-                    <p>Verfügbare Kategorien:</p>
+                    <p className="category-array-label">Verfügbare Kategorien:</p>
                     <ChipsArray
                         chipsArray={this.state.availableCategories}
                         chipType={ChipType.available}
                         removeChip={(chipToRemove) => this.updateCategoryArrays(chipToRemove, CategoryArray.available)}
                     />
-                    <div className="button-wrapper">
+                    <div className="button-wrapper start-game-button">
                         <Button
                             type="submit"
                             color="primary"
@@ -122,9 +126,13 @@ class NewGame extends Component<NewGameProps, NewGameState> {
     private handleSubmit = (event: FormEvent) => {
         event.preventDefault();
         this.setState({ validateInputs: true });
-        if (this.state.nameInput) {
+        if (this.state.nameInput && this.state.selectedCategories.length >= 3) {
             const gameId = uuidv4(); // ⇨ e.g. '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d'
             this.props.onSetGameData({
+                gameConfig: {
+                    categories: this.state.selectedCategories,
+                    numberOfRounds: this.state.numberOfRoundsInput
+                },
                 gameId,
                 isAdmin: true,
                 playerName: this.state.nameInput

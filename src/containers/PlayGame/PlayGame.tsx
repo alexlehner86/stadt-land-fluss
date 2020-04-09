@@ -5,13 +5,15 @@ import { PubNubProvider } from 'pubnub-react';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { RouterProps } from 'react-router';
-import { PUBNUB_CONFIG } from '../../config/pubnub.config';
-import { AppState } from '../../store/app.reducer';
-import PubNubEventHandler from '../../components/PubNubEventHandler/PubNubEventHandler';
-import { PlayerInfo } from '../../models/player.interface';
 import { JoinGameLink } from '../../components/JoinGameLink/JoinGameLink';
+import PubNubEventHandler from '../../components/PubNubEventHandler/PubNubEventHandler';
+import { PUBNUB_CONFIG } from '../../config/pubnub.config';
+import { GameConfig } from '../../models/game-config.interface';
+import { PlayerInfo } from '../../models/player.interface';
+import { AppState } from '../../store/app.reducer';
 
 interface PlayGamePropsFromStore {
+    gameConfig: GameConfig | null;
     gameId: string | null;
     isAdmin: boolean;
     playerName: string | null;
@@ -51,11 +53,11 @@ class PlayGame extends Component<PlayGameProps> {
             return;
         }
         if (this.props.isAdmin) {
-            this.sendMessage('hier kommen die wichtigen INfos vom game admin');
+            this.sendMessage(this.props.gameConfig as GameConfig);
         }
     }
 
-    private sendMessage = (message: string) => {
+    private sendMessage = (message: object) => {
         pubNubClient.publish(
             {
                 channel: this.props.gameId as string,
@@ -70,8 +72,9 @@ class PlayGame extends Component<PlayGameProps> {
 
 const mapStateToProps = (state: AppState): PlayGamePropsFromStore => {
     return {
-        isAdmin: state.isAdmin,
+        gameConfig: state.gameConfig,
         gameId: state.gameId,
+        isAdmin: state.isAdmin,
         playerName: state.playerName
     };
 }
