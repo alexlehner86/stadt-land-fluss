@@ -9,6 +9,7 @@ import { PUBNUB_CONFIG } from '../../config/pubnub.config';
 import { AppState } from '../../store/app.reducer';
 import PubNubEventHandler from '../../components/PubNubEventHandler/PubNubEventHandler';
 import { PlayerInfo } from '../../models/player.interface';
+import { JoinGameLink } from '../../components/JoinGameLink/JoinGameLink';
 
 interface PlayGamePropsFromStore {
     gameId: string | null;
@@ -31,14 +32,14 @@ class PlayGame extends Component<PlayGameProps> {
         }
         let invitePlayersElement = null;
         if (this.props.isAdmin) {
-            invitePlayersElement = (<p>Teile diese ID mit Freunden: {this.props.gameId}</p>);
+            invitePlayersElement = (<JoinGameLink gameId={this.props.gameId} />);
         }
         return (
             <PubNubProvider client={pubNubClient}>
                 <PubNubEventHandler gameChannel={this.props.gameId} playerInfo={playerInfo} />
                 <div className="material-card-style">
-                    <p>Warten auf Mitspieler...</p>
                     {invitePlayersElement}
+                    <p>Warten auf Mitspieler...</p>
                 </div>
             </PubNubProvider>
         );
