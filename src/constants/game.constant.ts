@@ -20,3 +20,10 @@ export const AVAILABLE_CATEGORIES = [
     'Speise',
     'Tier'
 ];
+
+export enum GamePhase {
+    waitingToStart = 'waitingToStart',
+    fillOutTextfields = 'fillOutTextfields',
+    evaluateRound = 'evaluateRound',
+    gameResult = 'gameResult'
+}

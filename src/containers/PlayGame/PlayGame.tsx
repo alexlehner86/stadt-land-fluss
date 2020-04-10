@@ -5,13 +5,14 @@ import { PubNubProvider } from 'pubnub-react';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { RouterProps } from 'react-router';
-import { JoinGameLink } from '../../components/JoinGameLink/JoinGameLink';
 import PubNubEventHandler from '../../components/PubNubEventHandler/PubNubEventHandler';
 import { PUBNUB_CONFIG } from '../../config/pubnub.config';
+import { GamePhase } from '../../constants/game.constant';
 import { GameConfig } from '../../models/game-config.interface';
 import { PlayerInfo } from '../../models/player.interface';
-import { PubNubUserState } from '../../models/pub-nub-data.interface';
+import { PubNubUserState, PubNubMessage } from '../../models/pub-nub-data.interface';
 import { AppState } from '../../store/app.reducer';
+import PhaseWaitingToStart from '../../components/PhaseWaitingToStart/PhaseWaitingToStart';
 
 interface PlayGamePropsFromStore {
     gameConfig: GameConfig | null;
@@ -20,55 +21,46 @@ interface PlayGamePropsFromStore {
 }
 interface PlayGameProps extends PlayGamePropsFromStore, RouterProps { }
 interface PlayGameState {
+    currentRound: number;
+    currentPhase: GamePhase;
     gameConfig: GameConfig | null;
     otherPlayers: Map<string, PlayerInfo>;
 }
 
-const pubNubClient = new PubNub(PUBNUB_CONFIG);
-
 class PlayGame extends Component<PlayGameProps, PlayGameState> {
     public state: PlayGameState = {
+        currentRound: 1,
+        currentPhase: GamePhase.waitingToStart,
         gameConfig: null,
         otherPlayers: new Map<string, PlayerInfo>()
     };
+    private pubNubClient = new PubNub(PUBNUB_CONFIG);
 
     public render() {
         if (this.props.gameId === null) { return null; }
-        let invitePlayersElement = null;
-        if (this.props.playerInfo.isAdmin) {
-            invitePlayersElement = (<JoinGameLink gameId={this.props.gameId} />);
-        }
-        let otherPlayersText = '';
-        if (this.state.otherPlayers.size > 0) {
-            this.state.otherPlayers.forEach(player => otherPlayersText += player.name + ', ');
-            otherPlayersText = otherPlayersText.substring(0, otherPlayersText.length - 2);
-        }
-        let gameSettingsElement = null;
-        if (this.state.gameConfig) {
-            gameSettingsElement = (
-                <React.Fragment>
-                    <hr />
-                    <p>Spiele-Settings:</p>
-                    <p>Runden: {this.state.gameConfig.numberOfRounds}</p>
-                    <p>Kategorien: {this.state.gameConfig.categories.map(c => c + '')}</p>
-                </React.Fragment>
-            )
+        const { gameId, playerInfo } = this.props;
+        const { gameConfig, otherPlayers } = this.state;
+        let currentPhaseElement: JSX.Element | null = null;
+        if (this.state.currentPhase === GamePhase.waitingToStart) {
+            currentPhaseElement = (
+                <PhaseWaitingToStart
+                    gameConfig={gameConfig}
+                    gameId={gameId}
+                    otherPlayers={otherPlayers}
+                    playerInfo={playerInfo}
+                    sendMessage={this.sendMessage}
+                />
+            );
         }
         return (
-            <PubNubProvider client={pubNubClient}>
+            <PubNubProvider client={this.pubNubClient}>
                 <PubNubEventHandler
                     gameChannel={this.props.gameId}
                     gameConfig={this.props.gameConfig}
                     playerInfo={this.props.playerInfo}
                     addPlayers={this.addPlayers}
                 />
-                <div className="material-card-style">
-                    {invitePlayersElement}
-                    <p>Warten auf Beginn des Spiels...</p>
-                    <hr />
-                    <p>Mitspieler: {otherPlayersText}</p>
-                    {gameSettingsElement}
-                </div>
+                {currentPhaseElement}
             </PubNubProvider>
         );
     }
@@ -89,7 +81,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         const otherPlayers = cloneDeep(this.state.otherPlayers);
         newPlayers.forEach(newPlayer => {
             otherPlayers.set(newPlayer.playerInfo.id, newPlayer.playerInfo);
-            // We obtain the game config from the PubNubUserState of the game admin.
+            // If we are not the game admin, we obtain the game config from the admin's PubNubUserState.
             if (newPlayer.gameConfig) {
                 gameConfig = newPlayer.gameConfig;
             }
@@ -101,17 +93,18 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         }
     }
 
-    // private sendMessage = (message: object) => {
-    //     pubNubClient.publish(
-    //         {
-    //             channel: this.props.gameId as string,
-    //             message,
-    //             storeInHistory: true,
-    //             ttl: 5
-    //         },
-    //         (status, response) => console.log('PubNub Publish:', status, response)
-    //     );
-    // };
+    private sendMessage = (message: PubNubMessage) => {
+        console.log('send message', message);
+        this.pubNubClient.publish(
+            {
+                channel: this.props.gameId as string,
+                message,
+                storeInHistory: true,
+                ttl: 1
+            },
+            (status, response) => console.log('PubNub Publish:', status, response)
+        );
+    };
 }
 
 const mapStateToProps = (state: AppState): PlayGamePropsFromStore => {

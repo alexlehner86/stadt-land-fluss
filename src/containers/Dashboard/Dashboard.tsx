@@ -10,7 +10,7 @@ export class Dashboard extends Component {
             <div className="dashboard-container material-card-style">
                 <SectionHeader text="Dashboard"></SectionHeader>
                 <div className="link-container">
-                    <Link component={RouterLink} to="/newgame">Neues Spiel starten</Link>
+                    <Link component={RouterLink} to="/newgame">Neues Spiel</Link>
                     <Link component={RouterLink} to="/joingame">Spiel beitreten</Link>
                 </div>
             </div>

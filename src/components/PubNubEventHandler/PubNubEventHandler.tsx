@@ -50,8 +50,11 @@ const PubNubEventHandler = (props: PubNubEventHandlerProps) => {
             presence: presenceEvent => {
                 console.log('presenceEvent', presenceEvent);
                 // Check for 'state-change' events and process state from new player.
-                if (presenceEvent.action === 'state-change' && presenceEvent.uuid !== props.playerInfo.id) {
-                    props.addPlayers(presenceEvent.state as PubNubUserState);
+                if (presenceEvent.action === 'state-change') {
+                    const userState = presenceEvent.state as PubNubUserState;
+                    if (userState.playerInfo.id !== props.playerInfo.id) {
+                        props.addPlayers(userState);
+                    }
                 }
             },
             status: statusEvent => {

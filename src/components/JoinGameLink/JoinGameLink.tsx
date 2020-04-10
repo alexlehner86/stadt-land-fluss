@@ -1,3 +1,4 @@
+import './JoinGameLink.css';
 import { IconButton, InputAdornment, OutlinedInput } from '@material-ui/core';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 import React from 'react';
@@ -11,7 +12,7 @@ export const JoinGameLink = (props: JoinGameLinkProps) => {
     const joinGameLink = window.location.origin + '/joingame?id=' + props.gameId;
     return (
         <React.Fragment>
-            <p>Teile diesen Link mit Freunden:</p>
+            <p className="join-game-link-label">Teile diesen Link mit Freunden:</p>
             <OutlinedInput
                 name="idInput"
                 value={joinGameLink}

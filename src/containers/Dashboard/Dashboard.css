@@ -1,7 +1,7 @@
 .dashboard-container .link-container {
     display: flex;
     justify-content: space-around;
-    padding: 0.5rem 0
+    padding: 1rem 0 0.5rem
 }
 
 .dashboard-container .link-container a {

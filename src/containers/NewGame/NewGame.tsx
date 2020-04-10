@@ -1,12 +1,13 @@
 import './NewGame.css';
 import { Button, TextField } from '@material-ui/core';
-import PlayCircleFilled from '@material-ui/icons/PlayCircleFilled';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
 import React, { ChangeEvent, Component, Dispatch, FormEvent } from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { v4 as uuidv4 } from 'uuid';
 import ChipsArray, { ChipType } from '../../components/ChipsArray/ChipsArray';
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
+import { PUBNUB_CONFIG } from '../../config/pubnub.config';
 import {
     AVAILABLE_CATEGORIES,
     MAX_NUMBER_OF_ROUNDS,
@@ -15,7 +16,6 @@ import {
 } from '../../constants/game.constant';
 import { AppAction, setGameData, SetGameDataPayload } from '../../store/app.actions';
 import { getRandomnLetters } from '../../utils/general.utils';
-import { PUBNUB_CONFIG } from '../../config/pubnub.config';
 
 enum CategoryArray {
     available = 'available',
@@ -47,7 +47,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
         const numberOfRoundsInputLabel = `Anzahl Runden (${MIN_NUMBER_OF_ROUNDS}-${MAX_NUMBER_OF_ROUNDS})`;
         return (
             <div className="material-card-style">
-                <SectionHeader text="Neues Spiel starten"></SectionHeader>
+                <SectionHeader text="Neues Spiel"></SectionHeader>
                 <form onSubmit={this.handleSubmit} className="app-form" noValidate autoComplete="off">
                     <TextField
                         name="nameInput"
@@ -82,14 +82,14 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                         chipType={ChipType.available}
                         removeChip={(chipToRemove) => this.updateCategoryArrays(chipToRemove, CategoryArray.available)}
                     />
-                    <div className="button-wrapper start-game-button">
+                    <div className="button-wrapper add-margin-top">
                         <Button
                             type="submit"
                             color="primary"
                             variant="contained"
                             size="large"
-                            startIcon={<PlayCircleFilled />}
-                        >Starten</Button>
+                            startIcon={<AddCircleIcon />}
+                        >Spiel erstellen</Button>
                     </div>
                 </form>
             </div>

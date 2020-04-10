@@ -5,3 +5,12 @@ export interface PubNubUserState {
     gameConfig?: GameConfig;
     playerInfo: PlayerInfo;
 }
+
+export enum PubNubMessageType {
+    startGame = 'startGame'
+}
+
+export interface PubNubMessage {
+    type: PubNubMessageType;
+    payload?: any;
+}

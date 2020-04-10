@@ -38,6 +38,9 @@
     padding: 1rem;
     box-shadow: 0 2px 4px rgba(0,0,0,.501961);
 }
+.material-card-style:not(:last-child) {
+    margin-bottom: 1rem;
+}
 
 .app-form {
     margin-top: 1.5rem;
@@ -49,4 +52,7 @@
 .button-wrapper {
     display: flex;
     justify-content: center;
+}
+.button-wrapper.add-margin-top {
+    margin-top: 1rem;
 }
