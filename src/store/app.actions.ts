@@ -1,3 +1,4 @@
+import { PlayerInfo } from './../models/player.interface';
 import { Action } from "redux";
 import { GameConfig } from "../models/game-config.interface";
 
@@ -6,8 +7,7 @@ export const SET_GAME_DATA = 'SET_GAME_DATA';
 export interface SetGameDataPayload {
     gameId: string;
     gameConfig: GameConfig | null;
-    isAdmin: boolean;
-    playerName: string;
+    playerInfo: PlayerInfo | null;
 }
 export interface SetGameDataAction extends Action {
     type: string;

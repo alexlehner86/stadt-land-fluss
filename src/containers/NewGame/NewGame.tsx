@@ -14,6 +14,8 @@ import {
     STANDARD_CATEGORIES,
 } from '../../constants/game.constant';
 import { AppAction, setGameData, SetGameDataPayload } from '../../store/app.actions';
+import { getRandomnLetters } from '../../utils/general.utils';
+import { PUBNUB_CONFIG } from '../../config/pubnub.config';
 
 enum CategoryArray {
     available = 'available',
@@ -128,14 +130,19 @@ class NewGame extends Component<NewGameProps, NewGameState> {
         this.setState({ validateInputs: true });
         if (this.state.nameInput && this.state.selectedCategories.length >= 3) {
             const gameId = uuidv4(); // ⇨ e.g. '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d'
+            const letters = getRandomnLetters(this.state.numberOfRoundsInput);
             this.props.onSetGameData({
                 gameConfig: {
                     categories: this.state.selectedCategories,
+                    letters,
                     numberOfRounds: this.state.numberOfRoundsInput
                 },
                 gameId,
-                isAdmin: true,
-                playerName: this.state.nameInput
+                playerInfo: {
+                    id: PUBNUB_CONFIG.uuid as string,
+                    isAdmin: true,
+                    name: this.state.nameInput
+                }
             });
             this.props.history.push('/play')
         }

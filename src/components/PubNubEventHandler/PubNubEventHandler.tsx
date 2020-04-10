@@ -1,14 +1,46 @@
-import { usePubNub } from "pubnub-react";
-import React, { useEffect } from "react";
-import { PlayerInfo } from "../../models/player.interface";
+import { usePubNub } from 'pubnub-react';
+import React, { useEffect } from 'react';
+import { GameConfig } from '../../models/game-config.interface';
+import { PlayerInfo } from '../../models/player.interface';
+import { PubNubUserState } from '../../models/pub-nub-data.interface';
 
-interface PubNubEventHandler {
+interface PubNubEventHandlerProps {
     gameChannel: string;
+    gameConfig: GameConfig | null;
     playerInfo: PlayerInfo;
+    addPlayers: (...newPlayers: PubNubUserState[]) => void
 }
 
-const PubNubEventHandler = (props: PubNubEventHandler) => {
+const PubNubEventHandler = (props: PubNubEventHandlerProps) => {
     const pubNubClient = usePubNub();
+
+    const setUserState = () => {
+        let newUserState: PubNubUserState;
+        if (props.playerInfo.isAdmin) {
+            newUserState = { gameConfig: props.gameConfig as GameConfig, playerInfo: props.playerInfo };
+        } else {
+            newUserState = { playerInfo: props.playerInfo };
+        }
+        // Set this user's state in game channel.
+        pubNubClient.setState({
+            channels: [props.gameChannel],
+            state: newUserState
+        });
+    }
+
+    const getHereNowData = () => {
+        pubNubClient.hereNow(
+            { channels: [props.gameChannel], includeUUIDs: true, includeState: true },
+            (_, response) => {
+                console.log('hereNow', response);
+                // Response includes states of players that joined before.
+                const dataForGameChannel = response.channels[props.gameChannel];
+                if (dataForGameChannel) {
+                    props.addPlayers(...dataForGameChannel.occupants.map(occupant => occupant.state as PubNubUserState));
+                }
+            }
+        );
+    }
 
     useEffect(() => {
         pubNubClient.addListener({
@@ -16,46 +48,18 @@ const PubNubEventHandler = (props: PubNubEventHandler) => {
                 console.log('message', messageEvent);
             },
             presence: presenceEvent => {
-                // check for 'state-change' events and process state from new player
                 console.log('presenceEvent', presenceEvent);
-                // if (presenceEvent.action === 'join') {
-                //     pubNubClient.history(
-                //         {
-                //             channel: channels[0],
-                //             count: 10
-                //         },
-                //         (status, response) => {
-                //             console.log('Aktueller Status:', status);
-                //             console.log('Bisherige Messages:', response);
-                //         }
-                //     );
-                // }
+                // Check for 'state-change' events and process state from new player.
+                if (presenceEvent.action === 'state-change' && presenceEvent.uuid !== props.playerInfo.id) {
+                    props.addPlayers(presenceEvent.state as PubNubUserState);
+                }
             },
             status: statusEvent => {
                 if (statusEvent.category === 'PNConnectedCategory') {
                     console.log('connected', statusEvent);
-                    var newState = {
-                        playerInfo: props.playerInfo
-                    };
-                    // set this user's state in game channel
-                    pubNubClient.setState(
-                        {
-                            channels: [props.gameChannel],
-                            state: newState
-                        }
-                    );
+                    setUserState();
                     if (!props.playerInfo.isAdmin) {
-                        pubNubClient.hereNow(
-                            {
-                                channels: [props.gameChannel],
-                                includeUUIDs: true,
-                                includeState: true
-                            },
-                            function (status, response) {
-                                // response includes states of players that joined before
-                                console.log('hereNow', response);
-                            }
-                        );
+                        getHereNowData();
                     }
                 }
             }

@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
 import { AppAction, setGameData, SetGameDataPayload } from '../../store/app.actions';
+import { PUBNUB_CONFIG } from '../../config/pubnub.config';
 
 interface JoinGameDispatchProps {
     onSetGameData: (payload: SetGameDataPayload) => void
@@ -84,8 +85,11 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
             this.props.onSetGameData({
                 gameConfig: null,
                 gameId: this.state.idInput,
-                isAdmin: false,
-                playerName: this.state.nameInput
+                playerInfo: {
+                    id: PUBNUB_CONFIG.uuid as string,
+                    isAdmin: false,
+                    name: this.state.nameInput
+                }
             });
             this.props.history.push('/play')
         }

@@ -1,18 +1,17 @@
 import { AppAction, SET_GAME_DATA, SetGameDataAction } from './app.actions';
 import { GameConfig } from '../models/game-config.interface';
+import { PlayerInfo } from '../models/player.interface';
 
 export interface AppState {
     gameId: string | null;
     gameConfig: GameConfig | null;
-    isAdmin: boolean;
-    playerName: string | null;
+    playerInfo: PlayerInfo | null;
 }
 
 const initialState: AppState = {
     gameId: null,
     gameConfig: null,
-    isAdmin: false,
-    playerName: null
+    playerInfo: null
 };
 
 export const appReducer = (state: AppState = initialState, action: AppAction): AppState => {

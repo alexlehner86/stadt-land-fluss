@@ -69,7 +69,7 @@ export class Header extends Component<HeaderProps, HeaderState> {
 
 const mapStateToProps = (state: AppState): HeaderPropsFromStore => {
     return {
-        playerName: state.playerName
+        playerName: state.playerInfo ? state.playerInfo.name : ''
     };
 }
 export default connect(mapStateToProps)(Header);

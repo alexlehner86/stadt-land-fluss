@@ -1,7 +1,7 @@
 import './Dashboard.css';
+import Link from '@material-ui/core/Link';
 import React, { Component } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import Link from '@material-ui/core/Link';
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
 
 export class Dashboard extends Component {
