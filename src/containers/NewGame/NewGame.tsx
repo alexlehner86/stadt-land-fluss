@@ -15,7 +15,7 @@ import {
     STANDARD_CATEGORIES,
 } from '../../constants/game.constant';
 import { AppAction, setGameData, SetGameDataPayload } from '../../store/app.actions';
-import { getRandomnLetters } from '../../utils/general.utils';
+import { getRandomnLetters } from '../../utils/game.utils';
 
 enum CategoryArray {
     available = 'available',
@@ -94,7 +94,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
         return (
             <div className="main-content-wrapper">
                 <div className="material-card-style">
-                    <SectionHeader text="Neues Spiel" />
+                    <SectionHeader showDivider={true} text="Neues Spiel" />
                     {newGameForm}
                 </div>
             </div>

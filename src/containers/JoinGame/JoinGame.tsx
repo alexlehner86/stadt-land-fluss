@@ -64,7 +64,7 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
         return (
             <div className="main-content-wrapper">
                 <div className="material-card-style">
-                    <SectionHeader text="Spiel beitreten"></SectionHeader>
+                    <SectionHeader showDivider={true} text="Spiel beitreten"></SectionHeader>
                     {joinGameForm}
                 </div>
             </div>

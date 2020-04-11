@@ -1,0 +1,15 @@
+.slf-evaluation-textfield-wrapper {
+    position: relative;
+}
+.slf-evaluation-textfield.MuiFormControl-root {
+    margin-bottom: 0.5rem;
+}
+.slf-evaluation-checkboxes-wrapper {
+    position: absolute;
+    top: 45%;
+    right: 0.5rem;
+    transform: translateY(-50%);
+}
+.slf-evaluation-checkboxes-wrapper .MuiCheckbox-root {
+    padding: 0 !important;
+}

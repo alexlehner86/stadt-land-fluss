@@ -58,7 +58,7 @@ const PhaseWaitingToStart = (props: PhaseWaitingToStartProps) => {
     return (
         <React.Fragment>
             <div className="material-card-style">
-                <SectionHeader text="Gleich geht's los..."></SectionHeader>
+                <SectionHeader showDivider={true} text="Gleich geht's los..."></SectionHeader>
                 <h3 className="other-players-headline">Mitspieler:</h3>
                 <OtherPlayers otherPlayers={props.otherPlayers} />
                 {props.gameConfig ? createGameSettingsElement() : null}

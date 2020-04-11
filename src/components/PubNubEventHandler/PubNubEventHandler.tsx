@@ -10,7 +10,7 @@ interface PubNubEventHandlerProps {
     playerInfo: PlayerInfo;
     addPlayers: (...newPlayers: PubNubUserState[]) => void;
     startGame: () => void;
-    stopRoundAndSendInput: () => void;
+    stopRoundAndSendInputs: () => void;
     addPlayerInputForFinishedRound: (playerId: string, playerInputsForFinishedRound: PlayerInput[]) => void;
 }
 
@@ -55,7 +55,7 @@ const PubNubEventHandler = (props: PubNubEventHandlerProps) => {
                         props.startGame();
                         break;
                     case 'roundFinished':
-                        props.stopRoundAndSendInput();
+                        props.stopRoundAndSendInputs();
                         break;
                     case 'currentRoundInputs':
                         const messagePayload = message.payload as PlayerInput[];

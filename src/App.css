@@ -57,3 +57,13 @@
 .button-wrapper.add-margin-top {
     margin-top: 1rem;
 }
+
+.fixed-bottom-right-button {
+    position: fixed !important;
+    right: 1rem !important;
+    bottom: 1rem !important;
+    background-color: rgba(250, 250, 250, 0.9) !important;
+}
+.fixed-bottom-right-button:hover {
+    background-color: white !important;
+}

@@ -9,7 +9,7 @@ export class Dashboard extends Component {
         return (
             <div className="main-content-wrapper">
                 <div className="dashboard-container material-card-style">
-                    <SectionHeader text="Dashboard"></SectionHeader>
+                    <SectionHeader showDivider={true} text="Dashboard"></SectionHeader>
                     <div className="link-container">
                         <Link component={RouterLink} to="/newgame">Neues Spiel</Link>
                         <Link component={RouterLink} to="/joingame">Spiel beitreten</Link>

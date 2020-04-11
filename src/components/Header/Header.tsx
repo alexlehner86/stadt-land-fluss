@@ -20,7 +20,9 @@ export class Header extends Component<HeaderProps, HeaderState> {
     public state = { anchorEl: null };
 
     public render() {
-        const playerNameParagraph = this.props.playerName ? (<p>Spieler: {this.props.playerName}</p>) : null;
+        const playerNameParagraph = (
+            <p>Spieler: {this.props.playerName ? this.props.playerName : '-'}</p>
+        );
         return (
             <header
                 className={'app-header ' + this.props.theme.className}
