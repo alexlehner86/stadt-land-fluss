@@ -28,12 +28,10 @@ class App extends Component<any, AppState> {
                     />
                     <BrowserRouter>
                         <main className={'app-main ' + this.state.activeTheme.className}>
-                            <div className="main-content-wrapper">
-                                <Route path="/" exact component={Dashboard} />
-                                <Route path="/newgame" exact component={NewGame} />
-                                <Route path="/joingame" exact component={JoinGame} />
-                                <Route path="/play" exact component={PlayGame} />
-                            </div>
+                            <Route path="/" exact component={Dashboard} />
+                            <Route path="/newgame" exact component={NewGame} />
+                            <Route path="/joingame" exact component={JoinGame} />
+                            <Route path="/play" exact component={PlayGame} />
                         </main>
                     </BrowserRouter>
                 </div>

@@ -5,8 +5,8 @@
 }
 
 .app-main {
+    position: relative;
     flex: 1 1 0rem;
-    padding: 1rem;
 }
 .app-main.green-theme {
     background:
@@ -29,13 +29,14 @@
 
 .main-content-wrapper {
     max-width: 30rem;
-    margin: 1rem auto;
+    margin: 0 auto;
 }
 
 .material-card-style {
-    background-color: white;
-    border-radius: 5px;
+    margin-top: 1.5rem;
     padding: 1rem;
+    border-radius: 5px;
+    background-color: white;
     box-shadow: 0 2px 4px rgba(0,0,0,.501961);
 }
 .material-card-style:not(:last-child) {

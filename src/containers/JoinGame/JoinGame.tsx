@@ -11,7 +11,7 @@ import { PUBNUB_CONFIG } from '../../config/pubnub.config';
 interface JoinGameDispatchProps {
     onSetGameData: (payload: SetGameDataPayload) => void
 }
-interface JoinGameProps extends JoinGameDispatchProps, RouteComponentProps {}
+interface JoinGameProps extends JoinGameDispatchProps, RouteComponentProps { }
 interface JoinGameState {
     idInput: string;
     nameInput: string;
@@ -26,42 +26,47 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
     };
 
     public render() {
+        const joinGameForm = (
+            <form onSubmit={this.handleSubmit} className="app-form" noValidate autoComplete="off">
+                <TextField
+                    name="idInput"
+                    label="Spiel-ID"
+                    value={this.state.idInput}
+                    onChange={this.handleInputChange}
+                    className="app-form-input"
+                    variant="outlined"
+                    fullWidth
+                    required
+                    error={this.state.validateInputs && !this.state.idInput}
+                />
+                <TextField
+                    name="nameInput"
+                    label="Spielername"
+                    value={this.state.nameInput}
+                    onChange={this.handleInputChange}
+                    className="app-form-input"
+                    variant="outlined"
+                    fullWidth
+                    required
+                    error={this.state.validateInputs && !this.state.nameInput}
+                />
+                <div className="button-wrapper">
+                    <Button
+                        type="submit"
+                        color="primary"
+                        variant="contained"
+                        size="large"
+                        startIcon={<DirectionsWalkIcon />}
+                    >Beitreten</Button>
+                </div>
+            </form>
+        );
         return (
-            <div className="material-card-style">
-                <SectionHeader text="Spiel beitreten"></SectionHeader>
-                <form onSubmit={this.handleSubmit} className="app-form" noValidate autoComplete="off">
-                    <TextField
-                        name="idInput"
-                        label="Spiel-ID"
-                        value={this.state.idInput}
-                        onChange={this.handleInputChange}
-                        className="app-form-input"
-                        variant="outlined"
-                        fullWidth
-                        required
-                        error={this.state.validateInputs && !this.state.idInput}
-                    />
-                    <TextField
-                        name="nameInput"
-                        label="Spielername"
-                        value={this.state.nameInput}
-                        onChange={this.handleInputChange}
-                        className="app-form-input"
-                        variant="outlined"
-                        fullWidth
-                        required
-                        error={this.state.validateInputs && !this.state.nameInput}
-                    />
-                    <div className="button-wrapper">
-                        <Button
-                            type="submit"
-                            color="primary"
-                            variant="contained"
-                            size="large"
-                            startIcon={<DirectionsWalkIcon />}
-                        >Beitreten</Button>
-                    </div>
-                </form>
+            <div className="main-content-wrapper">
+                <div className="material-card-style">
+                    <SectionHeader text="Spiel beitreten"></SectionHeader>
+                    {joinGameForm}
+                </div>
             </div>
         );
     }

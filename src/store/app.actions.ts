@@ -1,6 +1,6 @@
 import { PlayerInfo } from './../models/player.interface';
 import { Action } from "redux";
-import { GameConfig } from "../models/game-config.interface";
+import { GameConfig } from "../models/game.interface";
 
 export const SET_GAME_DATA = 'SET_GAME_DATA';
 

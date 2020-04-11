@@ -25,7 +25,7 @@ enum CategoryArray {
 interface NewGameDispatchProps {
     onSetGameData: (payload: SetGameDataPayload) => void
 }
-interface NewGameProps extends NewGameDispatchProps, RouteComponentProps {}
+interface NewGameProps extends NewGameDispatchProps, RouteComponentProps { }
 interface NewGameState {
     availableCategories: string[];
     nameInput: string;
@@ -45,53 +45,58 @@ class NewGame extends Component<NewGameProps, NewGameState> {
 
     public render() {
         const numberOfRoundsInputLabel = `Anzahl Runden (${MIN_NUMBER_OF_ROUNDS}-${MAX_NUMBER_OF_ROUNDS})`;
+        const newGameForm = (
+            <form onSubmit={this.handleSubmit} className="app-form" noValidate autoComplete="off">
+                <TextField
+                    name="nameInput"
+                    label="Spielername"
+                    value={this.state.nameInput}
+                    onChange={this.handleNameInputChange}
+                    className="app-form-input"
+                    variant="outlined"
+                    fullWidth
+                    required
+                    error={this.state.validateInputs && !this.state.nameInput}
+                />
+                <TextField
+                    name="numberOfRoundsInput"
+                    label={numberOfRoundsInputLabel}
+                    type="number"
+                    value={this.state.numberOfRoundsInput}
+                    onChange={this.handleNumberOfRoundsInputChange}
+                    variant="outlined"
+                    fullWidth
+                    required
+                />
+                <p className="category-array-label">Ausgewählte Kategorien:</p>
+                <ChipsArray
+                    chipsArray={this.state.selectedCategories}
+                    chipType={ChipType.selected}
+                    removeChip={(chipToRemove) => this.updateCategoryArrays(chipToRemove, CategoryArray.selected)}
+                />
+                <p className="category-array-label">Verfügbare Kategorien:</p>
+                <ChipsArray
+                    chipsArray={this.state.availableCategories}
+                    chipType={ChipType.available}
+                    removeChip={(chipToRemove) => this.updateCategoryArrays(chipToRemove, CategoryArray.available)}
+                />
+                <div className="button-wrapper add-margin-top">
+                    <Button
+                        type="submit"
+                        color="primary"
+                        variant="contained"
+                        size="large"
+                        startIcon={<AddCircleIcon />}
+                    >Spiel erstellen</Button>
+                </div>
+            </form>
+        );
         return (
-            <div className="material-card-style">
-                <SectionHeader text="Neues Spiel"></SectionHeader>
-                <form onSubmit={this.handleSubmit} className="app-form" noValidate autoComplete="off">
-                    <TextField
-                        name="nameInput"
-                        label="Spielername"
-                        value={this.state.nameInput}
-                        onChange={this.handleNameInputChange}
-                        className="app-form-input"
-                        variant="outlined"
-                        fullWidth
-                        required
-                        error={this.state.validateInputs && !this.state.nameInput}
-                    />
-                    <TextField
-                        name="numberOfRoundsInput"
-                        label={numberOfRoundsInputLabel}
-                        type="number"
-                        value={this.state.numberOfRoundsInput}
-                        onChange={this.handleNumberOfRoundsInputChange}
-                        variant="outlined"
-                        fullWidth
-                        required
-                    />
-                    <p className="category-array-label">Ausgewählte Kategorien:</p>
-                    <ChipsArray
-                        chipsArray={this.state.selectedCategories}
-                        chipType={ChipType.selected}
-                        removeChip={(chipToRemove) => this.updateCategoryArrays(chipToRemove, CategoryArray.selected)}
-                    />
-                    <p className="category-array-label">Verfügbare Kategorien:</p>
-                    <ChipsArray
-                        chipsArray={this.state.availableCategories}
-                        chipType={ChipType.available}
-                        removeChip={(chipToRemove) => this.updateCategoryArrays(chipToRemove, CategoryArray.available)}
-                    />
-                    <div className="button-wrapper add-margin-top">
-                        <Button
-                            type="submit"
-                            color="primary"
-                            variant="contained"
-                            size="large"
-                            startIcon={<AddCircleIcon />}
-                        >Spiel erstellen</Button>
-                    </div>
-                </form>
+            <div className="main-content-wrapper">
+                <div className="material-card-style">
+                    <SectionHeader text="Neues Spiel" />
+                    {newGameForm}
+                </div>
             </div>
         );
     }

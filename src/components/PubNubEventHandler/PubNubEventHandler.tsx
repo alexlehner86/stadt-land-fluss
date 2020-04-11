@@ -1,14 +1,17 @@
 import { usePubNub } from 'pubnub-react';
 import React, { useEffect } from 'react';
-import { GameConfig } from '../../models/game-config.interface';
+import { GameConfig, PlayerInput } from '../../models/game.interface';
 import { PlayerInfo } from '../../models/player.interface';
-import { PubNubUserState } from '../../models/pub-nub-data.interface';
+import { PubNubUserState, PubNubMessage } from '../../models/pub-nub-data.model';
 
 interface PubNubEventHandlerProps {
     gameChannel: string;
     gameConfig: GameConfig | null;
     playerInfo: PlayerInfo;
-    addPlayers: (...newPlayers: PubNubUserState[]) => void
+    addPlayers: (...newPlayers: PubNubUserState[]) => void;
+    startGame: () => void;
+    stopRoundAndSendInput: () => void;
+    addPlayerInputForFinishedRound: (playerId: string, playerInputsForFinishedRound: PlayerInput[]) => void;
 }
 
 const PubNubEventHandler = (props: PubNubEventHandlerProps) => {
@@ -46,6 +49,20 @@ const PubNubEventHandler = (props: PubNubEventHandlerProps) => {
         pubNubClient.addListener({
             message: messageEvent => {
                 console.log('message', messageEvent);
+                const message = messageEvent.message as PubNubMessage;
+                switch (message.type) {
+                    case 'startGame':
+                        props.startGame();
+                        break;
+                    case 'roundFinished':
+                        props.stopRoundAndSendInput();
+                        break;
+                    case 'currentRoundInputs':
+                        const messagePayload = message.payload as PlayerInput[];
+                        props.addPlayerInputForFinishedRound(messageEvent.publisher, messagePayload);
+                        break;
+                    default:
+                }
             },
             presence: presenceEvent => {
                 console.log('presenceEvent', presenceEvent);
@@ -71,6 +88,7 @@ const PubNubEventHandler = (props: PubNubEventHandlerProps) => {
             channels: [props.gameChannel],
             withPresence: true
         });
+        // When this component is destroyed, we unsubscribe from game channel.
         return () => pubNubClient.unsubscribe({ channels: [props.gameChannel] });
     });
 

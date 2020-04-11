@@ -1,5 +1,5 @@
 import { AppAction, SET_GAME_DATA, SetGameDataAction } from './app.actions';
-import { GameConfig } from '../models/game-config.interface';
+import { GameConfig } from '../models/game.interface';
 import { PlayerInfo } from '../models/player.interface';
 
 export interface AppState {
