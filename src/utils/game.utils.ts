@@ -1,5 +1,7 @@
+import { GameRoundEvaluation, PlayerInputEvaluation } from './../models/game.interface';
 import { PlayerInput } from '../models/game.interface';
 import randomnItem from 'random-item';
+import { PlayerInfo } from '../models/player.interface';
 
 /**
 * Returns an array of unique letters of the alphabet (excluding Q, X and Y).
@@ -29,3 +31,20 @@ export const getRandomnLetters = (numberOfLetters: number): string[] => {
 export const evaluatePlayerInputs = (playerInputs: PlayerInput[]): PlayerInput[] => {
     return playerInputs.map(input => ({ ...input, valid: !!input.text }));
 };
+
+export const createGameRoundEvaluation = (players: Map<string, PlayerInfo>, categories: string[]): GameRoundEvaluation => {
+    const gameRoundEvaluation = new Map<string, PlayerInputEvaluation[]>();
+    players.forEach(evaluatedPlayer => {
+        const evaluationsForAllCategories: PlayerInputEvaluation[] = [];
+        categories.forEach(_ => {
+            const evaluationForOneCategory: PlayerInputEvaluation = new Map<string, boolean>();
+            players.forEach(evaluatingPlayer => {
+                // The default evaluation for each input is valid (= true).
+                evaluationForOneCategory.set(evaluatingPlayer.id, true);
+            });
+            evaluationsForAllCategories.push(evaluationForOneCategory);
+        });
+        gameRoundEvaluation.set(evaluatedPlayer.id, evaluationsForAllCategories);
+    });
+    return gameRoundEvaluation;
+}

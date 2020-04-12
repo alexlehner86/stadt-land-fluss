@@ -8,6 +8,7 @@ import { Dashboard } from './containers/Dashboard/Dashboard';
 import JoinGame from './containers/JoinGame/JoinGame';
 import NewGame from './containers/NewGame/NewGame';
 import PlayGame from './containers/PlayGame/PlayGame';
+import { getAppThemeIdFromLocalStorage, setAppThemeIdInLocalStorage } from './utils/local-storage.utils';
 
 interface AppState {
     activeTheme: AppTheme;
@@ -39,8 +40,19 @@ class App extends Component<any, AppState> {
         );
     }
 
+    public componentDidMount() {
+        const appThemeId = getAppThemeIdFromLocalStorage();
+        if (appThemeId) {
+            const appTheme = AppThemes.find(theme => theme.id === appThemeId);
+            if (appTheme) {
+                this.setState({ activeTheme: appTheme });
+            }
+        }
+    }
+
     private switchThemeHandler = (newTheme: AppTheme) => {
         this.setState({ activeTheme: newTheme });
+        setAppThemeIdInLocalStorage(newTheme.id);
     }
 }
 

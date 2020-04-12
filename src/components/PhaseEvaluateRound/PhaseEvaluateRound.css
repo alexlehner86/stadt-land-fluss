@@ -6,9 +6,11 @@
 }
 .slf-evaluation-checkboxes-wrapper {
     position: absolute;
-    top: 45%;
+    top: 0;
     right: 0.5rem;
-    transform: translateY(-50%);
+    height: 90%;
+    display: flex;
+    align-items: center;
 }
 .slf-evaluation-checkboxes-wrapper .MuiCheckbox-root {
     padding: 0 !important;

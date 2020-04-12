@@ -5,19 +5,24 @@ import { PubNubProvider } from 'pubnub-react';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { RouterProps } from 'react-router';
+import LoadingScreen from '../../components/LoadingScreen/LoadingScreen';
+import PhaseEvaluateRound from '../../components/PhaseEvaluateRound/PhaseEvaluateRound';
+import PhaseFillOutTextfields from '../../components/PhaseFillOutTextfields/PhaseFillOutTextfields';
+import PhaseWaitingToStart from '../../components/PhaseWaitingToStart/PhaseWaitingToStart';
 import PubNubEventHandler from '../../components/PubNubEventHandler/PubNubEventHandler';
 import { PUBNUB_CONFIG } from '../../config/pubnub.config';
 import { GamePhase } from '../../constants/game.constant';
-import { GameConfig, GameRound, PlayerInput } from '../../models/game.interface';
+import { GameConfig, GameRound, GameRoundEvaluation, PlayerInput, PlayerInputEvaluation } from '../../models/game.interface';
 import { PlayerInfo } from '../../models/player.interface';
-import { PubNubUserState, PubNubMessage, PubNubMessageType, PubNubCurrentRoundInputsMessage } from '../../models/pub-nub-data.model';
+import {
+    PubNubCurrentRoundInputsMessage,
+    PubNubMessage,
+    PubNubMessageType,
+    PubNubUserState,
+} from '../../models/pub-nub-data.model';
 import { AppState } from '../../store/app.reducer';
-import PhaseWaitingToStart from '../../components/PhaseWaitingToStart/PhaseWaitingToStart';
+import { evaluatePlayerInputs, createGameRoundEvaluation } from '../../utils/game.utils';
 import { createAndFillArray } from '../../utils/general.utils';
-import PhaseFillOutTextfields from '../../components/PhaseFillOutTextfields/PhaseFillOutTextfields';
-import LoadingScreen from '../../components/LoadingScreen/LoadingScreen';
-import { evaluatePlayerInputs } from '../../utils/game.utils';
-import PhaseEvaluateRound from '../../components/PhaseEvaluateRound/PhaseEvaluateRound';
 
 interface PlayGamePropsFromStore {
     gameConfig: GameConfig | null;
@@ -28,6 +33,7 @@ interface PlayGameProps extends PlayGamePropsFromStore, RouterProps { }
 interface PlayGameState {
     allPlayers: Map<string, PlayerInfo>;
     currentPhase: GamePhase;
+    currentRoundEvaluation: GameRoundEvaluation;
     currentRoundInputs: PlayerInput[];
     currentRound: number;
     gameConfig: GameConfig | null;
@@ -39,6 +45,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     public state: PlayGameState = {
         allPlayers: new Map<string, PlayerInfo>(),
         currentPhase: GamePhase.waitingToStart,
+        currentRoundEvaluation: new Map<string, PlayerInputEvaluation[]>(),
         currentRoundInputs: [],
         currentRound: 1,
         gameConfig: null,
@@ -50,14 +57,13 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     public render() {
         if (this.props.gameId === null) { return null; }
         const { gameId, playerInfo } = this.props;
-        const { allPlayers, currentRound, currentRoundInputs, gameConfig, gameRounds } = this.state;
-        const otherPlayers = cloneDeep(allPlayers);
+        const otherPlayers = cloneDeep(this.state.allPlayers);
         otherPlayers.delete(playerInfo.id);
         let currentPhaseElement: JSX.Element | null = null;
         if (this.state.currentPhase === GamePhase.waitingToStart) {
             currentPhaseElement = (
                 <PhaseWaitingToStart
-                    gameConfig={gameConfig}
+                    gameConfig={this.state.gameConfig}
                     gameId={gameId}
                     otherPlayers={otherPlayers}
                     playerInfo={playerInfo}
@@ -68,9 +74,9 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         if (this.state.currentPhase === GamePhase.fillOutTextfields) {
             currentPhaseElement = (
                 <PhaseFillOutTextfields
-                    currentRound={currentRound}
-                    gameConfig={gameConfig as GameConfig}
-                    gameRoundInputs={currentRoundInputs}
+                    currentRound={this.state.currentRound}
+                    gameConfig={this.state.gameConfig as GameConfig}
+                    gameRoundInputs={this.state.currentRoundInputs}
                     updateCurrentRoundInputs={this.updateCurrentRoundInputs}
                     sendRoundFinishedMessage={this.sendRoundFinishedMessage}
                 />
@@ -79,10 +85,11 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         if (this.state.currentPhase === GamePhase.evaluateRound) {
             currentPhaseElement = (
                 <PhaseEvaluateRound
-                    allPlayers={allPlayers}
-                    currentRound={currentRound}
-                    gameConfig={gameConfig as GameConfig}
-                    gameRounds={gameRounds}
+                    allPlayers={this.state.allPlayers}
+                    currentRound={this.state.currentRound}
+                    currentRoundEvaluation={this.state.currentRoundEvaluation}
+                    gameConfig={this.state.gameConfig as GameConfig}
+                    gameRounds={this.state.gameRounds}
                     playerInfo={playerInfo}
                     // updateCurrentRoundInputs={this.updateCurrentRoundInputs}
                     // sendRoundFinishedMessage={this.sendRoundFinishedMessage}
@@ -132,7 +139,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                 channel: this.props.gameId as string,
                 message,
                 storeInHistory: true,
-                ttl: 1
+                ttl: 1 // time to live (in hours)
             },
             (status, response) => console.log('PubNub Publish:', status, response)
         );
@@ -174,9 +181,14 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     }
 
     private stopRoundAndSendInputs = () => {
-        // Prepare new GameRound object for addPlayerInputForFinishedRound method.
+        // Prepare new GameRound object for addPlayerInputForFinishedRound method
+        // as well as new currentRoundEvaluation object for evaluation phase.
         const gameRounds: GameRound[] = [...this.state.gameRounds, new Map<string, PlayerInput[]>()];
-        this.setState({ gameRounds, showLoadingScreen: true });
+        const currentRoundEvaluation = createGameRoundEvaluation(
+            this.state.allPlayers, (this.state.gameConfig as GameConfig).categories
+        );
+        console.log(currentRoundEvaluation);
+        this.setState({ currentRoundEvaluation, gameRounds, showLoadingScreen: true });
         // Send this player's text inputs of current round to other players (and herself/himself).
         const message = new PubNubCurrentRoundInputsMessage(evaluatePlayerInputs(this.state.currentRoundInputs));
         this.sendMessage(message.toPubNubMessage());

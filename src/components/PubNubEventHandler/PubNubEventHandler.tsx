@@ -35,7 +35,7 @@ const PubNubEventHandler = (props: PubNubEventHandlerProps) => {
         pubNubClient.hereNow(
             { channels: [props.gameChannel], includeUUIDs: true, includeState: true },
             (_, response) => {
-                console.log('hereNow', response);
+                console.log('PubNub hereNow', response);
                 // Response includes states of players that joined before.
                 const dataForGameChannel = response.channels[props.gameChannel];
                 if (dataForGameChannel) {
@@ -48,7 +48,7 @@ const PubNubEventHandler = (props: PubNubEventHandlerProps) => {
     useEffect(() => {
         pubNubClient.addListener({
             message: messageEvent => {
-                console.log('message', messageEvent);
+                console.log('PubNub messageEvent', messageEvent);
                 const message = messageEvent.message as PubNubMessage;
                 switch (message.type) {
                     case 'startGame':
@@ -65,7 +65,7 @@ const PubNubEventHandler = (props: PubNubEventHandlerProps) => {
                 }
             },
             presence: presenceEvent => {
-                console.log('presenceEvent', presenceEvent);
+                console.log('PubNub presenceEvent', presenceEvent);
                 // Check for 'state-change' events and process state from new player.
                 if (presenceEvent.action === 'state-change') {
                     const userState = presenceEvent.state as PubNubUserState;
@@ -76,7 +76,7 @@ const PubNubEventHandler = (props: PubNubEventHandlerProps) => {
             },
             status: statusEvent => {
                 if (statusEvent.category === 'PNConnectedCategory') {
-                    console.log('connected', statusEvent);
+                    console.log('PubNub statusEvent: connected', statusEvent);
                     setUserState();
                     if (!props.playerInfo.isAdmin) {
                         getHereNowData();

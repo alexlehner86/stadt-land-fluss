@@ -33,7 +33,7 @@
 }
 
 .material-card-style {
-    margin-top: 1.5rem;
+    margin: 1.5rem 0;
     padding: 1rem;
     border-radius: 5px;
     background-color: white;
