@@ -1,7 +1,7 @@
 import './App.css';
 import { ThemeProvider } from '@material-ui/core';
 import React, { Component } from 'react';
-import { BrowserRouter, Route } from 'react-router-dom';
+import { HashRouter, Route, Switch } from 'react-router-dom';
 import Header from './components/Header/Header';
 import { AppTheme, AppThemes } from './constants/themes.constant';
 import { Dashboard } from './containers/Dashboard/Dashboard';
@@ -28,15 +28,17 @@ class App extends Component<any, AppState> {
                         theme={this.state.activeTheme}
                         switchTheme={this.switchThemeHandler}
                     />
-                    <BrowserRouter>
-                        <main className={'app-main ' + this.state.activeTheme.className}>
-                            <Route path="/" exact component={Dashboard} />
-                            <Route path="/newgame" exact component={NewGame} />
-                            <Route path="/joingame" exact component={JoinGame} />
-                            <Route path="/play" exact component={PlayGame} />
-                            <Route path="/results" exact component={GameResults} />
-                        </main>
-                    </BrowserRouter>
+                    <main className={'app-main ' + this.state.activeTheme.className}>
+                        <HashRouter basename={process.env.PUBLIC_URL}>
+                            <Switch>
+                                <Route path="/" exact component={Dashboard} />
+                                <Route path="/newgame" exact component={NewGame} />
+                                <Route path="/joingame" exact component={JoinGame} />
+                                <Route path="/play" exact component={PlayGame} />
+                                <Route path="/results" exact component={GameResults} />
+                            </Switch>
+                        </HashRouter>
+                    </main>
                 </div>
             </ThemeProvider>
         );

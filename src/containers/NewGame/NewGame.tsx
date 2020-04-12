@@ -149,7 +149,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     name: this.state.nameInput
                 }
             });
-            this.props.history.push('/play')
+            this.props.history.push('/play');
         }
     }
 }
