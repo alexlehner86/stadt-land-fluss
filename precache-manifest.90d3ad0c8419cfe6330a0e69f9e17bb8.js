@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "97b2e1819838ce723a1c7918a96f6126",
+    "revision": "1c7b2aec060854277e19999945c8c1ab",
     "url": "/stadt-land-fluss/index.html"
   },
   {
