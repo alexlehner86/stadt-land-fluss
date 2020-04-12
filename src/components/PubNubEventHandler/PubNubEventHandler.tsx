@@ -3,11 +3,13 @@ import React, { useEffect } from 'react';
 import { GameConfig, PlayerInput, EvaluationOfPlayerInput } from '../../models/game.interface';
 import { PlayerInfo } from '../../models/player.interface';
 import { PubNubUserState, PubNubMessage, PubNubMessageType } from '../../models/pub-nub-data.model';
+import Pubnub from 'pubnub';
 
 interface PubNubEventHandlerProps {
     gameChannel: string;
     gameConfig: GameConfig | null;
     playerInfo: PlayerInfo;
+    navigateToDashboard: () => void;
     addPlayers: (...newPlayers: PubNubUserState[]) => void;
     startGame: () => void;
     stopRoundAndSendInputs: () => void;
@@ -19,6 +21,23 @@ interface PubNubEventHandlerProps {
 const PubNubEventHandler = (props: PubNubEventHandlerProps) => {
     const pubNubClient = usePubNub();
 
+    const setUserStateAndGetHereNowIfGameIsOpen = () => {
+        pubNubClient.history(
+            { channel: props.gameChannel, count: 10 },
+            (_, response) => {
+                // If history includes messages, then game has already started and user can't join.
+                // User gets rerouted to dashboard page by PlayGame component.
+                if (response.messages.length > 0) {
+                    props.navigateToDashboard();
+                } else {
+                    setUserState();
+                    if (!props.playerInfo.isAdmin) {
+                        getHereNowData();
+                    }
+                }
+            }
+        );
+    };
     const setUserState = () => {
         let newUserState: PubNubUserState;
         if (props.playerInfo.isAdmin) {
@@ -31,8 +50,7 @@ const PubNubEventHandler = (props: PubNubEventHandlerProps) => {
             channels: [props.gameChannel],
             state: newUserState
         });
-    }
-
+    };
     const getHereNowData = () => {
         pubNubClient.hereNow(
             { channels: [props.gameChannel], includeUUIDs: true, includeState: true },
@@ -45,10 +63,10 @@ const PubNubEventHandler = (props: PubNubEventHandlerProps) => {
                 }
             }
         );
-    }
+    };
 
     useEffect(() => {
-        pubNubClient.addListener({
+        const pubNubListeners: Pubnub.ListenerParameters = {
             message: messageEvent => {
                 console.log('PubNub message event', messageEvent);
                 const message = messageEvent.message as PubNubMessage;
@@ -82,23 +100,24 @@ const PubNubEventHandler = (props: PubNubEventHandlerProps) => {
                 }
             },
             status: statusEvent => {
+                console.log('PubNub status event', statusEvent);
                 if (statusEvent.category === 'PNConnectedCategory') {
-                    console.log('PubNub status event: connected', statusEvent);
-                    setUserState();
-                    if (!props.playerInfo.isAdmin) {
-                        getHereNowData();
-                    }
+                    console.log('Player is connected to PubNub game channel');
+                    setUserStateAndGetHereNowIfGameIsOpen();
                 }
             }
-        });
+        };
+        pubNubClient.addListener(pubNubListeners);
         pubNubClient.subscribe({
             channels: [props.gameChannel],
             withPresence: true
         });
         // When this component is destroyed, we unsubscribe from game channel.
-        return () => pubNubClient.unsubscribe({ channels: [props.gameChannel] });
+        return () => {
+            pubNubClient.removeListener(pubNubListeners);
+            pubNubClient.unsubscribeAll();
+        }
     });
-
     return null;
 };
 

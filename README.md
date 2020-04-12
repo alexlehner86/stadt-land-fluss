@@ -1,4 +1,4 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project is an online version of the popular European game "Stadt-Land-Fluss" (German for: City, Country, River). It was bootstrapped with [Create React App](https://github.com/facebook/create-react-app) and uses the [PubNub framework](https://www.pubnub.com/) for realtime communication.
 
 ## Available Scripts
 

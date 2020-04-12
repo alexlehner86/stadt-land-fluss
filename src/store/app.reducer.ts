@@ -2,6 +2,7 @@ import { GameConfig, GameRound } from '../models/game.interface';
 import { PlayerInfo } from '../models/player.interface';
 import {
     AppAction,
+    RESET_APP_STATE,
     SET_DATA_FOR_NEW_GAME,
     SET_DATA_OF_FINISHED_GAME,
     SetDataForNewGameAction,
@@ -38,6 +39,8 @@ export const appReducer = (state: AppState = initialState, action: AppAction): A
                 // Set gameId to null to prevent player from manually opening PlayGame route.
                 gameId: null
             };
+        case RESET_APP_STATE:
+            return { ...initialState };
         default:
             return state
     }

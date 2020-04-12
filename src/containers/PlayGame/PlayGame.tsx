@@ -28,7 +28,7 @@ import {
     PubNubMessageType,
     PubNubUserState,
 } from '../../models/pub-nub-data.model';
-import { SetDataOfFinishedGamePayload, AppAction, setDataOfFinishedGame } from '../../store/app.actions';
+import { SetDataOfFinishedGamePayload, AppAction, setDataOfFinishedGame, resetAppState } from '../../store/app.actions';
 import { AppState } from '../../store/app.reducer';
 import {
     createGameRoundEvaluation,
@@ -44,7 +44,8 @@ interface PlayGamePropsFromStore {
     playerInfo: PlayerInfo;
 }
 interface PlayGameDispatchProps {
-    onSetDataOfFinishedGame: (payload: SetDataOfFinishedGamePayload) => void
+    onSetDataOfFinishedGame: (payload: SetDataOfFinishedGamePayload) => void;
+    onResetAppState: () => void;
 }
 interface PlayGameProps extends PlayGamePropsFromStore, PlayGameDispatchProps, RouterProps {}
 interface PlayGameState {
@@ -124,6 +125,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                     gameChannel={this.props.gameId}
                     gameConfig={this.props.gameConfig}
                     playerInfo={this.props.playerInfo}
+                    navigateToDashboard={this.navigateToDashboard}
                     addPlayers={this.addPlayers}
                     startGame={this.startGame}
                     stopRoundAndSendInputs={this.stopRoundAndSendInputs}
@@ -169,10 +171,19 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         );
     };
 
+    private navigateToDashboard = () => {
+        this.props.history.push('/');
+        this.props.onResetAppState();
+    }
+
     /**
-     * PubNubEventHandler calls this method when it receives a PubNub presence event with action 'state-change'.
+     * Called by PubNubEventHandler when it receives a PubNub presence event with action 'state-change'.
+     * It processes information about players that had already joined the game before this user
+     * joined (hereNow result) or about a player that joins the game after this user joined.
      */
     private addPlayers = (...newPlayers: PubNubUserState[]) => {
+        // Ignore information about players that try to join after the game has already started.
+        if (this.state.currentPhase !== GamePhase.waitingToStart) { return; }
         let gameConfig: GameConfig | null = null;
         const allPlayers = cloneDeep(this.state.allPlayers);
         newPlayers.forEach(newPlayer => {
@@ -238,7 +249,6 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         if (gameRounds[this.state.currentRound - 1].size === this.state.allPlayers.size) {
             // If yes, then start the evaluation of the finished round.
             this.setState({ currentPhase: GamePhase.evaluateRound, gameRounds, showLoadingScreen: false });
-            console.log('Got all data', this.state);
         } else {
             // If no, then only store the updated gameRounds object in state.
             this.setState({ gameRounds });
@@ -266,6 +276,10 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         this.setState({ currentRoundEvaluation });
     }
 
+    /**
+     * Is called by PhaseEvaluateRound component in order to communicate to all players
+     * that the user of this instance of the game has finished evaluating the current round.
+     */
     private sendEvaluationFinishedMessage = () => {
         this.setState({ showLoadingScreen: true });
         this.sendMessage({ type: PubNubMessageType.evaluationFinished });
@@ -278,31 +292,34 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         const playersThatFinishedEvaluation = cloneDeep(this.state.playersThatFinishedEvaluation);
         playersThatFinishedEvaluation.set(evaluatingPlayerId, true);
         if (playersThatFinishedEvaluation.size === this.state.allPlayers.size) {
-            // Evaluation phase is over. Process evaluations and start next round or finish game.
-            const { allPlayers, currentRound, currentRoundEvaluation, gameRounds } = this.state;
-            const gameConfig = this.state.gameConfig as GameConfig;
-            const newGameRounds = cloneDeep(gameRounds);
-            newGameRounds[currentRound - 1] = processPlayerInputEvaluations(
-                gameRounds[currentRound - 1], currentRoundEvaluation, getMinNumberOfMarkedAsInvalid(allPlayers.size)
-            );
-            if (currentRound === gameConfig.numberOfRounds) {
-                // Finish game and show results.
-                this.props.onSetDataOfFinishedGame({ allPlayers, gameConfig, gameRounds });
-                this.props.history.push('/results');
-            } else {
-                // Start next round of the game.
-                this.setState({
-                    currentPhase: GamePhase.fillOutTextfields,
-                    currentRoundEvaluation: createGameRoundEvaluation(allPlayers, gameConfig.categories),
-                    currentRoundInputs: createAndFillArray<PlayerInput>(gameConfig.categories.length, { text: '', valid: true }),
-                    currentRound: currentRound + 1,
-                    gameRounds: newGameRounds,
-                    playersThatFinishedEvaluation: new Map<string, boolean>(),
-                    showLoadingScreen: false
-                });
-            }
+            this.processEvaluationsAndStartNextRoundOrFinishGame();
         } else {
             this.setState({ playersThatFinishedEvaluation });
+        }
+    }
+
+    private processEvaluationsAndStartNextRoundOrFinishGame = () => {
+        const { allPlayers, currentRound, currentRoundEvaluation, gameRounds } = this.state;
+        const gameConfig = this.state.gameConfig as GameConfig;
+        const newGameRounds = cloneDeep(gameRounds);
+        newGameRounds[currentRound - 1] = processPlayerInputEvaluations(
+            gameRounds[currentRound - 1], currentRoundEvaluation, getMinNumberOfMarkedAsInvalid(allPlayers.size)
+        );
+        if (currentRound === gameConfig.numberOfRounds) {
+            // Finish game and show results.
+            this.props.onSetDataOfFinishedGame({ allPlayers, gameConfig, gameRounds: newGameRounds });
+            this.props.history.push('/results');
+        } else {
+            // Start next round of the game.
+            this.setState({
+                currentPhase: GamePhase.fillOutTextfields,
+                currentRoundEvaluation: createGameRoundEvaluation(allPlayers, gameConfig.categories),
+                currentRoundInputs: createAndFillArray<PlayerInput>(gameConfig.categories.length, { text: '', valid: true }),
+                currentRound: currentRound + 1,
+                gameRounds: newGameRounds,
+                playersThatFinishedEvaluation: new Map<string, boolean>(),
+                showLoadingScreen: false
+            });
         }
     }
 }
@@ -318,6 +335,9 @@ const mapDispatchToProps = (dispatch: Dispatch<AppAction>): PlayGameDispatchProp
     return {
         onSetDataOfFinishedGame: (payload: SetDataOfFinishedGamePayload) => {
             dispatch(setDataOfFinishedGame(payload))
+        },
+        onResetAppState: () => {
+            dispatch(resetAppState())
         }
     }
 };

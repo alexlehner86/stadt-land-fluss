@@ -4,6 +4,7 @@ import { GameConfig, GameRound } from "../models/game.interface";
 
 export const SET_DATA_FOR_NEW_GAME = 'SET_DATA_FOR_NEW_GAME';
 export const SET_DATA_OF_FINISHED_GAME = 'SET_DATA_OF_FINISHED_GAME';
+export const RESET_APP_STATE = 'RESET_APP_STATE';
 
 export interface SetDataForNewGamePayload {
     gameId: string;
@@ -11,7 +12,6 @@ export interface SetDataForNewGamePayload {
     playerInfo: PlayerInfo | null;
 }
 export interface SetDataForNewGameAction extends Action {
-    type: string;
     payload: SetDataForNewGamePayload
 }
 export interface SetDataOfFinishedGamePayload {
@@ -20,10 +20,10 @@ export interface SetDataOfFinishedGamePayload {
     gameRounds: GameRound[];
 }
 export interface SetDataOfFinishedGameAction extends Action {
-    type: string;
     payload: SetDataOfFinishedGamePayload
 }
-export type AppAction = SetDataForNewGameAction | SetDataOfFinishedGameAction;
+export interface ResetAppStateAction extends Action {}
+export type AppAction = SetDataForNewGameAction | SetDataOfFinishedGameAction | ResetAppStateAction;
 
 /*
  * Action Creators
@@ -33,4 +33,7 @@ export const setDataForNewGame = (payload: SetDataForNewGamePayload): SetDataFor
 };
 export const setDataOfFinishedGame = (payload: SetDataOfFinishedGamePayload): SetDataOfFinishedGameAction => {
     return { type: SET_DATA_OF_FINISHED_GAME, payload }
+};
+export const resetAppState = (): ResetAppStateAction => {
+    return { type: RESET_APP_STATE }
 };
