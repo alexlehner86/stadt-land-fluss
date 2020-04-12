@@ -1,9 +1,20 @@
 import './PhaseEvaluateRound.css';
-import { Checkbox, IconButton, InputAdornment, TextField } from '@material-ui/core';
-import SendIcon from '@material-ui/icons/Send';
-import React, { ChangeEvent, FormEvent } from 'react';
-import { GameConfig, GameRound, GameRoundEvaluation, PlayerInput, PlayerInputEvaluation } from '../../models/game.interface';
+import { Checkbox, IconButton, InputAdornment, TextField, Tooltip } from '@material-ui/core';
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import React, { ChangeEvent } from 'react';
+import {
+    EvaluationOfPlayerInput,
+    GameConfig,
+    GameRound,
+    GameRoundEvaluation,
+    PlayerInput,
+    PlayerInputEvaluation,
+} from '../../models/game.interface';
 import { PlayerInfo } from '../../models/player.interface';
+import {
+    getMinNumberOfMarkedAsInvalid as getMinNumberOfNecessaryMarkedAsInvalid,
+    getNumberOfInvalids,
+} from '../../utils/game.utils';
 import GameRoundChip from '../GameRoundChip/GameRoundChip';
 import { SectionHeader } from '../SectionHeader/SectionHeader';
 
@@ -15,32 +26,33 @@ interface PhaseEvaluateRoundProps {
     gameRounds: GameRound[];
     /** Player info for the user of this instance of the "Stadt-Land-Fluss" app. */
     playerInfo: PlayerInfo;
-    // updateCurrentRoundInputs: (newCurrentRoundInputs: PlayerInput[]) => void;
-    // sendRoundFinishedMessage: () => void;
+    updateEvaluationOfPlayerInput: (newEvaluation: EvaluationOfPlayerInput) => void;
+    sendEvaluationFinishedMessage: () => void;
 }
 
 const PhaseEvaluateRound = (props: PhaseEvaluateRoundProps) => {
-    const { currentRound, gameConfig, playerInfo } = props;
+    const { allPlayers, currentRound, gameConfig, playerInfo } = props;
+    const minNumberOfInvalids = getMinNumberOfNecessaryMarkedAsInvalid(allPlayers.size);
     // Retrieve data for finished round; e.g. if current round is 1, then data is at index 0.
     const finishedGameRound = props.gameRounds[currentRound - 1];
     const currentLetter = gameConfig.letters[currentRound - 1];
     // Sort players alphabetically.
-    let sortedPlayers = Array.from(props.allPlayers).map(data => data[1]);
+    let sortedPlayers = Array.from(allPlayers).map(data => data[1]);
     sortedPlayers = sortedPlayers.sort((a, b) => a.name.charCodeAt(0) - b.name.charCodeAt(0));
 
     const handleCheckboxChange = (
         event: ChangeEvent<HTMLInputElement>, checkboxOwner: PlayerInfo, categoryIndex: number, indexInSortedPlayers: number
     ) => {
+        // Only accept checkbox changes for the user's evaluation checkboxes.
         if (checkboxOwner.id === playerInfo.id) {
             const evaluatedPlayer = sortedPlayers[indexInSortedPlayers];
-            // TODO: send evaluation change via PubNub Message
-            console.log('Your evaluation', evaluatedPlayer, categoryIndex, event.target.checked);
+            props.updateEvaluationOfPlayerInput({
+                evaluatedPlayerId: evaluatedPlayer.id,
+                categoryIndex,
+                markedAsValid: event.target.checked
+            });
         }
     }
-    const handleSubmit = (event: FormEvent) => {
-        event.preventDefault();
-        // props.sendRoundFinishedMessage();
-    };
     /**
      * Creates a group of checkboxes for each player in the game that represent their evaluation of
      * the text input of one of the players (including themselves) for one category. Users can either
@@ -59,13 +71,18 @@ const PhaseEvaluateRound = (props: PhaseEvaluateRoundProps) => {
                 className="slf-evaluation-checkboxes-wrapper"
             >
                 {players.map((player, index) => (
-                    <Checkbox
-                        key={`slf-evaluation-checkboxes-${categoryIndex}-${indexInSortedPlayers}-${index}`}
-                        checked={!!evaluationForCategory.get(player.id)}
-                        onChange={event => handleCheckboxChange(event, player, categoryIndex, indexInSortedPlayers)}
-                        color={player.id === playerInfo.id ? 'primary' : 'default'}
-                        inputProps={{ 'title': player.name }}
-                    />
+                    <Tooltip
+                        key={`slf-evaluation-tooltip-${categoryIndex}-${indexInSortedPlayers}-${index}`}
+                        title={player.name}
+                    >
+                        <Checkbox
+                            key={`slf-evaluation-checkbox-${categoryIndex}-${indexInSortedPlayers}-${index}`}
+                            color={player.id === playerInfo.id ? 'primary' : 'default'}
+                            checked={!!evaluationForCategory.get(player.id)}
+                            inputProps={{ 'aria-label': 'Bestätigt von ' + player.name }}
+                            onChange={event => handleCheckboxChange(event, player, categoryIndex, indexInSortedPlayers)}
+                        />
+                    </Tooltip>
                 ))}
             </div>
         );
@@ -94,7 +111,10 @@ const PhaseEvaluateRound = (props: PhaseEvaluateRoundProps) => {
                         variant="outlined"
                         fullWidth
                         InputProps={{
-                            startAdornment: <InputAdornment position="start">{player.name}</InputAdornment>
+                            startAdornment: <InputAdornment position="start">{player.name}:</InputAdornment>,
+                            className: getNumberOfInvalids(
+                                (props.currentRoundEvaluation.get(player.id) as PlayerInputEvaluation[])[categoryIndex]
+                            ) >= minNumberOfInvalids ? 'text-decoration-line-through' : ''
                         }}
                     />
                     {(finishedGameRound.get(player.id) as PlayerInput[])[categoryIndex].text ?
@@ -107,16 +127,17 @@ const PhaseEvaluateRound = (props: PhaseEvaluateRoundProps) => {
     return (
         <React.Fragment>
             <GameRoundChip currentLetter={currentLetter} currentRound={currentRound} />
-            <form onSubmit={handleSubmit} className="app-form" noValidate autoComplete="off">
+            <form className="app-form" noValidate autoComplete="off">
                 {gameConfig.categories.map(createCategorySection)}
                 <IconButton
-                    type="submit"
+                    type="button"
                     className="fixed-bottom-right-button"
                     color="primary"
                     title="Akzeptieren"
                     aria-label="Akzeptieren"
+                    onClick={() => props.sendEvaluationFinishedMessage()}
                 >
-                    <SendIcon />
+                    <CheckCircleIcon />
                 </IconButton>
             </form>
         </React.Fragment>

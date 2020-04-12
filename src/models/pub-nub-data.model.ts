@@ -1,4 +1,4 @@
-import { GameConfig, PlayerInput } from './game.interface';
+import { GameConfig, PlayerInput, EvaluationOfPlayerInput } from './game.interface';
 import { PlayerInfo } from './player.interface';
 
 export interface PubNubUserState {
@@ -9,7 +9,9 @@ export interface PubNubUserState {
 export enum PubNubMessageType {
     startGame = 'startGame',
     roundFinished = 'roundFinished',
-    currentRoundInputs = 'currentRoundInputs'
+    currentRoundInputs = 'currentRoundInputs',
+    evaluationOfPlayerInput = 'evaluationOfPlayerInput',
+    evaluationFinished = 'evaluationFinished'
 }
 
 export interface PubNubMessage {
@@ -23,6 +25,17 @@ export class PubNubCurrentRoundInputsMessage {
     public toPubNubMessage(): PubNubMessage {
         return {
             type: PubNubMessageType.currentRoundInputs,
+            payload: this.payload
+        }
+    }
+}
+
+export class PubNubEvaluationOfPlayerInputMessage {
+    constructor(private payload: EvaluationOfPlayerInput) {}
+
+    public toPubNubMessage(): PubNubMessage {
+        return {
+            type: PubNubMessageType.evaluationOfPlayerInput,
             payload: this.payload
         }
     }

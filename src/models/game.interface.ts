@@ -28,3 +28,12 @@ export type PlayerInputEvaluation = Map<string, boolean>;
  * are used as keys for the map. The array holds one PlayerInputEvaluation object for each category.
  */
 export type GameRoundEvaluation = Map<string, PlayerInputEvaluation[]>;
+
+/**
+ * Represents the user's evaluation of a player's input for a category.
+ */
+export interface EvaluationOfPlayerInput {
+    evaluatedPlayerId: string;
+    categoryIndex: number;
+    markedAsValid: boolean;
+}

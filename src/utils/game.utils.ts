@@ -1,7 +1,8 @@
-import { GameRoundEvaluation, PlayerInputEvaluation } from './../models/game.interface';
-import { PlayerInput } from '../models/game.interface';
 import randomnItem from 'random-item';
+import { cloneDeep } from 'lodash';
+import { PlayerInput } from '../models/game.interface';
 import { PlayerInfo } from '../models/player.interface';
+import { GameRound, GameRoundEvaluation, PlayerInputEvaluation } from './../models/game.interface';
 
 /**
 * Returns an array of unique letters of the alphabet (excluding Q, X and Y).
@@ -28,7 +29,7 @@ export const getRandomnLetters = (numberOfLetters: number): string[] => {
  * Checks each PlayerInput object whether it contains text.
  * If text string is empty, valid is set to false, otherwise to true.
  */
-export const evaluatePlayerInputs = (playerInputs: PlayerInput[]): PlayerInput[] => {
+export const markEmptyPlayerInputsAsInvalid = (playerInputs: PlayerInput[]): PlayerInput[] => {
     return playerInputs.map(input => ({ ...input, valid: !!input.text }));
 };
 
@@ -47,4 +48,38 @@ export const createGameRoundEvaluation = (players: Map<string, PlayerInfo>, cate
         gameRoundEvaluation.set(evaluatedPlayer.id, evaluationsForAllCategories);
     });
     return gameRoundEvaluation;
-}
+};
+
+/**
+ * Determines the minimum number of players that need to mark a player's input as invalid
+ * for the input text to be set to invalid and not count as a point for the player.
+ */
+export const getMinNumberOfMarkedAsInvalid = (numberOfPlayers: number): number => {
+    return numberOfPlayers <= 3 ? 1 : 2;
+};
+
+/**
+ * Returns how many players marked the input as invalid.
+ */
+export const getNumberOfInvalids = (evaluations: PlayerInputEvaluation): number => {
+    let count = 0;
+    evaluations.forEach(markedAsValid => count = markedAsValid ? count : count + 1);
+    return count;
+};
+
+export const processPlayerInputEvaluations = (
+    gameRound: GameRound, roundEvaluation: GameRoundEvaluation, minNumberOfInvalids: number
+): GameRound => {
+    const evaluatedGameRound = cloneDeep(gameRound);
+    evaluatedGameRound.forEach((playerInputs, playerId) => {
+        const evaluations = roundEvaluation.get(playerId) as PlayerInputEvaluation[];
+        for (let i = 0; i < playerInputs.length; i++) {
+            // Only process evaluations for inputs that were not
+            // already marked as invalid because of being empty strings.
+            if (playerInputs[i].valid) {
+                playerInputs[i].valid = getNumberOfInvalids(evaluations[i]) < minNumberOfInvalids;
+            }
+        }
+    });
+    return evaluatedGameRound;
+};

@@ -1,6 +1,6 @@
 import { IconButton, InputAdornment, TextField } from '@material-ui/core';
-import SendIcon from '@material-ui/icons/Send';
-import React, { ChangeEvent, FormEvent } from 'react';
+import EmailIcon from '@material-ui/icons/Email';
+import React, { ChangeEvent } from 'react';
 import { GameConfig, PlayerInput } from '../../models/game.interface';
 import GameRoundChip from '../GameRoundChip/GameRoundChip';
 import { SectionHeader } from '../SectionHeader/SectionHeader';
@@ -22,10 +22,6 @@ const PhaseFillOutTextfields = (props: PhaseFillOutTextfieldsProps) => {
         newGameRoundInputs[index] = { ...newGameRoundInputs[index], text: event.target.value };
         props.updateCurrentRoundInputs(newGameRoundInputs);
     };
-    const handleSubmit = (event: FormEvent) => {
-        event.preventDefault();
-        props.sendRoundFinishedMessage();
-    };
     const createTextfieldElement = (category: string, index: number): JSX.Element => (
         <div
             key={'slf-input-for-category-no-' + index}
@@ -38,7 +34,7 @@ const PhaseFillOutTextfields = (props: PhaseFillOutTextfieldsProps) => {
                 variant="outlined"
                 fullWidth
                 InputProps={{
-                    startAdornment: <InputAdornment position="start">{currentLetter}</InputAdornment>
+                    startAdornment: <InputAdornment position="start">{currentLetter}:</InputAdornment>
                 }}
             />
         </div>
@@ -47,16 +43,17 @@ const PhaseFillOutTextfields = (props: PhaseFillOutTextfieldsProps) => {
     return (
         <React.Fragment>
             <GameRoundChip currentLetter={currentLetter} currentRound={currentRound} />
-            <form onSubmit={handleSubmit} className="app-form" noValidate autoComplete="off">
+            <form className="app-form" noValidate autoComplete="off">
                 {gameConfig.categories.map(createTextfieldElement)}
                 <IconButton
-                    type="submit"
+                    type="button"
                     className="fixed-bottom-right-button"
                     color="primary"
                     title="Abschicken"
                     aria-label="Abschicken"
+                    onClick={() => props.sendRoundFinishedMessage()}
                 >
-                    <SendIcon />
+                    <EmailIcon />
                 </IconButton>
             </form>
         </React.Fragment>

@@ -67,3 +67,7 @@
 .fixed-bottom-right-button:hover {
     background-color: white !important;
 }
+
+.text-decoration-line-through {
+    text-decoration: line-through !important;
+}

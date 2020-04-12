@@ -1,8 +1,8 @@
 import { usePubNub } from 'pubnub-react';
 import React, { useEffect } from 'react';
-import { GameConfig, PlayerInput } from '../../models/game.interface';
+import { GameConfig, PlayerInput, EvaluationOfPlayerInput } from '../../models/game.interface';
 import { PlayerInfo } from '../../models/player.interface';
-import { PubNubUserState, PubNubMessage } from '../../models/pub-nub-data.model';
+import { PubNubUserState, PubNubMessage, PubNubMessageType } from '../../models/pub-nub-data.model';
 
 interface PubNubEventHandlerProps {
     gameChannel: string;
@@ -12,6 +12,8 @@ interface PubNubEventHandlerProps {
     startGame: () => void;
     stopRoundAndSendInputs: () => void;
     addPlayerInputForFinishedRound: (playerId: string, playerInputsForFinishedRound: PlayerInput[]) => void;
+    processEvaluationOfPlayerInput: (evaluatingPlayerId: string, newEvaluation: EvaluationOfPlayerInput) => void;
+    countPlayerAsEvaluationFinished: (evaluatingPlayerId: string) => void;
 }
 
 const PubNubEventHandler = (props: PubNubEventHandlerProps) => {
@@ -48,24 +50,29 @@ const PubNubEventHandler = (props: PubNubEventHandlerProps) => {
     useEffect(() => {
         pubNubClient.addListener({
             message: messageEvent => {
-                console.log('PubNub messageEvent', messageEvent);
+                console.log('PubNub message event', messageEvent);
                 const message = messageEvent.message as PubNubMessage;
                 switch (message.type) {
-                    case 'startGame':
+                    case PubNubMessageType.startGame:
                         props.startGame();
                         break;
-                    case 'roundFinished':
+                    case PubNubMessageType.roundFinished:
                         props.stopRoundAndSendInputs();
                         break;
-                    case 'currentRoundInputs':
-                        const messagePayload = message.payload as PlayerInput[];
-                        props.addPlayerInputForFinishedRound(messageEvent.publisher, messagePayload);
+                    case PubNubMessageType.currentRoundInputs:
+                        props.addPlayerInputForFinishedRound(messageEvent.publisher, message.payload);
+                        break;
+                    case PubNubMessageType.evaluationOfPlayerInput:
+                        props.processEvaluationOfPlayerInput(messageEvent.publisher, message.payload);
+                        break;
+                    case PubNubMessageType.evaluationFinished:
+                        props.countPlayerAsEvaluationFinished(messageEvent.publisher);
                         break;
                     default:
                 }
             },
             presence: presenceEvent => {
-                console.log('PubNub presenceEvent', presenceEvent);
+                console.log('PubNub presence event', presenceEvent);
                 // Check for 'state-change' events and process state from new player.
                 if (presenceEvent.action === 'state-change') {
                     const userState = presenceEvent.state as PubNubUserState;
@@ -76,7 +83,7 @@ const PubNubEventHandler = (props: PubNubEventHandlerProps) => {
             },
             status: statusEvent => {
                 if (statusEvent.category === 'PNConnectedCategory') {
-                    console.log('PubNub statusEvent: connected', statusEvent);
+                    console.log('PubNub status event: connected', statusEvent);
                     setUserState();
                     if (!props.playerInfo.isAdmin) {
                         getHereNowData();
