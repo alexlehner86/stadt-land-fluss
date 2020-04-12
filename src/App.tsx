@@ -5,6 +5,7 @@ import { BrowserRouter, Route } from 'react-router-dom';
 import Header from './components/Header/Header';
 import { AppTheme, AppThemes } from './constants/themes.constant';
 import { Dashboard } from './containers/Dashboard/Dashboard';
+import GameResults from './containers/GameResults/GameResults';
 import JoinGame from './containers/JoinGame/JoinGame';
 import NewGame from './containers/NewGame/NewGame';
 import PlayGame from './containers/PlayGame/PlayGame';
@@ -33,6 +34,7 @@ class App extends Component<any, AppState> {
                             <Route path="/newgame" exact component={NewGame} />
                             <Route path="/joingame" exact component={JoinGame} />
                             <Route path="/play" exact component={PlayGame} />
+                            <Route path="/results" exact component={GameResults} />
                         </main>
                     </BrowserRouter>
                 </div>

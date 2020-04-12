@@ -37,3 +37,8 @@ export interface EvaluationOfPlayerInput {
     categoryIndex: number;
     markedAsValid: boolean;
 }
+
+export interface GameResultForPlayer {
+    playerName: string;
+    points: number;
+}

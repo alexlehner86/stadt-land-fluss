@@ -14,7 +14,7 @@ import {
     MIN_NUMBER_OF_ROUNDS,
     STANDARD_CATEGORIES,
 } from '../../constants/game.constant';
-import { AppAction, setGameData, SetGameDataPayload } from '../../store/app.actions';
+import { AppAction, setDataForNewGame, SetDataForNewGamePayload } from '../../store/app.actions';
 import { getRandomnLetters } from '../../utils/game.utils';
 
 enum CategoryArray {
@@ -23,9 +23,9 @@ enum CategoryArray {
 }
 
 interface NewGameDispatchProps {
-    onSetGameData: (payload: SetGameDataPayload) => void
+    onSetGameData: (payload: SetDataForNewGamePayload) => void
 }
-interface NewGameProps extends NewGameDispatchProps, RouteComponentProps { }
+interface NewGameProps extends NewGameDispatchProps, RouteComponentProps {}
 interface NewGameState {
     availableCategories: string[];
     nameInput: string;
@@ -156,8 +156,8 @@ class NewGame extends Component<NewGameProps, NewGameState> {
 
 const mapDispatchToProps = (dispatch: Dispatch<AppAction>): NewGameDispatchProps => {
     return {
-        onSetGameData: (payload: SetGameDataPayload) => {
-            dispatch(setGameData(payload))
+        onSetGameData: (payload: SetDataForNewGamePayload) => {
+            dispatch(setDataForNewGame(payload))
         }
     }
 };

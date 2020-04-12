@@ -2,7 +2,7 @@ import './PlayGame.css';
 import { cloneDeep } from 'lodash';
 import PubNub from 'pubnub';
 import { PubNubProvider } from 'pubnub-react';
-import React, { Component } from 'react';
+import React, { Component, Dispatch } from 'react';
 import { connect } from 'react-redux';
 import { RouterProps } from 'react-router';
 import LoadingScreen from '../../components/LoadingScreen/LoadingScreen';
@@ -12,17 +12,30 @@ import PhaseWaitingToStart from '../../components/PhaseWaitingToStart/PhaseWaiti
 import PubNubEventHandler from '../../components/PubNubEventHandler/PubNubEventHandler';
 import { PUBNUB_CONFIG } from '../../config/pubnub.config';
 import { GamePhase } from '../../constants/game.constant';
-import { GameConfig, GameRound, GameRoundEvaluation, PlayerInput, PlayerInputEvaluation, EvaluationOfPlayerInput } from '../../models/game.interface';
+import {
+    EvaluationOfPlayerInput,
+    GameConfig,
+    GameRound,
+    GameRoundEvaluation,
+    PlayerInput,
+    PlayerInputEvaluation,
+} from '../../models/game.interface';
 import { PlayerInfo } from '../../models/player.interface';
 import {
     PubNubCurrentRoundInputsMessage,
+    PubNubEvaluationOfPlayerInputMessage,
     PubNubMessage,
     PubNubMessageType,
     PubNubUserState,
-    PubNubEvaluationOfPlayerInputMessage,
 } from '../../models/pub-nub-data.model';
+import { SetDataOfFinishedGamePayload, AppAction, setDataOfFinishedGame } from '../../store/app.actions';
 import { AppState } from '../../store/app.reducer';
-import { markEmptyPlayerInputsAsInvalid, createGameRoundEvaluation, processPlayerInputEvaluations, getMinNumberOfMarkedAsInvalid } from '../../utils/game.utils';
+import {
+    createGameRoundEvaluation,
+    getMinNumberOfMarkedAsInvalid,
+    markEmptyPlayerInputsAsInvalid,
+    processPlayerInputEvaluations,
+} from '../../utils/game.utils';
 import { createAndFillArray } from '../../utils/general.utils';
 
 interface PlayGamePropsFromStore {
@@ -30,7 +43,10 @@ interface PlayGamePropsFromStore {
     gameId: string | null;
     playerInfo: PlayerInfo;
 }
-interface PlayGameProps extends PlayGamePropsFromStore, RouterProps { }
+interface PlayGameDispatchProps {
+    onSetDataOfFinishedGame: (payload: SetDataOfFinishedGamePayload) => void
+}
+interface PlayGameProps extends PlayGamePropsFromStore, PlayGameDispatchProps, RouterProps {}
 interface PlayGameState {
     allPlayers: Map<string, PlayerInfo>;
     currentPhase: GamePhase;
@@ -271,7 +287,8 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             );
             if (currentRound === gameConfig.numberOfRounds) {
                 // Finish game and show results.
-                console.log('results', newGameRounds);
+                this.props.onSetDataOfFinishedGame({ allPlayers, gameConfig, gameRounds });
+                this.props.history.push('/results');
             } else {
                 // Start next round of the game.
                 this.setState({
@@ -297,4 +314,11 @@ const mapStateToProps = (state: AppState): PlayGamePropsFromStore => {
         playerInfo: state.playerInfo as PlayerInfo
     };
 }
-export default connect(mapStateToProps)(PlayGame);
+const mapDispatchToProps = (dispatch: Dispatch<AppAction>): PlayGameDispatchProps => {
+    return {
+        onSetDataOfFinishedGame: (payload: SetDataOfFinishedGamePayload) => {
+            dispatch(setDataOfFinishedGame(payload))
+        }
+    }
+};
+export default connect(mapStateToProps, mapDispatchToProps)(PlayGame);

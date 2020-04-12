@@ -1,23 +1,36 @@
 import { PlayerInfo } from './../models/player.interface';
 import { Action } from "redux";
-import { GameConfig } from "../models/game.interface";
+import { GameConfig, GameRound } from "../models/game.interface";
 
-export const SET_GAME_DATA = 'SET_GAME_DATA';
+export const SET_DATA_FOR_NEW_GAME = 'SET_DATA_FOR_NEW_GAME';
+export const SET_DATA_OF_FINISHED_GAME = 'SET_DATA_OF_FINISHED_GAME';
 
-export interface SetGameDataPayload {
+export interface SetDataForNewGamePayload {
     gameId: string;
     gameConfig: GameConfig | null;
     playerInfo: PlayerInfo | null;
 }
-export interface SetGameDataAction extends Action {
+export interface SetDataForNewGameAction extends Action {
     type: string;
-    payload: SetGameDataPayload
+    payload: SetDataForNewGamePayload
 }
-export type AppAction = SetGameDataAction;
+export interface SetDataOfFinishedGamePayload {
+    allPlayers: Map<string, PlayerInfo>;
+    gameConfig: GameConfig;
+    gameRounds: GameRound[];
+}
+export interface SetDataOfFinishedGameAction extends Action {
+    type: string;
+    payload: SetDataOfFinishedGamePayload
+}
+export type AppAction = SetDataForNewGameAction | SetDataOfFinishedGameAction;
 
 /*
  * Action Creators
  */
-export const setGameData = (payload: SetGameDataPayload): SetGameDataAction => {
-    return { type: SET_GAME_DATA, payload }
+export const setDataForNewGame = (payload: SetDataForNewGamePayload): SetDataForNewGameAction => {
+    return { type: SET_DATA_FOR_NEW_GAME, payload }
+};
+export const setDataOfFinishedGame = (payload: SetDataOfFinishedGamePayload): SetDataOfFinishedGameAction => {
+    return { type: SET_DATA_OF_FINISHED_GAME, payload }
 };

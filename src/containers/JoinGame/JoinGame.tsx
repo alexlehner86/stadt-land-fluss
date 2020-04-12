@@ -5,13 +5,13 @@ import React, { ChangeEvent, Component, Dispatch, FormEvent } from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
-import { AppAction, setGameData, SetGameDataPayload } from '../../store/app.actions';
+import { AppAction, setDataForNewGame, SetDataForNewGamePayload } from '../../store/app.actions';
 import { PUBNUB_CONFIG } from '../../config/pubnub.config';
 
 interface JoinGameDispatchProps {
-    onSetGameData: (payload: SetGameDataPayload) => void
+    onSetGameData: (payload: SetDataForNewGamePayload) => void
 }
-interface JoinGameProps extends JoinGameDispatchProps, RouteComponentProps { }
+interface JoinGameProps extends JoinGameDispatchProps, RouteComponentProps {}
 interface JoinGameState {
     idInput: string;
     nameInput: string;
@@ -96,15 +96,15 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
                     name: this.state.nameInput
                 }
             });
-            this.props.history.push('/play')
+            this.props.history.push('/play');
         }
     }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch<AppAction>): JoinGameDispatchProps => {
     return {
-        onSetGameData: (payload: SetGameDataPayload) => {
-            dispatch(setGameData(payload))
+        onSetGameData: (payload: SetDataForNewGamePayload) => {
+            dispatch(setDataForNewGame(payload))
         }
     }
 };

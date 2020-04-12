@@ -2,7 +2,7 @@ import randomnItem from 'random-item';
 import { cloneDeep } from 'lodash';
 import { PlayerInput } from '../models/game.interface';
 import { PlayerInfo } from '../models/player.interface';
-import { GameRound, GameRoundEvaluation, PlayerInputEvaluation } from './../models/game.interface';
+import { GameRound, GameRoundEvaluation, PlayerInputEvaluation, GameResultForPlayer } from './../models/game.interface';
 
 /**
 * Returns an array of unique letters of the alphabet (excluding Q, X and Y).
@@ -83,3 +83,17 @@ export const processPlayerInputEvaluations = (
     });
     return evaluatedGameRound;
 };
+
+export const calculateGameResults = (allPlayers: Map<string, PlayerInfo>, gameRounds: GameRound[]): GameResultForPlayer[] => {
+    const gameResults: GameResultForPlayer[] = [];
+    const pointsPerPlayer: { [key: string]: GameResultForPlayer } = {};
+    allPlayers.forEach((playerInfo, playerId) => pointsPerPlayer[playerId] = { playerName: playerInfo.name, points: 0 });
+    gameRounds.forEach(round => {
+        round.forEach((playerInputs, playerId) => {
+            const points = playerInputs.reduce((total, input) => input.valid ? total + 1 : total, 0);
+            pointsPerPlayer[playerId].points += points;
+        });
+    });
+    Object.keys(pointsPerPlayer).forEach(playerId => gameResults.push(pointsPerPlayer[playerId]));
+    return gameResults.sort((a, b) => b.points - a.points);
+}
