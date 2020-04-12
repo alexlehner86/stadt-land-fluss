@@ -1,22 +1,22 @@
 {
   "files": {
-    "main.css": "/stadt-land-fluss/static/css/main.8d3b3810.chunk.css",
-    "main.js": "/stadt-land-fluss/static/js/main.b669c134.chunk.js",
-    "main.js.map": "/stadt-land-fluss/static/js/main.b669c134.chunk.js.map",
+    "main.css": "/stadt-land-fluss/static/css/main.7106f9e8.chunk.css",
+    "main.js": "/stadt-land-fluss/static/js/main.80210e55.chunk.js",
+    "main.js.map": "/stadt-land-fluss/static/js/main.80210e55.chunk.js.map",
     "runtime-main.js": "/stadt-land-fluss/static/js/runtime-main.750b6d87.js",
     "runtime-main.js.map": "/stadt-land-fluss/static/js/runtime-main.750b6d87.js.map",
     "static/js/2.ec6c2347.chunk.js": "/stadt-land-fluss/static/js/2.ec6c2347.chunk.js",
     "static/js/2.ec6c2347.chunk.js.map": "/stadt-land-fluss/static/js/2.ec6c2347.chunk.js.map",
     "index.html": "/stadt-land-fluss/index.html",
-    "precache-manifest.a0b7863a5fe9e68ee6b854ed1a4f3d8c.js": "/stadt-land-fluss/precache-manifest.a0b7863a5fe9e68ee6b854ed1a4f3d8c.js",
+    "precache-manifest.024a850ee1a27af6bb58cc7bb0b20f4d.js": "/stadt-land-fluss/precache-manifest.024a850ee1a27af6bb58cc7bb0b20f4d.js",
     "service-worker.js": "/stadt-land-fluss/service-worker.js",
-    "static/css/main.8d3b3810.chunk.css.map": "/stadt-land-fluss/static/css/main.8d3b3810.chunk.css.map",
+    "static/css/main.7106f9e8.chunk.css.map": "/stadt-land-fluss/static/css/main.7106f9e8.chunk.css.map",
     "static/js/2.ec6c2347.chunk.js.LICENSE.txt": "/stadt-land-fluss/static/js/2.ec6c2347.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.750b6d87.js",
     "static/js/2.ec6c2347.chunk.js",
-    "static/css/main.8d3b3810.chunk.css",
-    "static/js/main.b669c134.chunk.js"
+    "static/css/main.7106f9e8.chunk.css",
+    "static/js/main.80210e55.chunk.js"
   ]
 }
