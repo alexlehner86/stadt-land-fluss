@@ -1,5 +1,19 @@
 This project is an online version of the popular European game "Stadt-Land-Fluss" (German for: City, Country, River). It was bootstrapped with [Create React App](https://github.com/facebook/create-react-app) and uses the [PubNub framework](https://www.pubnub.com/) for realtime communication.
 
+## Release Notes
+
+### v1.0.1
+
+- Various UI improvements
+- More and clearer feedback for the user (e.g. during loading screen)
+- Add 4th theme: Blue
+- Add link to author's github page
+
+### v1.0.0
+
+- Basic functionality: Start new game, share join link with other players, start game, enter text and evaluate inputs alternately, finish game and see results.
+- Offer three themes with different color sets: Green, Orange and Pink  
+
 ## Available Scripts
 
 In the project directory, you can run:

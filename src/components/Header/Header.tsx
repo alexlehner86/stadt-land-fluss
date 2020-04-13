@@ -32,7 +32,15 @@ export class Header extends Component<HeaderProps, HeaderState> {
             <header className={'app-header ' + this.props.theme.className}>
                 <h1>Stadt-Land-Fluss</h1>
                 {playerNameParagraph}
-                <p className="version">v{this.state.version}</p>
+                <div className="about-section">
+                    <p>v{this.state.version}</p>
+                    <a
+                        href="https://github.com/alexlehner86"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Mehr über den Autor erfahren (öffnet neues Fenster)"
+                    >Autor</a>
+                </div>
                 <Button
                     className="color-picker-button"
                     aria-controls="color-picker-menu"
