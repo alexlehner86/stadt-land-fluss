@@ -28,7 +28,10 @@ class App extends Component<any, AppState> {
                         theme={this.state.activeTheme}
                         switchTheme={this.switchThemeHandler}
                     />
-                    <main className={'app-main ' + this.state.activeTheme.className}>
+                    <main
+                        className={'app-main ' + this.state.activeTheme.className}
+                        style={this.state.activeTheme.style}
+                    >
                         <HashRouter basename={process.env.PUBLIC_URL}>
                             <Switch>
                                 <Route path="/" exact component={Dashboard} />

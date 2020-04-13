@@ -9,22 +9,16 @@
     flex: 1 1 0rem;
 }
 .app-main.green-theme {
-    background:
-        linear-gradient(rgba(60, 143, 80, 0.3), rgba(60, 143, 80, 0.3)),
-        url('https://alexlehner86.github.io/stadt-land-fluss/assets/leaves-pattern.jpg');
-    background-size: 15%;
+    background-size: 15% !important;
+}
+.app-main.blue-theme {
+    background-size: 40% !important;
 }
 .app-main.orange-theme {
-    background:
-        linear-gradient(rgba(241, 179, 8, 0.1), rgba(240, 188, 47, 0.1)),
-        url('https://alexlehner86.github.io/stadt-land-fluss/assets/beach-pattern.jpg');
-    background-size: 20%;
+    background-size: 20% !important;
 }
 .app-main.pink-theme {
-    background:
-        linear-gradient(rgba(133, 14, 103, 0.3), rgba(133, 14, 103, 0.3)),
-        url('https://alexlehner86.github.io/stadt-land-fluss/assets/music-pattern.jpg');
-    background-size: 30%;
+    background-size: 30% !important;
 }
 
 .main-content-wrapper {

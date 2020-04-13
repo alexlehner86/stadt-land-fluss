@@ -4,6 +4,7 @@ import { Button, Menu, MenuItem } from '@material-ui/core';
 import { AppThemes, AppTheme } from '../../constants/themes.constant';
 import { connect } from 'react-redux';
 import { AppState } from '../../store/app.reducer';
+import packageJson from '../../../package.json';
 
 interface HeaderPropsFromStore {
     playerName: string | null;
@@ -14,21 +15,24 @@ interface HeaderProps extends HeaderPropsFromStore {
 }
 interface HeaderState {
     anchorEl: EventTarget | null;
+    version: string;
 }
 
 export class Header extends Component<HeaderProps, HeaderState> {
-    public state = { anchorEl: null };
+    public state = {
+        anchorEl: null,
+        version: ''
+    };
 
     public render() {
         const playerNameParagraph = (
             <p>Spieler: {this.props.playerName ? this.props.playerName : '-'}</p>
         );
         return (
-            <header
-                className={'app-header ' + this.props.theme.className}
-            >
+            <header className={'app-header ' + this.props.theme.className}>
                 <h1>Stadt-Land-Fluss</h1>
                 {playerNameParagraph}
+                <p className="version">v{this.state.version}</p>
                 <Button
                     className="color-picker-button"
                     aria-controls="color-picker-menu"
@@ -53,6 +57,10 @@ export class Header extends Component<HeaderProps, HeaderState> {
                 </Menu>
             </header>
         );
+    }
+
+    public componentDidMount() {
+        this.setState({ version: packageJson.version });
     }
 
     private handleClick = (event: any) => {
