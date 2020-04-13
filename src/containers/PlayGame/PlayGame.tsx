@@ -1,4 +1,3 @@
-import './PlayGame.css';
 import { cloneDeep } from 'lodash';
 import PubNub from 'pubnub';
 import { PubNubProvider } from 'pubnub-react';
@@ -56,6 +55,7 @@ interface PlayGameState {
     currentRound: number;
     gameConfig: GameConfig | null;
     gameRounds: GameRound[];
+    loadingScreenMessage: string | null;
     playersThatFinishedEvaluation: Map<string, boolean>;
     showLoadingScreen: boolean;
 }
@@ -69,6 +69,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         currentRound: 1,
         gameConfig: null,
         gameRounds: [],
+        loadingScreenMessage: null,
         playersThatFinishedEvaluation: new Map<string, boolean>(),
         showLoadingScreen: true
     };
@@ -77,15 +78,13 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     public render() {
         if (this.props.gameId === null) { return null; }
         const { gameId, playerInfo } = this.props;
-        const otherPlayers = cloneDeep(this.state.allPlayers);
-        otherPlayers.delete(playerInfo.id);
         let currentPhaseElement: JSX.Element | null = null;
         if (this.state.currentPhase === GamePhase.waitingToStart) {
             currentPhaseElement = (
                 <PhaseWaitingToStart
                     gameConfig={this.state.gameConfig}
                     gameId={gameId}
-                    otherPlayers={otherPlayers}
+                    allPlayers={this.state.allPlayers}
                     playerInfo={playerInfo}
                     sendMessage={this.sendMessage}
                 />
@@ -133,7 +132,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                     processEvaluationOfPlayerInput={this.processEvaluationOfPlayerInput}
                     countPlayerAsEvaluationFinished={this.countPlayerAsEvaluationFinished}
                 />
-                {this.state.showLoadingScreen ? <LoadingScreen /> : (
+                {this.state.showLoadingScreen ? <LoadingScreen message={this.state.loadingScreenMessage} /> : (
                     <div className="main-content-wrapper">
                         {currentPhaseElement}
                     </div>
@@ -281,7 +280,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
      * that the user of this instance of the game has finished evaluating the current round.
      */
     private sendEvaluationFinishedMessage = () => {
-        this.setState({ showLoadingScreen: true });
+        this.setState({ loadingScreenMessage: 'Warte auf Mitspieler', showLoadingScreen: true });
         this.sendMessage({ type: PubNubMessageType.evaluationFinished });
     }
 
@@ -317,6 +316,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                 currentRoundInputs: createAndFillArray<PlayerInput>(gameConfig.categories.length, { text: '', valid: true }),
                 currentRound: currentRound + 1,
                 gameRounds: newGameRounds,
+                loadingScreenMessage: null,
                 playersThatFinishedEvaluation: new Map<string, boolean>(),
                 showLoadingScreen: false
             });

@@ -6,11 +6,13 @@
 }
 .slf-evaluation-checkboxes-wrapper {
     position: absolute;
-    top: 0;
+    top: 44%;
     right: 0.5rem;
-    height: 90%;
+    transform: translateY(-50%);
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
+    max-width: 6rem;
 }
 .slf-evaluation-checkboxes-wrapper .MuiCheckbox-root {
     padding: 0 !important;

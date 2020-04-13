@@ -27,3 +27,5 @@ export enum GamePhase {
     evaluateRound = 'evaluateRound',
     gameResult = 'gameResult'
 }
+
+export const MIN_NUMBER_OF_PLAYERS = 2;

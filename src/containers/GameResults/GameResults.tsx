@@ -1,13 +1,17 @@
-import { Button } from '@material-ui/core';
-import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import { List, ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
+import FaceIcon from '@material-ui/icons/Face';
+import StarIcon from '@material-ui/icons/Star';
 import React, { Component, Dispatch } from 'react';
 import { connect } from 'react-redux';
 import { RouterProps } from 'react-router';
+
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
+import ToDashboardButton from '../../components/ToDashboardButton/ToDashboardButton';
 import { GameConfig, GameResultForPlayer } from '../../models/game.interface';
+import { AppAction, resetAppState } from '../../store/app.actions';
 import { AppState } from '../../store/app.reducer';
 import { calculateGameResults } from '../../utils/game.utils';
-import { AppAction, resetAppState } from '../../store/app.actions';
+import { makePluralIfCountIsNotOne } from '../../utils/general.utils';
 
 interface GameResultsDispatchProps {
     onResetAppState: () => void;
@@ -23,31 +27,32 @@ class GameResults extends Component<GameResultsProps, GameResultsState> {
     public render() {
         if (this.props.gameRounds === null) { return null; }
         const gameConfig = this.props.gameConfig as GameConfig;
-        // todo: add key to gameResults.map content
+        const mostPoints = Math.max(...this.state.gameResults.map(result => result.points));
         return (
             <div className="main-content-wrapper">
                 <div className="material-card-style">
                     <SectionHeader showDivider={true} text="Ergebnis"></SectionHeader>
-                    {this.state.gameResults.map((result, index) => (
-                        <p key={'results-for-player-' + index}>{result.playerName}: {result.points}</p>
-                    ))}
+                    <List>
+                        {this.state.gameResults.map((result, index) => (
+                            <ListItem key={'results-for-player-' + index}>
+                                <ListItemIcon>
+                                    {this.getResultIcon(result.points === mostPoints)}
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary={result.playerName}
+                                    secondary={`${result.points} ${makePluralIfCountIsNotOne(result.points, 'Punkt', 'Punkte')}`}
+                                />
+                            </ListItem>
+                        ))}
+                    </List>
                 </div>
                 <div className="material-card-style">
-                    <SectionHeader showDivider={true} text="Spiel-Settings"></SectionHeader>
-                    <h3>Spiele-Settings:</h3>
+                    <SectionHeader showDivider={true} text="Spiele-Settings"></SectionHeader>
                     <p>Runden: {gameConfig.numberOfRounds}</p>
+                    <p>Buchstaben: {gameConfig.letters.join(', ')}</p>
                     <p>Kategorien: {gameConfig.categories.join(', ')}</p>
                 </div>
-                <div className="button-wrapper add-margin-top">
-                    <Button
-                        type="button"
-                        color="primary"
-                        variant="contained"
-                        size="large"
-                        startIcon={<ExitToAppIcon />}
-                        onClick={this.returnToDashboard}
-                    >Dashboard</Button>
-                </div>
+                <ToDashboardButton onReturnToDashboard={this.returnToDashboard} />
             </div>
         );
     }
@@ -59,6 +64,10 @@ class GameResults extends Component<GameResultsProps, GameResultsState> {
             return;
         }
         this.setState({ gameResults: calculateGameResults(this.props.allPlayers, this.props.gameRounds) });
+    }
+
+    private getResultIcon = (isWinner: boolean): JSX.Element => {
+        return isWinner ? <StarIcon color="primary" fontSize="large" /> : <FaceIcon fontSize="large" />;
     }
 
     private returnToDashboard = () => {

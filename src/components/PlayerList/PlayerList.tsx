@@ -17,14 +17,14 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-interface OtherPlayersProps {
-    otherPlayers: Map<string, PlayerInfo>;
+interface PlayerListProps {
+    players: Map<string, PlayerInfo>;
 }
 
-const OtherPlayers = (props: OtherPlayersProps) => {
+const PlayerList = (props: PlayerListProps) => {
     const classes = useStyles();
     const playerNames: string[] = [];
-    props.otherPlayers.forEach(player => playerNames.push(player.name));
+    props.players.forEach(player => playerNames.push(player.name));
     return (
         <div className={classes.root}>
             {playerNames.map((name, index) => (
@@ -40,4 +40,4 @@ const OtherPlayers = (props: OtherPlayersProps) => {
     );
 }
 
-export default OtherPlayers;
+export default PlayerList;

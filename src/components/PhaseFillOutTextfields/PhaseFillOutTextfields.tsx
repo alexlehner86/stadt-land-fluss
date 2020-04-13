@@ -48,7 +48,7 @@ const PhaseFillOutTextfields = (props: PhaseFillOutTextfieldsProps) => {
                 <IconButton
                     type="button"
                     className="fixed-bottom-right-button"
-                    color="primary"
+                    color="secondary"
                     title="Abschicken"
                     aria-label="Abschicken"
                     onClick={() => props.sendRoundFinishedMessage()}

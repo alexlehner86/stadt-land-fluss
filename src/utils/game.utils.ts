@@ -84,6 +84,9 @@ export const processPlayerInputEvaluations = (
     return evaluatedGameRound;
 };
 
+/**
+ * Calculates game results and sorts them by points in descending order.
+ */
 export const calculateGameResults = (allPlayers: Map<string, PlayerInfo>, gameRounds: GameRound[]): GameResultForPlayer[] => {
     const gameResults: GameResultForPlayer[] = [];
     const pointsPerPlayer: { [key: string]: GameResultForPlayer } = {};

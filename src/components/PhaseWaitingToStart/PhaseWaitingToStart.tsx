@@ -1,24 +1,28 @@
+import './PhaseWaitingToStart.css';
 import { Button, Divider } from '@material-ui/core';
 import PlayCircleFilled from '@material-ui/icons/PlayCircleFilled';
 import React from 'react';
+import { MIN_NUMBER_OF_PLAYERS } from '../../constants/game.constant';
 import { GameConfig } from '../../models/game.interface';
 import { PlayerInfo } from '../../models/player.interface';
-import { JoinGameLink } from '../JoinGameLink/JoinGameLink';
-import OtherPlayers from '../OtherPlayers/OtherPlayers';
-import { SectionHeader } from '../SectionHeader/SectionHeader';
 import { PubNubMessage, PubNubMessageType } from '../../models/pub-nub-data.model';
+import { JoinGameLink } from '../JoinGameLink/JoinGameLink';
+import PlayerList from '../PlayerList/PlayerList';
+import { SectionHeader } from '../SectionHeader/SectionHeader';
 
 interface PhaseWaitingToStartProps {
     gameConfig: GameConfig | null;
     gameId: string;
-    otherPlayers: Map<string, PlayerInfo>;
+    allPlayers: Map<string, PlayerInfo>;
     playerInfo: PlayerInfo;
     sendMessage: (message: PubNubMessage) => void;
 }
 
 const PhaseWaitingToStart = (props: PhaseWaitingToStartProps) => {
-    const { gameId, otherPlayers, playerInfo } = props;
-    const waitForGameStartElement = (<p>Warte auf Spielbeginn...</p>);
+    const { gameId, allPlayers, playerInfo } = props;
+    const waitForGameStartElement = (
+        <p className="wait-for-start-animation">Warte auf Spielbeginn <span>.</span><span>.</span><span>.</span></p>
+    );
 
     const createGameSettingsElement = (): JSX.Element => {
         const gameConfig = props.gameConfig as GameConfig;
@@ -40,7 +44,7 @@ const PhaseWaitingToStart = (props: PhaseWaitingToStartProps) => {
                     variant="contained"
                     size="large"
                     startIcon={<PlayCircleFilled />}
-                    disabled={otherPlayers.size < 1}
+                    disabled={allPlayers.size < MIN_NUMBER_OF_PLAYERS}
                     onClick={() => props.sendMessage({ type: PubNubMessageType.startGame })}
                 >Starten</Button>
             </div>
@@ -59,8 +63,10 @@ const PhaseWaitingToStart = (props: PhaseWaitingToStartProps) => {
         <React.Fragment>
             <div className="material-card-style">
                 <SectionHeader showDivider={true} text="Gleich geht's los..."></SectionHeader>
-                <h3 className="other-players-headline">Mitspieler:</h3>
-                <OtherPlayers otherPlayers={props.otherPlayers} />
+                <div className="players-wrapper">
+                    <h3>Mitspieler:</h3>
+                    <PlayerList players={props.allPlayers} />
+                </div>
                 {props.gameConfig ? createGameSettingsElement() : null}
                 <Divider />
                 {playerInfo.isAdmin ? createStartGameButton() : waitForGameStartElement}

@@ -7,6 +7,7 @@ import { RouteComponentProps } from 'react-router';
 import { v4 as uuidv4 } from 'uuid';
 import ChipsArray, { ChipType } from '../../components/ChipsArray/ChipsArray';
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
+import ToDashboardButton from '../../components/ToDashboardButton/ToDashboardButton';
 import { PUBNUB_CONFIG } from '../../config/pubnub.config';
 import {
     AVAILABLE_CATEGORIES,
@@ -97,6 +98,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     <SectionHeader showDivider={true} text="Neues Spiel" />
                     {newGameForm}
                 </div>
+                <ToDashboardButton onReturnToDashboard={this.returnToDashboard} />
             </div>
         );
     }
@@ -151,6 +153,10 @@ class NewGame extends Component<NewGameProps, NewGameState> {
             });
             this.props.history.push('/play');
         }
+    }
+
+    private returnToDashboard = () => {
+        this.props.history.push('/');
     }
 }
 

@@ -73,13 +73,13 @@ const PhaseEvaluateRound = (props: PhaseEvaluateRoundProps) => {
                 {players.map((player, index) => (
                     <Tooltip
                         key={`slf-evaluation-tooltip-${categoryIndex}-${indexInSortedPlayers}-${index}`}
-                        title={player.name}
+                        title={getEvaluatedByText(player)}
                     >
                         <Checkbox
                             key={`slf-evaluation-checkbox-${categoryIndex}-${indexInSortedPlayers}-${index}`}
                             color={player.id === playerInfo.id ? 'primary' : 'default'}
                             checked={!!evaluationForCategory.get(player.id)}
-                            inputProps={{ 'aria-label': 'Bestätigt von ' + player.name }}
+                            inputProps={{ 'aria-label': getEvaluatedByText(player) }}
                             onChange={event => handleCheckboxChange(event, player, categoryIndex, indexInSortedPlayers)}
                         />
                     </Tooltip>
@@ -87,6 +87,9 @@ const PhaseEvaluateRound = (props: PhaseEvaluateRoundProps) => {
             </div>
         );
     }
+    const getEvaluatedByText = (player: PlayerInfo): string => {
+        return player.id === playerInfo.id ? 'Deine Bewertung' : 'Bewertung von ' + player.name;
+    };
     /**
      * Creates a section for each category of the current game. It displays the category in the header,
      * followed by one textfield for each player showing their input for the finished round. If the
@@ -132,7 +135,7 @@ const PhaseEvaluateRound = (props: PhaseEvaluateRoundProps) => {
                 <IconButton
                     type="button"
                     className="fixed-bottom-right-button"
-                    color="primary"
+                    color="secondary"
                     title="Akzeptieren"
                     aria-label="Akzeptieren"
                     onClick={() => props.sendEvaluationFinishedMessage()}

@@ -5,8 +5,9 @@ import React, { ChangeEvent, Component, Dispatch, FormEvent } from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
-import { AppAction, setDataForNewGame, SetDataForNewGamePayload } from '../../store/app.actions';
+import ToDashboardButton from '../../components/ToDashboardButton/ToDashboardButton';
 import { PUBNUB_CONFIG } from '../../config/pubnub.config';
+import { AppAction, setDataForNewGame, SetDataForNewGamePayload } from '../../store/app.actions';
 
 interface JoinGameDispatchProps {
     onSetGameData: (payload: SetDataForNewGamePayload) => void
@@ -67,6 +68,7 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
                     <SectionHeader showDivider={true} text="Spiel beitreten"></SectionHeader>
                     {joinGameForm}
                 </div>
+                <ToDashboardButton onReturnToDashboard={this.returnToDashboard} />
             </div>
         );
     }
@@ -98,6 +100,10 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
             });
             this.props.history.push('/play');
         }
+    }
+
+    private returnToDashboard = () => {
+        this.props.history.push('/');
     }
 }
 
