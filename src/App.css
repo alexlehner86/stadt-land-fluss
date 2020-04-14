@@ -5,6 +5,8 @@
 }
 
 .app-main {
+    /* below header with z-index 20 */
+    z-index: 10;
     position: relative;
     flex: 1 1 0rem;
 }
@@ -12,7 +14,7 @@
     background-size: 15% !important;
 }
 .app-main.blue-theme {
-    background-size: 40% !important;
+    background-size: 30% !important;
 }
 .app-main.orange-theme {
     background-size: 20% !important;
@@ -31,7 +33,7 @@
     padding: 1rem;
     border-radius: 5px;
     background-color: white;
-    box-shadow: 0 2px 4px rgba(0,0,0,.501961);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .401961);
 }
 .material-card-style:not(:last-child) {
     margin-bottom: 1rem;

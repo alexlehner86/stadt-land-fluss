@@ -1,7 +1,9 @@
 .app-header {
+    z-index: 20;
     position: relative;
     padding: 3vmin 1rem;
     text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .401961);
 }
 
 .app-header h1 {
