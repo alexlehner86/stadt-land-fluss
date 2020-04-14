@@ -1,11 +1,11 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "76ae4982aea38c8a795cc5f077b5c848",
+    "revision": "80d58dd8d86b0f19fbc2e1761aaff1b1",
     "url": "/stadt-land-fluss/index.html"
   },
   {
-    "revision": "0980e4b100d416c4d8d9",
-    "url": "/stadt-land-fluss/static/css/main.4f3e1484.chunk.css"
+    "revision": "436dbe1650a37009c233",
+    "url": "/stadt-land-fluss/static/css/main.4c9f5f81.chunk.css"
   },
   {
     "revision": "4d9817ba243c6201c5e4",
@@ -16,7 +16,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/stadt-land-fluss/static/js/2.71f8f255.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "0980e4b100d416c4d8d9",
+    "revision": "436dbe1650a37009c233",
     "url": "/stadt-land-fluss/static/js/main.f060dd4d.chunk.js"
   },
   {
