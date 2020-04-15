@@ -18,6 +18,8 @@ export enum APP_THEME_ID {
 
 export interface AppTheme {
     id: APP_THEME_ID;
+    /** The background color used by the LetterAnimation component */
+    animationBackgroundColor: string;
     /** The name of the CSS class that is applied to the header and the main element */
     className: string;
     /** The text displayed in the header's color picker dropdown */
@@ -29,6 +31,7 @@ export interface AppTheme {
 export const AppThemes: AppTheme[] = [
     {
         id: APP_THEME_ID.green,
+        animationBackgroundColor: 'rgb(60, 143, 80)',
         className: 'green-theme',
         displayName: 'Grün/Wald',
         muiTheme: createMuiTheme({ palette: { primary: green, secondary: red } }),
@@ -40,6 +43,7 @@ export const AppThemes: AppTheme[] = [
     },
     {
         id: APP_THEME_ID.blue,
+        animationBackgroundColor: 'rgb(9, 100, 204)',
         className: 'blue-theme',
         displayName: 'Blau/Fluss',
         muiTheme: createMuiTheme({ palette: { primary: blue, secondary: deepOrange } }),
@@ -51,6 +55,7 @@ export const AppThemes: AppTheme[] = [
     },
     {
         id: APP_THEME_ID.orange,
+        animationBackgroundColor: 'rgb(204, 158, 9)',
         className: 'orange-theme',
         displayName: 'Orange/Strand',
         muiTheme: createMuiTheme({ palette: { primary: orange, secondary: indigo } }),
@@ -62,6 +67,7 @@ export const AppThemes: AppTheme[] = [
     },
     {
         id: APP_THEME_ID.pink,
+        animationBackgroundColor: 'rgb(167, 34, 207)',
         className: 'pink-theme',
         displayName: 'Pink/Musik',
         muiTheme: createMuiTheme({ palette: { primary: purple, secondary: amber } }),

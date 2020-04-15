@@ -1,6 +1,11 @@
 export const MIN_NUMBER_OF_ROUNDS = 3;
 export const MAX_NUMBER_OF_ROUNDS = 10;
 
+export const ALPHABET_WITHOUT_QXY = [
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
+    'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'V', 'W', 'Z'
+];
+
 export const STANDARD_CATEGORIES = ['Stadt', 'Land', 'Fluss'];
 export const AVAILABLE_CATEGORIES = [
     'Band/Musiker',
