@@ -37,7 +37,7 @@ interface LoadingScreenProps {
     message: string | null;
 }
 
-const LoadingScreen = (props: LoadingScreenProps) => {
+const LoadingScreen: React.FunctionComponent<LoadingScreenProps> = props => {
     const classes = useStyles();
     const messageElement = props.message ? (<p className={classes.text}>{props.message}</p>) : null;
     return (

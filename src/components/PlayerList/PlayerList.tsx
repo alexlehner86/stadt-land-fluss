@@ -21,7 +21,7 @@ interface PlayerListProps {
     players: Map<string, PlayerInfo>;
 }
 
-const PlayerList = (props: PlayerListProps) => {
+const PlayerList: React.FunctionComponent<PlayerListProps> = props => {
     const classes = useStyles();
     const playerNames: string[] = [];
     props.players.forEach(player => playerNames.push(player.name));

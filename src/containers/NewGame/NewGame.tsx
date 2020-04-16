@@ -5,6 +5,7 @@ import React, { ChangeEvent, Component, Dispatch, FormEvent } from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { v4 as uuidv4 } from 'uuid';
+import AddCustomCategory from '../../components/AddCustomCategory/AddCustomCategory';
 import ChipsArray, { ChipType } from '../../components/ChipsArray/ChipsArray';
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
 import ToDashboardButton from '../../components/ToDashboardButton/ToDashboardButton';
@@ -26,7 +27,7 @@ enum CategoryArray {
 interface NewGameDispatchProps {
     onSetGameData: (payload: SetDataForNewGamePayload) => void
 }
-interface NewGameProps extends NewGameDispatchProps, RouteComponentProps {}
+interface NewGameProps extends NewGameDispatchProps, RouteComponentProps { }
 interface NewGameState {
     availableCategories: string[];
     nameInput: string;
@@ -69,7 +70,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     fullWidth
                     required
                 />
-                <p className="category-array-label">Ausgewählte Kategorien:</p>
+                <p className="category-array-label">Ausgewählte Kategorien (mind. 3):</p>
                 <ChipsArray
                     chipsArray={this.state.selectedCategories}
                     chipType={ChipType.selected}
@@ -80,7 +81,9 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     chipsArray={this.state.availableCategories}
                     chipType={ChipType.available}
                     removeChip={(chipToRemove) => this.updateCategoryArrays(chipToRemove, CategoryArray.available)}
-                />
+                >
+                    <AddCustomCategory addCustomCategory={this.addCustomCategory} />
+                </ChipsArray>
                 <div className="button-wrapper add-margin-top">
                     <Button
                         type="submit"
@@ -132,10 +135,13 @@ class NewGame extends Component<NewGameProps, NewGameState> {
         });
     }
 
+    private addCustomCategory = (newCategory: string) => {
+        this.setState({ availableCategories: [...this.state.availableCategories, newCategory] });
+    }
+
     private handleSubmit = (event: FormEvent) => {
         event.preventDefault();
-        this.setState({ validateInputs: true });
-        if (this.state.nameInput && this.state.selectedCategories.length >= 3) {
+        if (this.state.nameInput.trim() && this.state.selectedCategories.length >= 3) {
             const gameId = uuidv4(); // ⇨ e.g. '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d'
             const letters = getRandomnLetters(this.state.numberOfRoundsInput);
             this.props.onSetGameData({
@@ -148,10 +154,12 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                 playerInfo: {
                     id: PUBNUB_CONFIG.uuid as string,
                     isAdmin: true,
-                    name: this.state.nameInput
+                    name: this.state.nameInput.trim()
                 }
             });
             this.props.history.push('/play');
+        } else {
+            this.setState({ nameInput: this.state.nameInput.trim(), validateInputs: true });
         }
     }
 

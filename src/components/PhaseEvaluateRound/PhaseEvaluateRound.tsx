@@ -30,7 +30,7 @@ interface PhaseEvaluateRoundProps {
     sendEvaluationFinishedMessage: () => void;
 }
 
-const PhaseEvaluateRound = (props: PhaseEvaluateRoundProps) => {
+const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = props => {
     const { allPlayers, currentRound, gameConfig, playerInfo } = props;
     const minNumberOfInvalids = getMinNumberOfNecessaryMarkedAsInvalid(allPlayers.size);
     // Retrieve data for finished round; e.g. if current round is 1, then data is at index 0.

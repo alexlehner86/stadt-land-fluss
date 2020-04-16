@@ -18,7 +18,7 @@ interface PubNubEventHandlerProps {
     countPlayerAsEvaluationFinished: (evaluatingPlayerId: string) => void;
 }
 
-const PubNubEventHandler = (props: PubNubEventHandlerProps) => {
+const PubNubEventHandler: React.FunctionComponent<PubNubEventHandlerProps> = props => {
     const pubNubClient = usePubNub();
 
     const setUserStateAndGetHereNowIfGameIsOpen = () => {

@@ -13,7 +13,7 @@ interface PhaseFillOutTextfieldsProps {
     sendRoundFinishedMessage: () => void;
 }
 
-const PhaseFillOutTextfields = (props: PhaseFillOutTextfieldsProps) => {
+const PhaseFillOutTextfields: React.FunctionComponent<PhaseFillOutTextfieldsProps> = props => {
     const { currentRound, gameConfig, gameRoundInputs } = props;
     const currentLetter = gameConfig.letters[currentRound - 1];
 

@@ -7,7 +7,7 @@ interface ToDashboardButtonProps {
     onReturnToDashboard: () => any;
 }
 
-const ToDashboardButton = (props: ToDashboardButtonProps) => {
+const ToDashboardButton: React.FunctionComponent<ToDashboardButtonProps> = props => {
     return (
         <div className="button-wrapper to-dashboard-button">
             <Button

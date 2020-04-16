@@ -144,7 +144,7 @@ interface LetterAnimationProps {
     letterToUnveil: string;
     callbackWhenAnimationDone: () => void;
 }
-export const LetterAnimation = (props: LetterAnimationProps) => {
+export const LetterAnimation: React.FunctionComponent<LetterAnimationProps> = props => {
     const lettersToUse = [...ALPHABET_WITHOUT_QXY].filter(letter => letter !== props.letterToUnveil);
     const lettersForAnimation = [...getRandomnLetters(LETTER_ANIMATION_LETTER_COUNT - 1, lettersToUse), props.letterToUnveil];
     useEffect(() => {

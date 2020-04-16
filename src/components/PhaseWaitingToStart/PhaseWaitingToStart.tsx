@@ -18,7 +18,7 @@ interface PhaseWaitingToStartProps {
     sendMessage: (message: PubNubMessage) => void;
 }
 
-const PhaseWaitingToStart = (props: PhaseWaitingToStartProps) => {
+const PhaseWaitingToStart: React.FunctionComponent<PhaseWaitingToStartProps> = props => {
     const { gameId, allPlayers, playerInfo } = props;
     const waitForGameStartElement = (
         <p className="wait-for-start-animation">Warte auf Spielbeginn <span>.</span><span>.</span><span>.</span></p>

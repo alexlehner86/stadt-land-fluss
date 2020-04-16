@@ -55,7 +55,7 @@ export const AppThemes: AppTheme[] = [
     },
     {
         id: APP_THEME_ID.orange,
-        animationBackgroundColor: 'rgb(172, 133, 5)',
+        animationBackgroundColor: 'rgb(187, 138, 5)',
         className: 'orange-theme',
         displayName: 'Orange/Strand',
         muiTheme: createMuiTheme({ palette: { primary: orange, secondary: indigo } }),

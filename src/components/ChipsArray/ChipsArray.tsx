@@ -32,7 +32,7 @@ interface ChipsArrayProps {
     removeChip: (chip: string) => any;
 }
 
-const ChipsArray = (props: ChipsArrayProps) => {
+const ChipsArray: React.FunctionComponent<ChipsArrayProps> = props => {
     const classes = useStyles();
     return (
         <div className={classes.root}>
@@ -40,12 +40,13 @@ const ChipsArray = (props: ChipsArrayProps) => {
                 <Chip
                     key={`chip-to-${props.chipType}-${index}`}
                     color={props.chipType === 'selected' ? 'primary' : undefined}
+                    icon={props.chipType === 'selected' ? <DoneIcon className="chip-icon-no-bg" /> : <ChevronRightIcon />}
                     label={chip}
                     className={classes.chip}
                     onClick={() => props.removeChip(chip)}
-                    avatar={props.chipType === 'selected' ? <DoneIcon className="chip-icon-no-bg" /> : <ChevronRightIcon />}
                 />
             ))}
+            {props.children}
         </div>
     );
 }

@@ -87,18 +87,19 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
 
     private handleSubmit = (event: FormEvent) => {
         event.preventDefault();
-        this.setState({ validateInputs: true });
-        if (this.state.idInput && this.state.nameInput) {
+        if (this.state.idInput && this.state.nameInput.trim()) {
             this.props.onSetGameData({
                 gameConfig: null,
                 gameId: this.state.idInput,
                 playerInfo: {
                     id: PUBNUB_CONFIG.uuid as string,
                     isAdmin: false,
-                    name: this.state.nameInput
+                    name: this.state.nameInput.trim()
                 }
             });
             this.props.history.push('/play');
+        } else {
+            this.setState({ nameInput: this.state.nameInput.trim(), validateInputs: true });
         }
     }
 

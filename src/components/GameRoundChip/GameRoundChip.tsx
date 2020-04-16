@@ -24,7 +24,7 @@ interface GameRoundChipProps {
     currentRound: number;
 }
 
-const GameRoundChip = (props: GameRoundChipProps) => {
+const GameRoundChip: React.FunctionComponent<GameRoundChipProps> = props => {
     const classes = useStyles();
     const { currentLetter, currentRound } = props;
     return (

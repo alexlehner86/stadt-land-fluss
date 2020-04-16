@@ -2,6 +2,11 @@ This project is an online version of the popular European game "Stadt-Land-Fluss
 
 ## Release Notes
 
+### v1.0.2
+
+- Add letter animation before new round to unveil next letter
+- User can add custom categories via a form dialog
+
 ### v1.0.1
 
 - Various UI improvements

@@ -8,7 +8,7 @@ interface JoinGameLinkProps {
     gameId: string;
 }
 
-export const JoinGameLink = (props: JoinGameLinkProps) => {
+export const JoinGameLink: React.FunctionComponent<JoinGameLinkProps> = props => {
     const url = window.location.href;
     // Cut off "/play" from the end of the url and add route plus game id.
     const joinGameLink = url.slice(0, url.length - 5) + '/joingame?id=' + props.gameId;
