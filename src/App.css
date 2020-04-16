@@ -71,3 +71,7 @@
 .text-decoration-line-through {
     text-decoration: line-through !important;
 }
+
+.MuiSvgIcon-root.MuiChip-avatar.chip-icon-no-bg {
+    background-color: rgba(0, 0, 0, 0) !important;
+}

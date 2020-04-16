@@ -31,7 +31,7 @@ export interface AppTheme {
 export const AppThemes: AppTheme[] = [
     {
         id: APP_THEME_ID.green,
-        animationBackgroundColor: 'rgb(60, 143, 80)',
+        animationBackgroundColor: 'rgb(31, 121, 52)',
         className: 'green-theme',
         displayName: 'Grün/Wald',
         muiTheme: createMuiTheme({ palette: { primary: green, secondary: red } }),
@@ -55,7 +55,7 @@ export const AppThemes: AppTheme[] = [
     },
     {
         id: APP_THEME_ID.orange,
-        animationBackgroundColor: 'rgb(204, 158, 9)',
+        animationBackgroundColor: 'rgb(172, 133, 5)',
         className: 'orange-theme',
         displayName: 'Orange/Strand',
         muiTheme: createMuiTheme({ palette: { primary: orange, secondary: indigo } }),

@@ -1,11 +1,15 @@
 import './LetterAnimation.css';
 import React, { useEffect } from 'react';
-import { ALPHABET_WITHOUT_QXY } from '../../constants/game.constant';
+import {
+    ALPHABET_WITHOUT_QXY,
+    LETTER_ANIMATION_LETTER_COUNT,
+    LETTER_ANIMATION_REDRAW_SPEED,
+} from '../../constants/game.constant';
+import { AppTheme, AppThemes } from '../../constants/themes.constant';
 import { getRandomnLetters } from '../../utils/game.utils';
-import { AppThemes, AppTheme } from '../../constants/themes.constant';
 
-const LETTER_ANIMATION_REDRAW_SPEED = 800;
-const LETTER_ANIMATION_LETTER_COUNT = 5;
+// Thanks to Georgi Nikoloff for the great animation source code: https://codepen.io/gbnikolov/pen/jEqQdG
+// I rewrote the code in Typescript, refactored it a bit and adapted it to the needs of this application.
 
 class Particle {
     private radius = 3.5;

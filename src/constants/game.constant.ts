@@ -9,21 +9,37 @@ export const ALPHABET_WITHOUT_QXY = [
 export const STANDARD_CATEGORIES = ['Stadt', 'Land', 'Fluss'];
 export const AVAILABLE_CATEGORIES = [
     'Band/Musiker',
+    'Berg/Gebirge',
     'Beruf',
     'Berühmte Person',
+    'Buchtitel',
+    'Chemisches Element',
+    'Etwas Eckiges',
+    'Etwas Rundes',
     'Fiktiver Charakter',
     'Film/Serie',
     'Getränk',
+    'Grund für eine Verspätung',
     'Hobby',
+    'Körperteil',
     'Krankheit',
     'Laster',
     'Marke',
     'Mordwaffe',
     'Pflanze',
+    'Pizzasorte',
+    'Religion',
     'Scheidungsgrund',
+    'Schimpfwort',
     'Sehenswürdigkeit',
+    'See/Meer',
+    'Sex (Synonym)',
     'Speise',
-    'Tier'
+    'Tier',
+    'Unnötige Superkraft',
+    'Videospiel',
+    'Werkzeug',
+    'Wort in einer Fremdsprache'
 ];
 
 export enum GamePhase {
@@ -34,3 +50,6 @@ export enum GamePhase {
 }
 
 export const MIN_NUMBER_OF_PLAYERS = 2;
+
+export const LETTER_ANIMATION_LETTER_COUNT = 5;
+export const LETTER_ANIMATION_REDRAW_SPEED = 800;

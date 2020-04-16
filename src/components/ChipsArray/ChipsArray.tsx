@@ -1,7 +1,7 @@
 import Chip from '@material-ui/core/Chip';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import DoneIcon from '@material-ui/icons/Done';
-import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 import React from 'react';
 
 export enum ChipType {
@@ -20,6 +20,9 @@ const useStyles = makeStyles((theme: Theme) =>
         chip: {
             margin: theme.spacing(0.5),
         },
+        chipIcon: {
+            backgroundColor: 'inherit'
+        }
     }),
 );
 
@@ -39,8 +42,8 @@ const ChipsArray = (props: ChipsArrayProps) => {
                     color={props.chipType === 'selected' ? 'primary' : undefined}
                     label={chip}
                     className={classes.chip}
-                    onDelete={() => props.removeChip(chip)}
-                    deleteIcon={props.chipType === 'selected' ? <HighlightOffIcon /> : <DoneIcon />}
+                    onClick={() => props.removeChip(chip)}
+                    avatar={props.chipType === 'selected' ? <DoneIcon className="chip-icon-no-bg" /> : <ChevronRightIcon />}
                 />
             ))}
         </div>

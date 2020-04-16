@@ -6,19 +6,19 @@ import { PlayerInfo } from '../models/player.interface';
 import { GameResultForPlayer, GameRound, GameRoundEvaluation, PlayerInputEvaluation } from './../models/game.interface';
 
 /**
-* Returns an array of unique letters. The number of letters is defined by the parameter numberOfLetters (max: 23).
+* Returns an array of unique letters. The number of letters is defined by the parameter numberOfLetters.
 * If the second argument is not provided, then the standard alphabet (excluding Q, X and Y) is used.
 */
-export const getRandomnLetters = (numberOfLetters: number, letters = ALPHABET_WITHOUT_QXY): string[] => {
-    if (numberOfLetters > 23) {
-        throw new Error('Cannot create more than 23 randomn unique letters of the alphabet (without Q, X and Y)!');
+export const getRandomnLetters = (numberOfLetters: number, possibleLetters = ALPHABET_WITHOUT_QXY): string[] => {
+    if (numberOfLetters > possibleLetters.length) {
+        throw new Error('Cannot create more randomn unique letters than the number of possibleLetters provided!');
     }
     const randomnLetters: string[] = [];
-    let possibleLetters = [...letters];
+    let lettersToRandomnlySelectFrom = [...possibleLetters];
     for (let i = 0; i < numberOfLetters; i++) {
-        const randomnLetter = randomnItem(possibleLetters);
+        const randomnLetter = randomnItem(lettersToRandomnlySelectFrom);
         randomnLetters.push(randomnLetter);
-        possibleLetters = possibleLetters.filter(letter => letter !== randomnLetter);
+        lettersToRandomnlySelectFrom = lettersToRandomnlySelectFrom.filter(letter => letter !== randomnLetter);
     }
     return randomnLetters;
 };
