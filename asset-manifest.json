@@ -1,22 +1,22 @@
 {
   "files": {
-    "main.css": "/stadt-land-fluss/static/css/main.53492bbf.chunk.css",
-    "main.js": "/stadt-land-fluss/static/js/main.abf466e1.chunk.js",
-    "main.js.map": "/stadt-land-fluss/static/js/main.abf466e1.chunk.js.map",
+    "main.css": "/stadt-land-fluss/static/css/main.368ac0c8.chunk.css",
+    "main.js": "/stadt-land-fluss/static/js/main.c249f733.chunk.js",
+    "main.js.map": "/stadt-land-fluss/static/js/main.c249f733.chunk.js.map",
     "runtime-main.js": "/stadt-land-fluss/static/js/runtime-main.750b6d87.js",
     "runtime-main.js.map": "/stadt-land-fluss/static/js/runtime-main.750b6d87.js.map",
-    "static/js/2.c6054ae4.chunk.js": "/stadt-land-fluss/static/js/2.c6054ae4.chunk.js",
-    "static/js/2.c6054ae4.chunk.js.map": "/stadt-land-fluss/static/js/2.c6054ae4.chunk.js.map",
+    "static/js/2.005a46ca.chunk.js": "/stadt-land-fluss/static/js/2.005a46ca.chunk.js",
+    "static/js/2.005a46ca.chunk.js.map": "/stadt-land-fluss/static/js/2.005a46ca.chunk.js.map",
     "index.html": "/stadt-land-fluss/index.html",
-    "precache-manifest.841bb6ad6978d8b6b10982db8315c544.js": "/stadt-land-fluss/precache-manifest.841bb6ad6978d8b6b10982db8315c544.js",
+    "precache-manifest.90d3762312bcf6260ed6e2bc82524109.js": "/stadt-land-fluss/precache-manifest.90d3762312bcf6260ed6e2bc82524109.js",
     "service-worker.js": "/stadt-land-fluss/service-worker.js",
-    "static/css/main.53492bbf.chunk.css.map": "/stadt-land-fluss/static/css/main.53492bbf.chunk.css.map",
-    "static/js/2.c6054ae4.chunk.js.LICENSE.txt": "/stadt-land-fluss/static/js/2.c6054ae4.chunk.js.LICENSE.txt"
+    "static/css/main.368ac0c8.chunk.css.map": "/stadt-land-fluss/static/css/main.368ac0c8.chunk.css.map",
+    "static/js/2.005a46ca.chunk.js.LICENSE.txt": "/stadt-land-fluss/static/js/2.005a46ca.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.750b6d87.js",
-    "static/js/2.c6054ae4.chunk.js",
-    "static/css/main.53492bbf.chunk.css",
-    "static/js/main.abf466e1.chunk.js"
+    "static/js/2.005a46ca.chunk.js",
+    "static/css/main.368ac0c8.chunk.css",
+    "static/js/main.c249f733.chunk.js"
   ]
 }
