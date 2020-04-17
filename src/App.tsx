@@ -11,10 +11,11 @@ import NewGame from './containers/NewGame/NewGame';
 import PlayGame from './containers/PlayGame/PlayGame';
 import { getAppThemeIdFromLocalStorage, setAppThemeIdInLocalStorage } from './utils/local-storage.utils';
 
+const backspaceDisabler = require('backspace-disabler');
+
 interface AppState {
     activeTheme: AppTheme;
 }
-
 class App extends Component<any, AppState> {
     public state: AppState = {
         activeTheme: AppThemes[0],
@@ -48,6 +49,8 @@ class App extends Component<any, AppState> {
     }
 
     public componentDidMount() {
+        // Prevent browser back on backspace (e.g. in Firefox).
+        backspaceDisabler.disable();
         const appThemeId = getAppThemeIdFromLocalStorage();
         if (appThemeId) {
             const appTheme = AppThemes.find(theme => theme.id === appThemeId);

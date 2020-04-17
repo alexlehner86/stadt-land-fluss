@@ -131,10 +131,6 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             />
         ) : null;
         const loadingScreenElement = showLoadingScreen ? <LoadingScreen message={loadingScreenMessage} /> : null;
-        // Render main content only if no loading screen or letter animation are visible.
-        // Exception: Also render it during fillOutTextfields phase, when no letter animation is visible. (Bugfix!)
-        const renderMainContent = (!showLoadingScreen && !showLetterAnimation)
-            || (this.state.currentPhase === GamePhase.fillOutTextfields && !showLetterAnimation);
         return (
             <PubNubProvider client={this.pubNubClient}>
                 {/* The props passed to PubNubEventHandler must never be changed,
@@ -154,7 +150,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                 />
                 {letterAnimationElement}
                 {loadingScreenElement}
-                {renderMainContent ? (
+                {!showLoadingScreen && !showLetterAnimation ? (
                     <div className="main-content-wrapper">
                         {currentPhaseElement}
                     </div>
