@@ -1,5 +1,5 @@
 import './JoinGameLink.css';
-import { IconButton, InputAdornment, OutlinedInput } from '@material-ui/core';
+import { IconButton, InputAdornment, OutlinedInput, Snackbar } from '@material-ui/core';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 import React from 'react';
 import { copyToClipboard } from '../../utils/general.utils';
@@ -9,9 +9,19 @@ interface JoinGameLinkProps {
 }
 
 export const JoinGameLink: React.FunctionComponent<JoinGameLinkProps> = props => {
+    const [open, setOpen] = React.useState(false);
+    const handleClick = () => {
+        copyToClipboard(joinGameLink)
+        setOpen(true);
+    };
+    const handleClose = () => {
+        setOpen(false);
+    };
+
     const url = window.location.href;
     // Cut off "/play" from the end of the url and add route plus game id.
     const joinGameLink = url.slice(0, url.length - 5) + '/joingame?id=' + props.gameId;
+
     return (
         <React.Fragment>
             <p className="join-game-link-label">Teile diesen Link mit Freunden:</p>
@@ -26,12 +36,22 @@ export const JoinGameLink: React.FunctionComponent<JoinGameLinkProps> = props =>
                         <IconButton
                             title="Link kopieren"
                             aria-label="Link kopieren"
-                            onClick={() => copyToClipboard(joinGameLink)}
+                            onClick={handleClick}
                         >
                             <FileCopyIcon />
                         </IconButton>
                     </InputAdornment>
                 }
+            />
+            <Snackbar
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'center',
+                }}
+                open={open}
+                autoHideDuration={1500}
+                onClose={handleClose}
+                message="Der Link wurde in Zwischenablage kopiert."
             />
         </React.Fragment>
     );

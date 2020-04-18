@@ -24,7 +24,8 @@ const useStyles = makeStyles(_ =>
             marginBlockStart: '0',
             color: 'white',
             fontSize: '1.5rem',
-            fontWeight: 'bold'
+            fontWeight: 'bold',
+            textAlign: 'center'
         },
         loadingSpinner: {
             margin: '0 auto',

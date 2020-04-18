@@ -22,7 +22,6 @@
 .img-copyright {
     display: flex;
     flex-direction: column;
-    padding-top: 1rem;
     color: gray;
     font-size: 0.6rem;
     text-align: center;

@@ -21,11 +21,12 @@ export class Dashboard extends Component {
                     />
                     <div className="img-copyright">
                         <h3>Credits/Bilder</h3>
-                        <a href="https://www.vecteezy.com/vector-art/830131-river-city-landscape-with-buildings-hills-and-trees" target="_blank" rel="noopener noreferrer">Stadt-Land-Fluss (oben) by pikgura – www.vecteezy.com</a>
+                        <a href="https://www.vecteezy.com/vector-art/830131-river-city-landscape-with-buildings-hills-and-trees" target="_blank" rel="noopener noreferrer">Homepage/Stadt-Land-Fluss by pikgura – www.vecteezy.com</a>
                         <a href="https://www.vecteezy.com/vector-art/276920-abstract-seamless-pattern-with-tropical-leaves" target="_blank" rel="noopener noreferrer">Theme Grün/Wald by NadiaGrapes – www.vecteezy.com</a>
                         <a href="https://www.freepik.com/free-photos-vectors/background" target="_blank" rel="noopener noreferrer">Theme Blau/Meer by macrovector – www.freepik.com</a>
                         <a href="https://www.vecteezy.com/vector-art/460735-seashell-sand-seamless-pattern" target="_blank" rel="noopener noreferrer">Theme Orange/Strand by Macrovector – www.vecteezy.com</a>
                         <a href="https://www.vecteezy.com/vector-art/454258-music-seamless" target="_blank" rel="noopener noreferrer">Theme Pink/Musik by Macrovector – www.vecteezy.com</a>
+                        <a href="https://www.vecteezy.com/vector-art/662038-cat-and-bat-pattern" target="_blank" rel="noopener noreferrer">Theme Schwarz/Goth by angyee – www.vecteezy.com</a>
                     </div>
                 </div>
             </div>

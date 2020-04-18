@@ -58,3 +58,7 @@
     background-color: purple;
     color: white;
 }
+.app-header.black-theme {
+    background-color: #1a1a1a;
+    color: white;
+}

@@ -2,6 +2,12 @@ This project is an online version of the popular European game "Stadt-Land-Fluss
 
 ## Release Notes
 
+### v1.0.3
+
+- Improved layout/UI on mobile and tablets
+- Rework themes and add credits for (background) images
+- Add 5th theme: Black
+
 ### v1.0.2
 
 - Add letter animation before new round to unveil next letter

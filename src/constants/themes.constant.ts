@@ -6,6 +6,7 @@ import orange from '@material-ui/core/colors/orange';
 import indigo from '@material-ui/core/colors/indigo';
 import purple from '@material-ui/core/colors/purple';
 import amber from '@material-ui/core/colors/amber';
+import blueGrey from '@material-ui/core/colors/blueGrey';
 import { createMuiTheme, Theme } from '@material-ui/core/styles';
 import CSS from 'csstype';
 
@@ -13,7 +14,8 @@ export enum APP_THEME_ID {
     green = 'green',
     blue = 'blue',
     orange = 'orange',
-    pink = 'pink'
+    pink = 'pink',
+    black = 'black'
 }
 
 export interface AppTheme {
@@ -75,6 +77,18 @@ export const AppThemes: AppTheme[] = [
             background:
                 `linear-gradient(rgba(133, 14, 103, 0.3), rgba(133, 14, 103, 0.3)),
                 url('${process.env.PUBLIC_URL}/assets/music-pattern.jpg')`
+        }
+    },
+    {
+        id: APP_THEME_ID.black,
+        animationBackgroundColor: 'rgb(0, 0, 0)',
+        className: 'black-theme',
+        displayName: 'Schwarz/Goth',
+        muiTheme: createMuiTheme({ palette: { primary: blueGrey, secondary: orange } }),
+        style: {
+            background:
+                `linear-gradient(rgba(0, 51, 153, 0.1), rgba(0, 51, 153, 0.1)),
+                url('${process.env.PUBLIC_URL}/assets/halloween-pattern.jpg')`
         }
     },
 ]

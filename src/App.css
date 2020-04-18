@@ -41,6 +41,13 @@
     background-color: purple;
     color: white;
 }
+.app-main.black-theme {
+    background-size: 30% !important;
+}
+.app-main.black-theme .dashboard-container .link-container a {
+    background-color: black;
+    color: white;
+}
 
 .main-content-wrapper {
     max-width: 35rem;
@@ -93,4 +100,25 @@
 
 .MuiSvgIcon-root.MuiChip-avatar.chip-icon-no-bg {
     background-color: rgba(0, 0, 0, 0) !important;
+}
+
+@media only screen and (max-width: 800px) {
+    .main-content-wrapper {
+        padding-bottom: 6rem;
+    }
+    .app-main.green-theme {
+        background-size: 45% !important;
+    }
+    .app-main.blue-theme {
+        background-size: 100% !important;
+    }
+    .app-main.orange-theme {
+        background-size: 60% !important;
+    }
+    .app-main.pink-theme {
+        background-size: 100% !important;
+    }
+    .app-main.black-theme {
+        background-size: 90% !important;
+    }
 }
