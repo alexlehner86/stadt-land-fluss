@@ -45,12 +45,12 @@ export const AppThemes: AppTheme[] = [
         id: APP_THEME_ID.blue,
         animationBackgroundColor: 'rgb(9, 100, 204)',
         className: 'blue-theme',
-        displayName: 'Blau/Fluss',
+        displayName: 'Blau/Meer',
         muiTheme: createMuiTheme({ palette: { primary: blue, secondary: deepOrange } }),
         style: {
             background:
                 `linear-gradient(rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.3)),
-                url('${process.env.PUBLIC_URL}/assets/river-pattern.jpg')`
+                url('${process.env.PUBLIC_URL}/assets/sea-pattern.jpg')`
         }
     },
     {
@@ -61,7 +61,7 @@ export const AppThemes: AppTheme[] = [
         muiTheme: createMuiTheme({ palette: { primary: orange, secondary: indigo } }),
         style: {
             background:
-                `linear-gradient(rgba(241, 179, 8, 0.1), rgba(240, 188, 47, 0.1)),
+                `linear-gradient(rgba(241, 179, 8, 0.3), rgba(240, 188, 47, 0.3)),
                 url('${process.env.PUBLIC_URL}/assets/beach-pattern.jpg')`
         }
     },

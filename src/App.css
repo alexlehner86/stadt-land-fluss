@@ -10,17 +10,36 @@
     position: relative;
     flex: 1 1 0rem;
 }
+.app-main .dashboard-container .link-container a {
+    opacity: 0.9;
+}
 .app-main.green-theme {
     background-size: 15% !important;
 }
+.app-main.green-theme .dashboard-container .link-container a {
+    background-color: darkgreen;
+    color: white;
+}
 .app-main.blue-theme {
-    background-size: 30% !important;
+    background-size: 35% !important;
+}
+.app-main.blue-theme .dashboard-container .link-container a {
+    background-color: lightseagreen;
+    color: black;
 }
 .app-main.orange-theme {
     background-size: 20% !important;
 }
+.app-main.orange-theme .dashboard-container .link-container a {
+    background-color: orange;
+    color: black;
+}
 .app-main.pink-theme {
-    background-size: 30% !important;
+    background-size: 50% !important;
+}
+.app-main.pink-theme .dashboard-container .link-container a {
+    background-color: purple;
+    color: white;
 }
 
 .main-content-wrapper {

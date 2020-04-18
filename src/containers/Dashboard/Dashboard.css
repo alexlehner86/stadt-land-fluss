@@ -1,7 +1,7 @@
 .dashboard-container .link-container {
     display: flex;
     justify-content: space-around;
-    padding: 1rem 0 0.5rem;
+    padding: 1rem 0.5rem;
 }
 
 .dashboard-container .link-container a {
@@ -11,4 +11,28 @@
     padding: 1rem 0.8rem;
     border-radius: 5px;
     text-align: center;
+}
+
+.dashboard-slf-image {
+    margin-left: -1rem;
+    width: calc(100% + 2rem);
+    object-fit: contain;
+}
+
+.img-copyright {
+    display: flex;
+    flex-direction: column;
+    padding-top: 1rem;
+    color: gray;
+    font-size: 0.6rem;
+    text-align: center;
+}
+.img-copyright a {
+    color: gray;
+}
+.img-copyright a:hover {
+    color: black;
+}
+.img-copyright a:active {
+    color: gray;
 }
