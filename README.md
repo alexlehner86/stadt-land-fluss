@@ -2,6 +2,10 @@ This project is an online version of the popular European game "Stadt-Land-Fluss
 
 ## Release Notes
 
+### v1.1.0
+
+- Add "Lookup text" feature. In the evaluation phase, every player input has a link that opens a new page with the results of the search for the category plus player input in the search engine "Ecosia".
+
 ### v1.0.3
 
 - Improved layout/UI on mobile and tablets

@@ -1,6 +1,7 @@
 import './PhaseEvaluateRound.css';
 import { Checkbox, IconButton, InputAdornment, TextField, Tooltip } from '@material-ui/core';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import SearchIcon from '@material-ui/icons/Search';
 import React, { ChangeEvent } from 'react';
 import {
     EvaluationOfPlayerInput,
@@ -60,30 +61,53 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
      * The first checkbox represents the user's evaluation and is the only one that triggers a PubNub
      * message to the other players (and themselves) with the updated state of the checkbox.
      */
-    const createEvaluationCheckboxes = (categoryIndex: number, indexInSortedPlayers: number): JSX.Element => {
+    const createEvaluationCheckboxesAndSearchLink = (categoryIndex: number, indexInSortedPlayers: number): JSX.Element => {
         // Make sure that current player's checkbox is first in line.
         const players = [playerInfo, ...(sortedPlayers.filter(player => player.id !== playerInfo.id))];
         const evaluationForPlayer = props.currentRoundEvaluation.get(sortedPlayers[indexInSortedPlayers].id) as PlayerInputEvaluation[];
         const evaluationForCategory = evaluationForPlayer[categoryIndex];
+        const category = gameConfig.categories[categoryIndex];
+        const playerInput = (finishedGameRound.get(sortedPlayers[indexInSortedPlayers].id) as PlayerInput[])[categoryIndex].text;
+        const searchLink = `https://www.ecosia.org/search?q=${encodeURIComponent(category)}+${encodeURIComponent(playerInput)}`
         return (
             <div
-                key={`slf-evaluation-checkboxes-wrapper-${categoryIndex}-${indexInSortedPlayers}`}
-                className="slf-evaluation-checkboxes-wrapper"
+                key={`slf-evaluation-container-${categoryIndex}-${indexInSortedPlayers}`}
+                className="slf-evaluation-container"
             >
-                {players.map((player, index) => (
+                <div
+                    key={`slf-evaluation-checkboxes-wrapper-${categoryIndex}-${indexInSortedPlayers}`}
+                    className="slf-evaluation-checkboxes-wrapper"
+                >
+                    {players.map((player, index) => (
+                        <Tooltip
+                            key={`slf-evaluation-tooltip-${categoryIndex}-${indexInSortedPlayers}-${index}`}
+                            title={getEvaluatedByText(player)}
+                        >
+                            <Checkbox
+                                key={`slf-evaluation-checkbox-${categoryIndex}-${indexInSortedPlayers}-${index}`}
+                                color={player.id === playerInfo.id ? 'primary' : 'default'}
+                                checked={!!evaluationForCategory.get(player.id)}
+                                inputProps={{ 'aria-label': getEvaluatedByText(player) }}
+                                onChange={event => handleCheckboxChange(event, player, categoryIndex, indexInSortedPlayers)}
+                            />
+                        </Tooltip>
+                    ))}
+                </div>
+                <a
+                    key={`slf-evaluation-search-link-${categoryIndex}-${indexInSortedPlayers}`}
+                    href={searchLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Begriff nachschlagen"
+                    className="slf-evaluation-search-link"
+                >
                     <Tooltip
-                        key={`slf-evaluation-tooltip-${categoryIndex}-${indexInSortedPlayers}-${index}`}
-                        title={getEvaluatedByText(player)}
+                        title="Begriff nachschlagen"
+                        placement="right"
                     >
-                        <Checkbox
-                            key={`slf-evaluation-checkbox-${categoryIndex}-${indexInSortedPlayers}-${index}`}
-                            color={player.id === playerInfo.id ? 'primary' : 'default'}
-                            checked={!!evaluationForCategory.get(player.id)}
-                            inputProps={{ 'aria-label': getEvaluatedByText(player) }}
-                            onChange={event => handleCheckboxChange(event, player, categoryIndex, indexInSortedPlayers)}
-                        />
+                        <SearchIcon color="primary" />
                     </Tooltip>
-                ))}
+                </a>
             </div>
         );
     }
@@ -121,7 +145,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                         }}
                     />
                     {(finishedGameRound.get(player.id) as PlayerInput[])[categoryIndex].text ?
-                        createEvaluationCheckboxes(categoryIndex, indexInSortedPlayers) : null}
+                        createEvaluationCheckboxesAndSearchLink(categoryIndex, indexInSortedPlayers) : null}
                 </div>
             ))}
         </div>

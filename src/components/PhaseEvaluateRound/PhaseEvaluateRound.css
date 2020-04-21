@@ -4,11 +4,22 @@
 .slf-evaluation-textfield.MuiFormControl-root {
     margin-bottom: 0.5rem;
 }
-.slf-evaluation-checkboxes-wrapper {
+.slf-evaluation-container {
     position: absolute;
     top: 44%;
     right: 0.5rem;
     transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    font-size: 1.5rem;
+}
+.slf-evaluation-search-link {
+    display: flex;
+    width: 1em;
+    height: 1em;
+    margin-left: 0.2rem;
+}
+.slf-evaluation-checkboxes-wrapper {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
