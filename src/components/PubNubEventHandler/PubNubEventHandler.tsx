@@ -33,6 +33,9 @@ const PubNubEventHandler: React.FunctionComponent<PubNubEventHandlerProps> = pro
                     setUserState();
                     if (!props.playerInfo.isAdmin) {
                         getHereNowData();
+                        // Safeguard against the possibility of two players joining exactly at the same time:
+                        // We call hereNowData again after 3 seconds, to make sure we get all player info.
+                        setTimeout(getHereNowData, 3000);
                     }
                 }
             }
@@ -59,7 +62,15 @@ const PubNubEventHandler: React.FunctionComponent<PubNubEventHandlerProps> = pro
                 // Response includes states of players that joined before.
                 const dataForGameChannel = response.channels[props.gameChannel];
                 if (dataForGameChannel) {
-                    props.addPlayers(...dataForGameChannel.occupants.map(occupant => occupant.state as PubNubUserState));
+                    const pubNubUserStates: PubNubUserState[] = [];
+                    dataForGameChannel.occupants.forEach(occupant => {
+                        const userState = occupant.state as PubNubUserState;
+                        // Safeguard in case that a user's state should be missing or corrupted.
+                        if (!!userState && !!userState.playerInfo) {
+                            pubNubUserStates.push(userState);
+                        }
+                    });
+                    props.addPlayers(...pubNubUserStates);
                 }
             }
         );

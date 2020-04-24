@@ -210,7 +210,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         newPlayers.forEach(newPlayer => {
             allPlayers.set(newPlayer.playerInfo.id, newPlayer.playerInfo);
             // If we are not the game admin, we obtain the game config from the admin's PubNubUserState.
-            if (newPlayer.gameConfig) {
+            if (newPlayer.gameConfig && !this.state.gameConfig) {
                 gameConfig = newPlayer.gameConfig;
             }
         });
