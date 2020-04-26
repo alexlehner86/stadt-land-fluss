@@ -12,6 +12,7 @@ import ToDashboardButton from '../../components/ToDashboardButton/ToDashboardBut
 import { PUBNUB_CONFIG } from '../../config/pubnub.config';
 import {
     AVAILABLE_CATEGORIES,
+    DEFAULT_NUMBER_OF_ROUNDS,
     MAX_NUMBER_OF_ROUNDS,
     MIN_NUMBER_OF_ROUNDS,
     STANDARD_CATEGORIES,
@@ -40,7 +41,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
     public state: NewGameState = {
         availableCategories: AVAILABLE_CATEGORIES,
         nameInput: '',
-        numberOfRoundsInput: MIN_NUMBER_OF_ROUNDS,
+        numberOfRoundsInput: DEFAULT_NUMBER_OF_ROUNDS,
         selectedCategories: STANDARD_CATEGORIES,
         validateInputs: false
     };
@@ -51,7 +52,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
             <form onSubmit={this.handleSubmit} className="app-form" noValidate autoComplete="off">
                 <TextField
                     name="nameInput"
-                    label="Spielername"
+                    label="Spielername (max. 20 Zeichen)"
                     value={this.state.nameInput}
                     onChange={this.handleNameInputChange}
                     className="app-form-input"
@@ -59,6 +60,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     fullWidth
                     required
                     error={this.state.validateInputs && !this.state.nameInput}
+                    inputProps={{ 'maxLength': '20' }}
                 />
                 <TextField
                     name="numberOfRoundsInput"
@@ -69,6 +71,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     variant="outlined"
                     fullWidth
                     required
+                    inputProps={{ 'min': MIN_NUMBER_OF_ROUNDS, 'max': MAX_NUMBER_OF_ROUNDS }}
                 />
                 <p className="category-array-label">Ausgewählte Kategorien (mind. 3):</p>
                 <ChipsArray
@@ -112,9 +115,9 @@ class NewGame extends Component<NewGameProps, NewGameState> {
 
     private handleNumberOfRoundsInputChange = (event: ChangeEvent<HTMLInputElement>) => {
         let value = +event.target.value;
-        value = value < MIN_NUMBER_OF_ROUNDS ? MIN_NUMBER_OF_ROUNDS : value;
-        value = value > MAX_NUMBER_OF_ROUNDS ? MAX_NUMBER_OF_ROUNDS : value;
-        this.setState({ numberOfRoundsInput: value });
+        if (value >= MIN_NUMBER_OF_ROUNDS && value <= MAX_NUMBER_OF_ROUNDS) {
+            this.setState({ numberOfRoundsInput: value });
+        }
     }
 
     private updateCategoryArrays = (chipToRemove: string, removeFromArray: CategoryArray) => {
