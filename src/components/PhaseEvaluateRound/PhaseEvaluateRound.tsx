@@ -1,8 +1,9 @@
 import './PhaseEvaluateRound.css';
-import { Checkbox, IconButton, InputAdornment, TextField, Tooltip } from '@material-ui/core';
+import { Badge, createStyles, IconButton, InputAdornment, TextField, Theme, Tooltip, withStyles } from '@material-ui/core';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import SearchIcon from '@material-ui/icons/Search';
-import React, { ChangeEvent } from 'react';
+import ThumbDownRoundedIcon from '@material-ui/icons/ThumbDownRounded';
+import React from 'react';
 import {
     EvaluationOfPlayerInput,
     GameConfig,
@@ -15,9 +16,21 @@ import { PlayerInfo } from '../../models/player.interface';
 import {
     getMinNumberOfMarkedAsInvalid as getMinNumberOfNecessaryMarkedAsInvalid,
     getNumberOfInvalids,
+    getRejectingPlayers,
 } from '../../utils/game.utils';
 import GameRoundChip from '../GameRoundChip/GameRoundChip';
 import { SectionHeader } from '../SectionHeader/SectionHeader';
+
+const StyledBadge = withStyles((theme: Theme) =>
+    createStyles({
+        badge: {
+            right: -3,
+            top: '100%',
+            border: `2px solid ${theme.palette.background.paper}`,
+            padding: '0 4px',
+        },
+    }),
+)(Badge);
 
 interface PhaseEvaluateRoundProps {
     allPlayers: Map<string, PlayerInfo>;
@@ -30,7 +43,6 @@ interface PhaseEvaluateRoundProps {
     updateEvaluationOfPlayerInput: (newEvaluation: EvaluationOfPlayerInput) => void;
     sendEvaluationFinishedMessage: () => void;
 }
-
 const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = props => {
     const { allPlayers, currentRound, gameConfig, playerInfo } = props;
     const minNumberOfInvalids = getMinNumberOfNecessaryMarkedAsInvalid(allPlayers.size);
@@ -41,58 +53,74 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
     let sortedPlayers = Array.from(allPlayers).map(data => data[1]);
     sortedPlayers = sortedPlayers.sort((a, b) => a.name.charCodeAt(0) - b.name.charCodeAt(0));
 
-    const handleCheckboxChange = (
-        event: ChangeEvent<HTMLInputElement>, checkboxOwner: PlayerInfo, categoryIndex: number, indexInSortedPlayers: number
+    const handleEvaluationButtonClick = (
+        categoryIndex: number, indexInSortedPlayers: number, currentEvaluation: boolean
     ) => {
-        // Only accept checkbox changes for the user's evaluation checkboxes.
-        if (checkboxOwner.id === playerInfo.id) {
-            const evaluatedPlayer = sortedPlayers[indexInSortedPlayers];
-            props.updateEvaluationOfPlayerInput({
-                evaluatedPlayerId: evaluatedPlayer.id,
-                categoryIndex,
-                markedAsValid: event.target.checked
-            });
-        }
+        const evaluatedPlayer = sortedPlayers[indexInSortedPlayers];
+        props.updateEvaluationOfPlayerInput({
+            categoryIndex,
+            evaluatedPlayerId: evaluatedPlayer.id,
+            markedAsValid: !currentEvaluation
+        });
     }
     /**
-     * Creates a group of checkboxes for each player in the game that represent their evaluation of
-     * the text input of one of the players (including themselves) for one category. Users can either
-     * mark a text input as valid (= checkbox checked) or invalid (= checkbox not checked).
-     * The first checkbox represents the user's evaluation and is the only one that triggers a PubNub
-     * message to the other players (and themselves) with the updated state of the checkbox.
+     * Displays a button that allows the player to reject an input by a player for a category.
+     * A badge attached to the button shows the total number of rejections.
+     * If the player didn't type any text, then a not clickable thumb down icon is shown
+     * with its color set to primary color, indicating that the input was auto rejected.
      */
-    const createEvaluationCheckboxesAndSearchLink = (categoryIndex: number, indexInSortedPlayers: number): JSX.Element => {
-        // Make sure that current player's checkbox is first in line.
-        const players = [playerInfo, ...(sortedPlayers.filter(player => player.id !== playerInfo.id))];
-        const evaluationForPlayer = props.currentRoundEvaluation.get(sortedPlayers[indexInSortedPlayers].id) as PlayerInputEvaluation[];
+    const createEvaluationButton = (categoryIndex: number, indexInSortedPlayers: number): JSX.Element => {
+        const player = sortedPlayers[indexInSortedPlayers];
+        const evaluationForPlayer = props.currentRoundEvaluation.get(player.id) as PlayerInputEvaluation[];
         const evaluationForCategory = evaluationForPlayer[categoryIndex];
+        const hasPlayerTypedText = !!(finishedGameRound.get(player.id) as PlayerInput[])[categoryIndex].text;
+        const isInputAcceptedByUser = evaluationForCategory.get(playerInfo.id) as boolean;
+        const rejectingPlayers = getRejectingPlayers(evaluationForCategory, allPlayers);
+        const tooltipText = rejectingPlayers.length === 0 ? 'Keine Ablehnungen' :
+            'Abgelehnt von ' + rejectingPlayers.map(p => p.name).join(', ');
+        return (
+            <div
+                key={`slf-evaluation-button-wrapper-${categoryIndex}-${indexInSortedPlayers}`}
+                className="slf-evaluation-button-wrapper"
+            >
+                {hasPlayerTypedText ? (
+                    <Tooltip
+                        key={`slf-evaluation-tooltip-${categoryIndex}-${indexInSortedPlayers}`}
+                        title={tooltipText}
+                    >
+                        <IconButton
+                            className="slf-evaluation-button"
+                            color={isInputAcceptedByUser ? 'default' : 'secondary'}
+                            onClick={() => handleEvaluationButtonClick(categoryIndex, indexInSortedPlayers, isInputAcceptedByUser)}
+                        >
+                            <StyledBadge badgeContent={rejectingPlayers.length} color="secondary">
+                                <ThumbDownRoundedIcon />
+                            </StyledBadge>
+                        </IconButton>
+                    </Tooltip>
+                ) : (
+                    <Tooltip
+                        key={`slf-evaluation-tooltip-${categoryIndex}-${indexInSortedPlayers}`}
+                        title="Automatisch abgelehnt"
+                    >
+                        <ThumbDownRoundedIcon color="secondary" className="slf-auto-reject-icon" />
+                    </Tooltip>
+                )}
+            </div>
+        );
+    }
+    /**
+     * Creates a search link for a specific category and player input.
+     */
+    const createSearchLink = (categoryIndex: number, indexInSortedPlayers: number): JSX.Element => {
         const category = gameConfig.categories[categoryIndex];
         const playerInput = (finishedGameRound.get(sortedPlayers[indexInSortedPlayers].id) as PlayerInput[])[categoryIndex].text;
         const searchLink = `https://www.ecosia.org/search?q=${encodeURIComponent(category)}+${encodeURIComponent(playerInput)}`
         return (
             <div
-                key={`slf-evaluation-container-${categoryIndex}-${indexInSortedPlayers}`}
-                className="slf-evaluation-container"
+                key={`slf-search-link-container-${categoryIndex}-${indexInSortedPlayers}`}
+                className="slf-search-link-container"
             >
-                <div
-                    key={`slf-evaluation-checkboxes-wrapper-${categoryIndex}-${indexInSortedPlayers}`}
-                    className="slf-evaluation-checkboxes-wrapper"
-                >
-                    {players.map((player, index) => (
-                        <Tooltip
-                            key={`slf-evaluation-tooltip-${categoryIndex}-${indexInSortedPlayers}-${index}`}
-                            title={getEvaluatedByText(player)}
-                        >
-                            <Checkbox
-                                key={`slf-evaluation-checkbox-${categoryIndex}-${indexInSortedPlayers}-${index}`}
-                                color={player.id === playerInfo.id ? 'primary' : 'default'}
-                                checked={!!evaluationForCategory.get(player.id)}
-                                inputProps={{ 'aria-label': getEvaluatedByText(player) }}
-                                onChange={event => handleCheckboxChange(event, player, categoryIndex, indexInSortedPlayers)}
-                            />
-                        </Tooltip>
-                    ))}
-                </div>
                 <a
                     key={`slf-evaluation-search-link-${categoryIndex}-${indexInSortedPlayers}`}
                     href={searchLink}
@@ -111,9 +139,36 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
             </div>
         );
     }
-    const getEvaluatedByText = (player: PlayerInfo): string => {
-        return player.id === playerInfo.id ? 'Deine Bewertung' : 'Bewertung von ' + player.name;
-    };
+    /**
+     * Creates a text input showing the player's input for a category.
+     * If the input isn't empty, a search link and clickable evaluation button is displayed.
+     */
+    const playerEvaluationElements = (categoryIndex: number, indexInSortedPlayers: number): JSX.Element => {
+        const player = sortedPlayers[indexInSortedPlayers];
+        const isInputValid = getNumberOfInvalids(
+            (props.currentRoundEvaluation.get(player.id) as PlayerInputEvaluation[])[categoryIndex]
+        ) < minNumberOfInvalids;
+        const hasPlayerTypedText = !!(finishedGameRound.get(player.id) as PlayerInput[])[categoryIndex].text;
+        return (
+            <div
+                key={`slf-evaluation-textfield-wrapper-${categoryIndex}-${indexInSortedPlayers}`}
+                className="slf-evaluation-textfield-wrapper"
+            >
+                <TextField
+                    key={'slf-textfield-category-no-' + categoryIndex + '-player-' + indexInSortedPlayers}
+                    value={(finishedGameRound.get(player.id) as PlayerInput[])[categoryIndex].text}
+                    variant="outlined"
+                    fullWidth
+                    InputProps={{
+                        startAdornment: <InputAdornment position="start">{player.name}:</InputAdornment>,
+                        className: !hasPlayerTypedText || !isInputValid ? 'invalid-player-input' : ''
+                    }}
+                />
+                {hasPlayerTypedText ? createSearchLink(categoryIndex, indexInSortedPlayers) : null}
+                {createEvaluationButton(categoryIndex, indexInSortedPlayers)}
+            </div>
+        );
+    }
     /**
      * Creates a section for each category of the current game. It displays the category in the header,
      * followed by one textfield for each player showing their input for the finished round. If the
@@ -126,34 +181,17 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
             className="material-card-style"
         >
             <SectionHeader showDivider={false} text={category}></SectionHeader>
-            {sortedPlayers.map((player, indexInSortedPlayers) => (
-                <div
-                    key={`slf-evaluation-textfield-wrapper-${categoryIndex}-${indexInSortedPlayers}`}
-                    className="slf-evaluation-textfield-wrapper"
-                >
-                    <TextField
-                        key={'slf-textfield-category-no-' + categoryIndex + '-player-' + indexInSortedPlayers}
-                        value={(finishedGameRound.get(player.id) as PlayerInput[])[categoryIndex].text}
-                        className="slf-evaluation-textfield"
-                        variant="outlined"
-                        fullWidth
-                        InputProps={{
-                            startAdornment: <InputAdornment position="start">{player.name}:</InputAdornment>,
-                            className: getNumberOfInvalids(
-                                (props.currentRoundEvaluation.get(player.id) as PlayerInputEvaluation[])[categoryIndex]
-                            ) >= minNumberOfInvalids ? 'text-decoration-line-through' : ''
-                        }}
-                    />
-                    {(finishedGameRound.get(player.id) as PlayerInput[])[categoryIndex].text ?
-                        createEvaluationCheckboxesAndSearchLink(categoryIndex, indexInSortedPlayers) : null}
-                </div>
-            ))}
+            {sortedPlayers.map((_, indexInSortedPlayers) => playerEvaluationElements(categoryIndex, indexInSortedPlayers))}
         </div>
     );
 
     return (
         <React.Fragment>
-            <GameRoundChip currentLetter={currentLetter} currentRound={currentRound} />
+            <GameRoundChip
+                currentLetter={currentLetter}
+                currentRound={currentRound}
+                numberOfRounds={gameConfig.numberOfRounds}
+            />
             <form className="app-form" noValidate autoComplete="off">
                 {gameConfig.categories.map(createCategorySection)}
                 <IconButton

@@ -65,6 +65,22 @@ export const getNumberOfInvalids = (evaluations: PlayerInputEvaluation): number 
     return count;
 };
 
+/**
+ * Returns the players that marked the input as invalid.
+ */
+export const getRejectingPlayers = (evaluations: PlayerInputEvaluation, players: Map<string, PlayerInfo>): PlayerInfo[] => {
+    const rejectingPlayers: PlayerInfo[] = [];
+    evaluations.forEach((markedAsValid, playerId) => {
+        if (!markedAsValid) {
+            const player = players.get(playerId);
+            if (player) {
+                rejectingPlayers.push(player);
+            }
+        }
+    });
+    return rejectingPlayers.sort((a, b) => a.name.charCodeAt(0) - b.name.charCodeAt(0));
+};
+
 export const processPlayerInputEvaluations = (
     gameRound: GameRound, roundEvaluation: GameRoundEvaluation, minNumberOfInvalids: number
 ): GameRound => {

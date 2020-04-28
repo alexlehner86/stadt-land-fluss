@@ -22,17 +22,18 @@ const useStyles = makeStyles(_ =>
 interface GameRoundChipProps {
     currentLetter: string;
     currentRound: number;
+    numberOfRounds: number;
 }
 
 const GameRoundChip: React.FunctionComponent<GameRoundChipProps> = props => {
     const classes = useStyles();
-    const { currentLetter, currentRound } = props;
+    const { currentLetter, currentRound, numberOfRounds } = props;
     return (
         <div className={classes.centerContent}>
             <Chip
                 color="primary"
                 icon={<EmojiObjectsIcon />}
-                label={`Runde ${currentRound}: „${currentLetter}“`}
+                label={`Runde ${currentRound} von ${numberOfRounds}: „${currentLetter}“`}
                 className={classes.chip}
             />
         </div>

@@ -42,7 +42,11 @@ const PhaseFillOutTextfields: React.FunctionComponent<PhaseFillOutTextfieldsProp
 
     return (
         <React.Fragment>
-            <GameRoundChip currentLetter={currentLetter} currentRound={currentRound} />
+            <GameRoundChip
+                currentLetter={currentLetter}
+                currentRound={currentRound}
+                numberOfRounds={gameConfig.numberOfRounds}
+            />
             <form className="app-form" noValidate autoComplete="off">
                 {gameConfig.categories.map(createTextfieldElement)}
                 <IconButton

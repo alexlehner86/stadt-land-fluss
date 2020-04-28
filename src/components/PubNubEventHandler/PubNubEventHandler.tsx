@@ -34,8 +34,8 @@ const PubNubEventHandler: React.FunctionComponent<PubNubEventHandlerProps> = pro
                     if (!props.playerInfo.isAdmin) {
                         getHereNowData();
                         // Safeguard against the possibility of two players joining exactly at the same time:
-                        // We call hereNowData again after 3 seconds, to make sure we get all player info.
-                        setTimeout(getHereNowData, 3000);
+                        // We call hereNowData again after 2 seconds, to make sure we get all player info.
+                        setTimeout(getHereNowData, 2000);
                     }
                 }
             }

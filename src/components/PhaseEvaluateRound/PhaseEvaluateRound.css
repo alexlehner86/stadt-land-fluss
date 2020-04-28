@@ -1,13 +1,16 @@
 .slf-evaluation-textfield-wrapper {
     position: relative;
-}
-.slf-evaluation-textfield.MuiFormControl-root {
+    display: flex;
     margin-bottom: 0.5rem;
 }
-.slf-evaluation-container {
+.invalid-player-input.MuiInputBase-root {
+    color: crimson;
+    text-decoration: line-through;
+}
+.slf-search-link-container {
     position: absolute;
-    top: 44%;
-    right: 0.5rem;
+    top: 50%;
+    right: 3.8rem;
     transform: translateY(-50%);
     display: flex;
     align-items: center;
@@ -17,14 +20,15 @@
     display: flex;
     width: 1em;
     height: 1em;
-    margin-left: 0.2rem;
+    background-color: rgba(255, 255, 255, 0.8);
 }
-.slf-evaluation-checkboxes-wrapper {
+.slf-evaluation-button-wrapper {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    max-width: 6rem;
+    justify-content: center;
+    margin-left: 0.3rem;
 }
-.slf-evaluation-checkboxes-wrapper .MuiCheckbox-root {
-    padding: 0 !important;
+.slf-evaluation-button.MuiIconButton-root,
+.slf-auto-reject-icon {
+    padding: 0.75rem;
 }
