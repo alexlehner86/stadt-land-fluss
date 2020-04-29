@@ -3,6 +3,7 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import FaceIcon from '@material-ui/icons/Face';
 import React from 'react';
 import { PlayerInfo } from '../../models/player.interface';
+import { getPlayersInAlphabeticalOrder } from '../../utils/game.utils';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -20,19 +21,17 @@ const useStyles = makeStyles((theme: Theme) =>
 interface PlayerListProps {
     players: Map<string, PlayerInfo>;
 }
-
 const PlayerList: React.FunctionComponent<PlayerListProps> = props => {
     const classes = useStyles();
-    const playerNames: string[] = [];
-    props.players.forEach(player => playerNames.push(player.name));
+    const sortedPlayers = getPlayersInAlphabeticalOrder(props.players);
     return (
         <div className={classes.root}>
-            {playerNames.map((name, index) => (
+            {sortedPlayers.map((playerInfo, index) => (
                 <Chip
                     key={`player-name-${index}`}
                     icon={<FaceIcon />}
                     color="primary"
-                    label={name}
+                    label={playerInfo.name}
                     className={classes.chip}
                 />
             ))}

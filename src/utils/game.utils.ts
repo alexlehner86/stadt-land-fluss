@@ -23,6 +23,11 @@ export const getRandomnLetters = (numberOfLetters: number, possibleLetters = ALP
     return randomnLetters;
 };
 
+export const getPlayersInAlphabeticalOrder = (players: Map<string, PlayerInfo>): PlayerInfo[] => {
+    let playerInfoArray = Array.from(players).map(data => data[1]);
+    return playerInfoArray.sort((a, b) => a.name.charCodeAt(0) - b.name.charCodeAt(0));
+}
+
  /**
  * Checks each PlayerInput object whether it contains text.
  * If text string is empty, valid is set to false, otherwise to true.
@@ -66,19 +71,21 @@ export const getNumberOfInvalids = (evaluations: PlayerInputEvaluation): number 
 };
 
 /**
- * Returns the players that marked the input as invalid.
+ * Returns the players that marked the input as invalid in alphabetical order. Parameters:
+ * - evaluations: Evaluations of all players for one player's input for one category.
+ * - players: All players taking part in the running game of "Stadt-Land-Fluss".
  */
 export const getRejectingPlayers = (evaluations: PlayerInputEvaluation, players: Map<string, PlayerInfo>): PlayerInfo[] => {
-    const rejectingPlayers: PlayerInfo[] = [];
+    const rejectingPlayers = new Map<string, PlayerInfo>();
     evaluations.forEach((markedAsValid, playerId) => {
         if (!markedAsValid) {
-            const player = players.get(playerId);
-            if (player) {
-                rejectingPlayers.push(player);
+            const playerInfo = players.get(playerId);
+            if (playerInfo) {
+                rejectingPlayers.set(playerId, playerInfo);
             }
         }
     });
-    return rejectingPlayers.sort((a, b) => a.name.charCodeAt(0) - b.name.charCodeAt(0));
+    return getPlayersInAlphabeticalOrder(rejectingPlayers);;
 };
 
 export const processPlayerInputEvaluations = (

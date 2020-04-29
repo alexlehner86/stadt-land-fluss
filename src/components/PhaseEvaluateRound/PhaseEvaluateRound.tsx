@@ -16,6 +16,7 @@ import { PlayerInfo } from '../../models/player.interface';
 import {
     getMinNumberOfMarkedAsInvalid as getMinNumberOfNecessaryMarkedAsInvalid,
     getNumberOfInvalids,
+    getPlayersInAlphabeticalOrder,
     getRejectingPlayers,
 } from '../../utils/game.utils';
 import GameRoundChip from '../GameRoundChip/GameRoundChip';
@@ -44,40 +45,36 @@ interface PhaseEvaluateRoundProps {
     sendEvaluationFinishedMessage: () => void;
 }
 const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = props => {
-    const { allPlayers, currentRound, gameConfig, playerInfo } = props;
+    const { allPlayers, currentRound, currentRoundEvaluation, gameConfig, playerInfo } = props;
     const minNumberOfInvalids = getMinNumberOfNecessaryMarkedAsInvalid(allPlayers.size);
     // Retrieve data for finished round; e.g. if current round is 1, then data is at index 0.
     const finishedGameRound = props.gameRounds[currentRound - 1];
     const currentLetter = gameConfig.letters[currentRound - 1];
-    // Sort players alphabetically.
-    let sortedPlayers = Array.from(allPlayers).map(data => data[1]);
-    sortedPlayers = sortedPlayers.sort((a, b) => a.name.charCodeAt(0) - b.name.charCodeAt(0));
+    const sortedPlayers = getPlayersInAlphabeticalOrder(allPlayers);
 
+   /**
+     * Toggles the user's evaluation of a player's input for a category.
+     */
     const handleEvaluationButtonClick = (
-        categoryIndex: number, indexInSortedPlayers: number, currentEvaluation: boolean
+        categoryIndex: number, evaluatedPlayerId: string, currentEvaluation: boolean
     ) => {
-        const evaluatedPlayer = sortedPlayers[indexInSortedPlayers];
-        props.updateEvaluationOfPlayerInput({
-            categoryIndex,
-            evaluatedPlayerId: evaluatedPlayer.id,
-            markedAsValid: !currentEvaluation
-        });
+        props.updateEvaluationOfPlayerInput({ categoryIndex, evaluatedPlayerId, markedAsValid: !currentEvaluation });
     }
     /**
-     * Displays a button that allows the player to reject an input by a player for a category.
-     * A badge attached to the button shows the total number of rejections.
-     * If the player didn't type any text, then a not clickable thumb down icon is shown
-     * with its color set to primary color, indicating that the input was auto rejected.
+     * Displays a button that allows the user to reject a player's input for a category.
+     * A badge attached to the button shows the total number of rejections. If the player
+     * didn't type any text, then a not clickable thumb down icon is shown instead,
+     * which indicates that the input was automatically rejected by the application.
      */
     const createEvaluationButton = (categoryIndex: number, indexInSortedPlayers: number): JSX.Element => {
-        const player = sortedPlayers[indexInSortedPlayers];
-        const evaluationForPlayer = props.currentRoundEvaluation.get(player.id) as PlayerInputEvaluation[];
-        const evaluationForCategory = evaluationForPlayer[categoryIndex];
-        const hasPlayerTypedText = !!(finishedGameRound.get(player.id) as PlayerInput[])[categoryIndex].text;
+        const evaluatedPlayer = sortedPlayers[indexInSortedPlayers];
+        const allEvaluationsForPlayer = currentRoundEvaluation.get(evaluatedPlayer.id) as PlayerInputEvaluation[];
+        const evaluationForCategory = allEvaluationsForPlayer[categoryIndex];
         const isInputAcceptedByUser = evaluationForCategory.get(playerInfo.id) as boolean;
         const rejectingPlayers = getRejectingPlayers(evaluationForCategory, allPlayers);
         const tooltipText = rejectingPlayers.length === 0 ? 'Keine Ablehnungen' :
             'Abgelehnt von ' + rejectingPlayers.map(p => p.name).join(', ');
+        const hasPlayerTypedText = !!(finishedGameRound.get(evaluatedPlayer.id) as PlayerInput[])[categoryIndex].text;
         return (
             <div
                 key={`slf-evaluation-button-wrapper-${categoryIndex}-${indexInSortedPlayers}`}
@@ -91,7 +88,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                         <IconButton
                             className="slf-evaluation-button"
                             color={isInputAcceptedByUser ? 'default' : 'secondary'}
-                            onClick={() => handleEvaluationButtonClick(categoryIndex, indexInSortedPlayers, isInputAcceptedByUser)}
+                            onClick={() => handleEvaluationButtonClick(categoryIndex, evaluatedPlayer.id, isInputAcceptedByUser)}
                         >
                             <StyledBadge badgeContent={rejectingPlayers.length} color="secondary">
                                 <ThumbDownRoundedIcon />
@@ -99,13 +96,13 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                         </IconButton>
                     </Tooltip>
                 ) : (
-                    <Tooltip
-                        key={`slf-evaluation-tooltip-${categoryIndex}-${indexInSortedPlayers}`}
-                        title="Automatisch abgelehnt"
-                    >
-                        <ThumbDownRoundedIcon color="secondary" className="slf-auto-reject-icon" />
-                    </Tooltip>
-                )}
+                        <Tooltip
+                            key={`slf-evaluation-tooltip-${categoryIndex}-${indexInSortedPlayers}`}
+                            title="Automatisch abgelehnt"
+                        >
+                            <ThumbDownRoundedIcon color="secondary" className="slf-auto-reject-icon" />
+                        </Tooltip>
+                    )}
             </div>
         );
     }
@@ -114,7 +111,8 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
      */
     const createSearchLink = (categoryIndex: number, indexInSortedPlayers: number): JSX.Element => {
         const category = gameConfig.categories[categoryIndex];
-        const playerInput = (finishedGameRound.get(sortedPlayers[indexInSortedPlayers].id) as PlayerInput[])[categoryIndex].text;
+        const evaluatedPlayer = sortedPlayers[indexInSortedPlayers];
+        const playerInput = (finishedGameRound.get(evaluatedPlayer.id) as PlayerInput[])[categoryIndex].text;
         const searchLink = `https://www.ecosia.org/search?q=${encodeURIComponent(category)}+${encodeURIComponent(playerInput)}`
         return (
             <div
@@ -123,11 +121,11 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
             >
                 <a
                     key={`slf-evaluation-search-link-${categoryIndex}-${indexInSortedPlayers}`}
+                    className="slf-evaluation-search-link"
                     href={searchLink}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Begriff nachschlagen"
-                    className="slf-evaluation-search-link"
                 >
                     <Tooltip
                         title="Begriff nachschlagen"
@@ -140,15 +138,13 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
         );
     }
     /**
-     * Creates a text input showing the player's input for a category.
-     * If the input isn't empty, a search link and clickable evaluation button is displayed.
+     * Creates a text input showing the player's input for a category. If the player input isn't an empty string,
+     * then on the right side of the textfield a search link and clickable evaluation button are displayed.
      */
     const playerEvaluationElements = (categoryIndex: number, indexInSortedPlayers: number): JSX.Element => {
-        const player = sortedPlayers[indexInSortedPlayers];
-        const isInputValid = getNumberOfInvalids(
-            (props.currentRoundEvaluation.get(player.id) as PlayerInputEvaluation[])[categoryIndex]
-        ) < minNumberOfInvalids;
-        const hasPlayerTypedText = !!(finishedGameRound.get(player.id) as PlayerInput[])[categoryIndex].text;
+        const evaluatedPlayer = sortedPlayers[indexInSortedPlayers];
+        const hasPlayerTypedText = !!(finishedGameRound.get(evaluatedPlayer.id) as PlayerInput[])[categoryIndex].text;
+        const isInputValid = getNumberOfInvalids((currentRoundEvaluation.get(evaluatedPlayer.id) as PlayerInputEvaluation[])[categoryIndex]) < minNumberOfInvalids;
         return (
             <div
                 key={`slf-evaluation-textfield-wrapper-${categoryIndex}-${indexInSortedPlayers}`}
@@ -156,11 +152,11 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
             >
                 <TextField
                     key={'slf-textfield-category-no-' + categoryIndex + '-player-' + indexInSortedPlayers}
-                    value={(finishedGameRound.get(player.id) as PlayerInput[])[categoryIndex].text}
+                    value={(finishedGameRound.get(evaluatedPlayer.id) as PlayerInput[])[categoryIndex].text}
                     variant="outlined"
                     fullWidth
                     InputProps={{
-                        startAdornment: <InputAdornment position="start">{player.name}:</InputAdornment>,
+                        startAdornment: <InputAdornment position="start">{evaluatedPlayer.name}:</InputAdornment>,
                         className: !hasPlayerTypedText || !isInputValid ? 'invalid-player-input' : ''
                     }}
                 />
@@ -171,9 +167,8 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
     }
     /**
      * Creates a section for each category of the current game. It displays the category in the header,
-     * followed by one textfield for each player showing their input for the finished round. If the
-     * player input isn't an empty string, then on the right side of the textfield a group of
-     * checkboxes is displayed which serve to evaluate the player's input (valid or invalid).
+     * followed by one textfield for each player showing their input for the finished round.
+     * If the input isn't empty, a search link and clickable evaluation button are displayed.
      */
     const createCategorySection = (category: string, categoryIndex: number): JSX.Element => (
         <div
