@@ -1,9 +1,9 @@
+import Pubnub from 'pubnub';
 import { usePubNub } from 'pubnub-react';
 import React, { useEffect } from 'react';
-import { GameConfig, PlayerInput, EvaluationOfPlayerInput } from '../../models/game.interface';
+import { GameConfig } from '../../models/game.interface';
 import { PlayerInfo } from '../../models/player.interface';
-import { PubNubUserState, PubNubMessage, PubNubMessageType } from '../../models/pub-nub-data.model';
-import Pubnub from 'pubnub';
+import { PubNubUserState } from '../../models/pub-nub-data.model';
 
 interface PubNubEventHandlerProps {
     gameChannel: string;
@@ -11,11 +11,7 @@ interface PubNubEventHandlerProps {
     playerInfo: PlayerInfo;
     navigateToDashboard: () => void;
     addPlayers: (...newPlayers: PubNubUserState[]) => void;
-    startGame: () => void;
-    stopRoundAndSendInputs: () => void;
-    addPlayerInputForFinishedRound: (playerId: string, playerInputsForFinishedRound: PlayerInput[]) => void;
-    processEvaluationOfPlayerInput: (evaluatingPlayerId: string, newEvaluation: EvaluationOfPlayerInput) => void;
-    countPlayerAsEvaluationFinished: (evaluatingPlayerId: string) => void;
+    processPubNubMessage: (event: Pubnub.MessageEvent) => void;
 }
 
 const PubNubEventHandler: React.FunctionComponent<PubNubEventHandlerProps> = props => {
@@ -80,24 +76,9 @@ const PubNubEventHandler: React.FunctionComponent<PubNubEventHandlerProps> = pro
         const pubNubListeners: Pubnub.ListenerParameters = {
             message: messageEvent => {
                 console.log('PubNub message event', messageEvent);
-                const message = messageEvent.message as PubNubMessage;
-                switch (message.type) {
-                    case PubNubMessageType.startGame:
-                        props.startGame();
-                        break;
-                    case PubNubMessageType.roundFinished:
-                        props.stopRoundAndSendInputs();
-                        break;
-                    case PubNubMessageType.currentRoundInputs:
-                        props.addPlayerInputForFinishedRound(messageEvent.publisher, message.payload);
-                        break;
-                    case PubNubMessageType.evaluationOfPlayerInput:
-                        props.processEvaluationOfPlayerInput(messageEvent.publisher, message.payload);
-                        break;
-                    case PubNubMessageType.evaluationFinished:
-                        props.countPlayerAsEvaluationFinished(messageEvent.publisher);
-                        break;
-                    default:
+                // Make sure that message is controlled game message with 'type' attribute.
+                if (messageEvent.message.type) {
+                    props.processPubNubMessage(messageEvent);
                 }
             },
             presence: presenceEvent => {

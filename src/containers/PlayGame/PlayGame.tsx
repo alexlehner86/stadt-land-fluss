@@ -1,9 +1,11 @@
 import { cloneDeep } from 'lodash';
-import PubNub from 'pubnub';
+import Pubnub from 'pubnub';
 import { PubNubProvider } from 'pubnub-react';
 import React, { Component, Dispatch } from 'react';
 import { connect } from 'react-redux';
 import { RouterProps } from 'react-router';
+import AdminPanel from '../../components/AdminPanel/AdminPanel';
+import { LetterAnimation } from '../../components/LetterAnimation/LetterAnimation';
 import LoadingScreen from '../../components/LoadingScreen/LoadingScreen';
 import PhaseEvaluateRound from '../../components/PhaseEvaluateRound/PhaseEvaluateRound';
 import PhaseFillOutTextfields from '../../components/PhaseFillOutTextfields/PhaseFillOutTextfields';
@@ -23,11 +25,12 @@ import { PlayerInfo } from '../../models/player.interface';
 import {
     PubNubCurrentRoundInputsMessage,
     PubNubEvaluationOfPlayerInputMessage,
+    PubNubKickPlayerMessage,
     PubNubMessage,
     PubNubMessageType,
     PubNubUserState,
 } from '../../models/pub-nub-data.model';
-import { SetDataOfFinishedGamePayload, AppAction, setDataOfFinishedGame, resetAppState } from '../../store/app.actions';
+import { AppAction, resetAppState, setDataOfFinishedGame, SetDataOfFinishedGamePayload } from '../../store/app.actions';
 import { AppState } from '../../store/app.reducer';
 import {
     createGameRoundEvaluation,
@@ -36,7 +39,6 @@ import {
     processPlayerInputEvaluations,
 } from '../../utils/game.utils';
 import { createAndFillArray } from '../../utils/general.utils';
-import { LetterAnimation } from '../../components/LetterAnimation/LetterAnimation';
 
 interface PlayGamePropsFromStore {
     gameConfig: GameConfig | null;
@@ -76,14 +78,14 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         showLetterAnimation: false,
         showLoadingScreen: true
     };
-    private pubNubClient = new PubNub(PUBNUB_CONFIG);
+    private pubNubClient = new Pubnub(PUBNUB_CONFIG);
 
     public render() {
         // This check serves as a route guard. If there is no gameId present in state,
         // then user wasn't redirected here from NewGame or JoinGame component.
         if (this.props.gameId === null) { return null; }
         const { gameId, playerInfo } = this.props;
-        const { loadingScreenMessage, showLetterAnimation, showLoadingScreen } = this.state;
+        const { allPlayers, loadingScreenMessage, showLetterAnimation, showLoadingScreen } = this.state;
         let currentPhaseElement: JSX.Element | null = null;
         switch (this.state.currentPhase) {
             case GamePhase.waitingToStart:
@@ -91,7 +93,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                     <PhaseWaitingToStart
                         gameConfig={this.state.gameConfig}
                         gameId={gameId}
-                        allPlayers={this.state.allPlayers}
+                        allPlayers={allPlayers}
                         playerInfo={playerInfo}
                         sendMessage={this.sendMessage}
                     />
@@ -111,7 +113,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             case GamePhase.evaluateRound:
                 currentPhaseElement = (
                     <PhaseEvaluateRound
-                        allPlayers={this.state.allPlayers}
+                        allPlayers={allPlayers}
                         currentRound={this.state.currentRound}
                         currentRoundEvaluation={this.state.currentRoundEvaluation}
                         gameConfig={this.state.gameConfig as GameConfig}
@@ -142,11 +144,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                     playerInfo={this.props.playerInfo}
                     navigateToDashboard={this.navigateToDashboard}
                     addPlayers={this.addPlayers}
-                    startGame={this.startGame}
-                    stopRoundAndSendInputs={this.stopRoundAndSendInputs}
-                    addPlayerInputForFinishedRound={this.addPlayerInputForFinishedRound}
-                    processEvaluationOfPlayerInput={this.processEvaluationOfPlayerInput}
-                    countPlayerAsEvaluationFinished={this.countPlayerAsEvaluationFinished}
+                    processPubNubMessage={this.processPubNubMessage}
                 />
                 {letterAnimationElement}
                 {loadingScreenElement}
@@ -155,6 +153,9 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                         {currentPhaseElement}
                     </div>
                 ) : null}
+                {playerInfo.isAdmin && allPlayers.size > 1 ?
+                    <AdminPanel allPlayers={allPlayers} kickPlayer={this.sendKickPlayerMessage} />
+                    : null}
             </PubNubProvider>
         );
     }
@@ -184,7 +185,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                 storeInHistory: true,
                 ttl: 1 // time to live (in hours)
             },
-            (status, response) => console.log('PubNub Publish:', status, response)
+            (status: any, response: any) => console.log('PubNub Publish:', status, response)
         );
     };
 
@@ -224,8 +225,36 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     }
 
     /**
-     * PubNubEventHandler calls this method when it receives a PubNub message with type 'startGame'.
+     * PubNubEventHandler calls this method when it receives a PubNub message with attribute 'type'.
      */
+    private processPubNubMessage = (event: Pubnub.MessageEvent) => {
+        const message = event.message as PubNubMessage;
+        switch (message.type) {
+            case PubNubMessageType.startGame:
+                this.startGame();
+                break;
+            case PubNubMessageType.roundFinished:
+                this.stopRoundAndSendInputs();
+                break;
+            case PubNubMessageType.currentRoundInputs:
+                this.addPlayerInputForFinishedRound(event.publisher, message.payload);
+                break;
+            case PubNubMessageType.evaluationOfPlayerInput:
+                this.processEvaluationOfPlayerInput(event.publisher, message.payload);
+                break;
+            case PubNubMessageType.evaluationFinished:
+                this.countPlayerAsEvaluationFinished(event.publisher);
+                break;
+            case PubNubMessageType.kickPlayer:
+                this.removePlayerFromGame(message.payload)
+                break;
+            default:
+        }
+    }
+
+    /**
+    * This method is called when the PubNub message 'startGame' is received.
+    */
     private startGame = () => {
         const gameConfig = this.state.gameConfig as GameConfig;
         const roundInputs = createAndFillArray<PlayerInput>(gameConfig.categories.length, { text: '', valid: true });
@@ -246,7 +275,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     }
 
     /**
-     * PubNubEventHandler calls this method when it receives a PubNub message with type 'roundFinished'.
+     * This method is called when the PubNub message 'roundFinished' is received.
      */
     private stopRoundAndSendInputs = () => {
         // Prepare new GameRound object for addPlayerInputForFinishedRound method
@@ -262,7 +291,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     }
 
     /**
-     * PubNubEventHandler calls this method when it receives a PubNub message with type 'currentRoundInputs'.
+     * This method is called when the PubNub message 'currentRoundInputs' is received.
      */
     private addPlayerInputForFinishedRound = (playerId: string, playerInputsForFinishedRound: PlayerInput[]) => {
         const gameRounds = cloneDeep(this.state.gameRounds);
@@ -287,7 +316,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     }
 
     /**
-     * PubNubEventHandler calls this method when it receives a PubNub message with type 'evaluationOfPlayerInput'.
+     * This method is called when the PubNub message 'evaluationOfPlayerInput' is received.
      */
     private processEvaluationOfPlayerInput = (evaluatingPlayerId: string, newEvaluation: EvaluationOfPlayerInput) => {
         const currentRoundEvaluation = cloneDeep(this.state.currentRoundEvaluation);
@@ -308,7 +337,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     }
 
     /**
-     * PubNubEventHandler calls this method when it receives a PubNub message with type 'evaluationFinished'.
+     * This method is called when the PubNub message 'evaluationFinished' is received.
      */
     private countPlayerAsEvaluationFinished = (evaluatingPlayerId: string) => {
         const playersThatFinishedEvaluation = cloneDeep(this.state.playersThatFinishedEvaluation);
@@ -347,6 +376,14 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         }
     }
 
+    private sendKickPlayerMessage = (playerId: string) => {
+        const message = new PubNubKickPlayerMessage(playerId);
+        this.sendMessage(message.toPubNubMessage());
+    }
+
+    /**
+     * This method is called when the PubNub message 'kickPlayer' is received.
+     */
     private removePlayerFromGame = (playerId: string) => {
         // If the player to be removed is the user of this game instance, then navigate to dashboard.
         if (this.props.playerInfo.id === playerId) {

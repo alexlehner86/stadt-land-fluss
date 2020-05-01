@@ -11,7 +11,8 @@ export enum PubNubMessageType {
     roundFinished = 'roundFinished',
     currentRoundInputs = 'currentRoundInputs',
     evaluationOfPlayerInput = 'evaluationOfPlayerInput',
-    evaluationFinished = 'evaluationFinished'
+    evaluationFinished = 'evaluationFinished',
+    kickPlayer = 'kickPlayer'
 }
 
 export interface PubNubMessage {
@@ -36,6 +37,17 @@ export class PubNubEvaluationOfPlayerInputMessage {
     public toPubNubMessage(): PubNubMessage {
         return {
             type: PubNubMessageType.evaluationOfPlayerInput,
+            payload: this.payload
+        }
+    }
+}
+
+export class PubNubKickPlayerMessage {
+    constructor(private payload: string) {}
+
+    public toPubNubMessage(): PubNubMessage {
+        return {
+            type: PubNubMessageType.kickPlayer,
             payload: this.payload
         }
     }

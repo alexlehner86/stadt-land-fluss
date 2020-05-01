@@ -8,11 +8,11 @@ import {
     TextField,
     Tooltip,
 } from '@material-ui/core';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/core/styles';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import React, { FormEvent, useState } from 'react';
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
     createStyles({
         lessPadding: {
             padding: '0.375rem 0.5rem'
@@ -52,7 +52,7 @@ const CustomCategoryDialog: React.FunctionComponent<CustomCategoryDialogProps> =
     };
 
     return (
-        <Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
+        <Dialog onClose={handleClose} open={open}>
             <form onSubmit={handleSubmit} className={classes.dialog} noValidate autoComplete="off">
                 <DialogContent>
                     <DialogContentText>Kategorie hinzufügen</DialogContentText>
