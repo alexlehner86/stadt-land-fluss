@@ -59,6 +59,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     variant="outlined"
                     fullWidth
                     required
+                    autoFocus
                     error={this.state.validateInputs && !this.state.nameInput}
                     inputProps={{ 'maxLength': '20' }}
                 />

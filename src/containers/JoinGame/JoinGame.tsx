@@ -12,7 +12,7 @@ import { AppAction, setDataForNewGame, SetDataForNewGamePayload } from '../../st
 interface JoinGameDispatchProps {
     onSetGameData: (payload: SetDataForNewGamePayload) => void
 }
-interface JoinGameProps extends JoinGameDispatchProps, RouteComponentProps {}
+interface JoinGameProps extends JoinGameDispatchProps, RouteComponentProps { }
 interface JoinGameState {
     idInput: string;
     nameInput: string;
@@ -30,6 +30,18 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
         const joinGameForm = (
             <form onSubmit={this.handleSubmit} className="app-form" noValidate autoComplete="off">
                 <TextField
+                    name="nameInput"
+                    label="Spielername"
+                    value={this.state.nameInput}
+                    onChange={this.handleInputChange}
+                    className="app-form-input"
+                    variant="outlined"
+                    fullWidth
+                    required
+                    autoFocus
+                    error={this.state.validateInputs && !this.state.nameInput}
+                />
+                <TextField
                     name="idInput"
                     label="Spiel-ID"
                     value={this.state.idInput}
@@ -39,17 +51,6 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
                     fullWidth
                     required
                     error={this.state.validateInputs && !this.state.idInput}
-                />
-                <TextField
-                    name="nameInput"
-                    label="Spielername"
-                    value={this.state.nameInput}
-                    onChange={this.handleInputChange}
-                    className="app-form-input"
-                    variant="outlined"
-                    fullWidth
-                    required
-                    error={this.state.validateInputs && !this.state.nameInput}
                 />
                 <div className="button-wrapper">
                     <Button

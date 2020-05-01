@@ -346,6 +346,28 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             });
         }
     }
+
+    private removePlayerFromGame = (playerId: string) => {
+        // If the player to be removed is the user of this game instance, then navigate to dashboard.
+        if (this.props.playerInfo.id === playerId) {
+            this.props.history.push('/');
+            return;
+        }
+        // Remove player's data from component's state.
+        const allPlayers = cloneDeep(this.state.allPlayers);
+        allPlayers.delete(playerId);
+        const currentRoundEvaluation = cloneDeep(this.state.currentRoundEvaluation);
+        currentRoundEvaluation.delete(playerId);
+        const gameRounds = cloneDeep(this.state.gameRounds);
+        gameRounds.forEach(round => round.delete(playerId));
+        const playersThatFinishedEvaluation = cloneDeep(this.state.playersThatFinishedEvaluation);
+        playersThatFinishedEvaluation.delete(playerId);
+        this.setState({ allPlayers, currentRoundEvaluation, gameRounds, playersThatFinishedEvaluation });
+        // If we're currently in evaluation phase, check if remaining players have finished evaluation.
+        if (this.state.currentPhase === GamePhase.evaluateRound && playersThatFinishedEvaluation.size === allPlayers.size) {
+            this.processEvaluationsAndStartNextRoundOrFinishGame();
+        }
+    }
 }
 
 const mapStateToProps = (state: AppState): PlayGamePropsFromStore => {

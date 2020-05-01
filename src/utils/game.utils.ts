@@ -25,7 +25,11 @@ export const getRandomnLetters = (numberOfLetters: number, possibleLetters = ALP
 
 export const getPlayersInAlphabeticalOrder = (players: Map<string, PlayerInfo>): PlayerInfo[] => {
     let playerInfoArray = Array.from(players).map(data => data[1]);
-    return playerInfoArray.sort((a, b) => a.name.charCodeAt(0) - b.name.charCodeAt(0));
+    return playerInfoArray.sort((a, b) => {
+        if (a.name.toLowerCase() < b.name.toLowerCase()) { return -1; }
+        if (a.name.toLowerCase() > b.name.toLowerCase()) { return 1; }
+        return 0;
+    });
 }
 
  /**
