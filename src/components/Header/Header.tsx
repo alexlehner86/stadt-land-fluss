@@ -75,7 +75,7 @@ export class Header extends Component<HeaderProps, HeaderState> {
         this.setState({ anchorEl: event.currentTarget });
     };
 
-    private handleClose = (color: string) => {
+    private handleClose = () => {
         this.setState({ anchorEl: null });
     };
 

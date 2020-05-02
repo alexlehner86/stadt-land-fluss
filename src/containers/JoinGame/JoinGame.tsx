@@ -6,13 +6,19 @@ import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
 import ToDashboardButton from '../../components/ToDashboardButton/ToDashboardButton';
-import { PUBNUB_CONFIG } from '../../config/pubnub.config';
 import { AppAction, setDataForNewGame, SetDataForNewGamePayload } from '../../store/app.actions';
+import { setPlayerInfoInLocalStorage } from '../../utils/local-storage.utils';
+import { AppState } from '../../store/app.reducer';
+import { PlayerInfo } from '../../models/player.interface';
 
+interface JoinGamePropsFromStore {
+    playerIdCreationTimestamp: number;
+    playerInfo: PlayerInfo | null;
+}
 interface JoinGameDispatchProps {
     onSetGameData: (payload: SetDataForNewGamePayload) => void
 }
-interface JoinGameProps extends JoinGameDispatchProps, RouteComponentProps { }
+interface JoinGameProps extends JoinGamePropsFromStore, JoinGameDispatchProps, RouteComponentProps { }
 interface JoinGameState {
     idInput: string;
     nameInput: string;
@@ -22,7 +28,7 @@ interface JoinGameState {
 class JoinGame extends Component<JoinGameProps, JoinGameState> {
     public state: JoinGameState = {
         idInput: '',
-        nameInput: '',
+        nameInput: this.props.playerInfo ? this.props.playerInfo.name : '',
         validateInputs: false
     };
 
@@ -81,6 +87,12 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
         }
     }
 
+    public componentDidUpdate(prevProps: JoinGameProps) {
+        if (this.props.playerInfo && this.props.playerInfo !== prevProps.playerInfo) {
+            this.setState({ nameInput: this.props.playerInfo.name });
+        }
+    }
+
     private handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
         this.setState({ [name]: value } as any);
@@ -89,19 +101,27 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
     private handleSubmit = (event: FormEvent) => {
         event.preventDefault();
         if (this.state.idInput && this.state.nameInput.trim()) {
-            this.props.onSetGameData({
-                gameConfig: null,
-                gameId: this.state.idInput,
-                playerInfo: {
-                    id: PUBNUB_CONFIG.uuid as string,
-                    isAdmin: false,
-                    name: this.state.nameInput.trim()
-                }
-            });
-            this.props.history.push('/play');
+            this.joinGame();
         } else {
             this.setState({ nameInput: this.state.nameInput.trim(), validateInputs: true });
         }
+    }
+
+    private joinGame = () => {
+        const playerInfo = this.props.playerInfo as PlayerInfo;
+        const idCreationTimestamp = this.props.playerIdCreationTimestamp
+        const { idInput, nameInput } = this.state;
+        setPlayerInfoInLocalStorage({ id: playerInfo.id, idCreationTimestamp, name: nameInput.trim() });
+        this.props.onSetGameData({
+            gameConfig: null,
+            gameId: idInput,
+            playerInfo: {
+                id: playerInfo.id,
+                isAdmin: false,
+                name: nameInput.trim()
+            }
+        });
+        this.props.history.push('/play');
     }
 
     private returnToDashboard = () => {
@@ -109,6 +129,12 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
     }
 }
 
+const mapStateToProps = (state: AppState): JoinGamePropsFromStore => {
+    return {
+        playerIdCreationTimestamp: state.playerIdCreationTimestamp,
+        playerInfo: state.playerInfo
+    };
+}
 const mapDispatchToProps = (dispatch: Dispatch<AppAction>): JoinGameDispatchProps => {
     return {
         onSetGameData: (payload: SetDataForNewGamePayload) => {
@@ -116,4 +142,4 @@ const mapDispatchToProps = (dispatch: Dispatch<AppAction>): JoinGameDispatchProp
         }
     }
 };
-export default connect(null, mapDispatchToProps)(JoinGame);
+export default connect(mapStateToProps, mapDispatchToProps)(JoinGame);

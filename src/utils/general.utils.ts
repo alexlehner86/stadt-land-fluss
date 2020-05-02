@@ -17,3 +17,5 @@ export const createAndFillArray = <T>(length: number, value: T): T[] => {
 export const makePluralIfCountIsNotOne = (count: number, singular: string, plural: string): string => {
     return count === 1 ? singular : plural;
 };
+
+export const convertDateToUnixTimestamp = (dateToConvert: Date): number => dateToConvert.getTime() / 1000 | 0;

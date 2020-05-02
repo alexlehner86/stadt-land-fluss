@@ -78,14 +78,19 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         showLetterAnimation: false,
         showLoadingScreen: true
     };
-    private pubNubClient = new Pubnub(PUBNUB_CONFIG);
+    private pubNubClient: any;
 
     public render() {
-        // This check serves as a route guard. If there is no gameId present in state,
+        // This check serves as a route guard. If gameId and playerInfo aren't present in state,
         // then user wasn't redirected here from NewGame or JoinGame component.
-        if (this.props.gameId === null) { return null; }
+        if (this.props.gameId === null || this.props.playerInfo === null) { return null; }
+
         const { gameId, playerInfo } = this.props;
         const { allPlayers, loadingScreenMessage, showLetterAnimation, showLoadingScreen } = this.state;
+        if (!this.pubNubClient) {
+            this.pubNubClient = new Pubnub({ ...PUBNUB_CONFIG, uuid: playerInfo.id });
+        }
+
         let currentPhaseElement: JSX.Element | null = null;
         switch (this.state.currentPhase) {
             case GamePhase.waitingToStart:
@@ -161,8 +166,8 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     }
 
     public componentDidMount() {
-        // If there is no gameId present in application state, then reroute user to dashboard.
-        if (this.props.gameId === null) {
+        // If gameId and playerInfo aren't present in application state, then reroute user to dashboard.
+        if (this.props.gameId === null || this.props.playerInfo === null) {
             this.props.history.push('/');
             return;
         }
@@ -387,6 +392,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     private removePlayerFromGame = (playerId: string) => {
         // If the player to be removed is the user of this game instance, then navigate to dashboard.
         if (this.props.playerInfo.id === playerId) {
+            // TODO: delete current game data in local storage
             this.props.history.push('/');
             return;
         }

@@ -9,7 +9,6 @@ import AddCustomCategory from '../../components/AddCustomCategory/AddCustomCateg
 import ChipsArray, { ChipType } from '../../components/ChipsArray/ChipsArray';
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
 import ToDashboardButton from '../../components/ToDashboardButton/ToDashboardButton';
-import { PUBNUB_CONFIG } from '../../config/pubnub.config';
 import {
     AVAILABLE_CATEGORIES,
     DEFAULT_NUMBER_OF_ROUNDS,
@@ -17,18 +16,25 @@ import {
     MIN_NUMBER_OF_ROUNDS,
     STANDARD_CATEGORIES,
 } from '../../constants/game.constant';
+import { PlayerInfo } from '../../models/player.interface';
 import { AppAction, setDataForNewGame, SetDataForNewGamePayload } from '../../store/app.actions';
+import { AppState } from '../../store/app.reducer';
 import { getRandomnLetters } from '../../utils/game.utils';
+import { setPlayerInfoInLocalStorage } from '../../utils/local-storage.utils';
 
 enum CategoryArray {
     available = 'available',
     selected = 'selected'
 }
 
+interface NewGamePropsFromStore {
+    playerIdCreationTimestamp: number;
+    playerInfo: PlayerInfo | null;
+}
 interface NewGameDispatchProps {
     onSetGameData: (payload: SetDataForNewGamePayload) => void
 }
-interface NewGameProps extends NewGameDispatchProps, RouteComponentProps { }
+interface NewGameProps extends NewGamePropsFromStore, NewGameDispatchProps, RouteComponentProps { }
 interface NewGameState {
     availableCategories: string[];
     nameInput: string;
@@ -40,7 +46,7 @@ interface NewGameState {
 class NewGame extends Component<NewGameProps, NewGameState> {
     public state: NewGameState = {
         availableCategories: AVAILABLE_CATEGORIES,
-        nameInput: '',
+        nameInput: this.props.playerInfo ? this.props.playerInfo.name : '',
         numberOfRoundsInput: DEFAULT_NUMBER_OF_ROUNDS,
         selectedCategories: STANDARD_CATEGORIES,
         validateInputs: false
@@ -110,6 +116,12 @@ class NewGame extends Component<NewGameProps, NewGameState> {
         );
     }
 
+    public componentDidUpdate(prevProps: NewGameProps) {
+        if (this.props.playerInfo && this.props.playerInfo !== prevProps.playerInfo) {
+            this.setState({ nameInput: this.props.playerInfo.name });
+        }
+    }
+
     private handleNameInputChange = (event: ChangeEvent<HTMLInputElement>) => {
         this.setState({ nameInput: event.target.value });
     }
@@ -146,25 +158,32 @@ class NewGame extends Component<NewGameProps, NewGameState> {
     private handleSubmit = (event: FormEvent) => {
         event.preventDefault();
         if (this.state.nameInput.trim() && this.state.selectedCategories.length >= 3) {
-            const gameId = uuidv4(); // ⇨ e.g. '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d'
-            const letters = getRandomnLetters(this.state.numberOfRoundsInput);
-            this.props.onSetGameData({
-                gameConfig: {
-                    categories: this.state.selectedCategories,
-                    letters,
-                    numberOfRounds: this.state.numberOfRoundsInput
-                },
-                gameId,
-                playerInfo: {
-                    id: PUBNUB_CONFIG.uuid as string,
-                    isAdmin: true,
-                    name: this.state.nameInput.trim()
-                }
-            });
-            this.props.history.push('/play');
+            this.startNewGame();
         } else {
             this.setState({ nameInput: this.state.nameInput.trim(), validateInputs: true });
         }
+    }
+
+    private startNewGame = () => {
+        const playerInfo = this.props.playerInfo as PlayerInfo;
+        const idCreationTimestamp = this.props.playerIdCreationTimestamp
+        const { nameInput, numberOfRoundsInput, selectedCategories } = this.state;
+        setPlayerInfoInLocalStorage({ id: playerInfo.id, idCreationTimestamp, name: nameInput.trim() });
+        const gameId = uuidv4(); // ⇨ e.g. '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d'
+        this.props.onSetGameData({
+            gameConfig: {
+                categories: selectedCategories,
+                letters: getRandomnLetters(numberOfRoundsInput),
+                numberOfRounds: numberOfRoundsInput
+            },
+            gameId,
+            playerInfo: {
+                id: playerInfo.id,
+                isAdmin: true,
+                name: nameInput.trim()
+            }
+        });
+        this.props.history.push('/play');
     }
 
     private returnToDashboard = () => {
@@ -172,6 +191,12 @@ class NewGame extends Component<NewGameProps, NewGameState> {
     }
 }
 
+const mapStateToProps = (state: AppState): NewGamePropsFromStore => {
+    return {
+        playerIdCreationTimestamp: state.playerIdCreationTimestamp,
+        playerInfo: state.playerInfo
+    };
+}
 const mapDispatchToProps = (dispatch: Dispatch<AppAction>): NewGameDispatchProps => {
     return {
         onSetGameData: (payload: SetDataForNewGamePayload) => {
@@ -179,4 +204,4 @@ const mapDispatchToProps = (dispatch: Dispatch<AppAction>): NewGameDispatchProps
         }
     }
 };
-export default connect(null, mapDispatchToProps)(NewGame);
+export default connect(mapStateToProps, mapDispatchToProps)(NewGame);
