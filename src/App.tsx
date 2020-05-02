@@ -5,19 +5,25 @@ import { connect } from 'react-redux';
 import { HashRouter, Route, Switch } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import Header from './components/Header/Header';
-import { MAX_PLAYER_ID_VALIDITY_DURATION_IN_SECONDS as MAX_PLAYER_ID_VALIDITY_IN_SECONDS } from './constants/app.constant';
+import {
+    MAX_GAME_ID_VALIDITY_DURATION_IN_SECONDS,
+    MAX_PLAYER_ID_VALIDITY_DURATION_IN_SECONDS as MAX_PLAYER_ID_VALIDITY_IN_SECONDS,
+} from './constants/app.constant';
 import { AppTheme, AppThemes } from './constants/themes.constant';
-import { Dashboard } from './containers/Dashboard/Dashboard';
+import Dashboard from './containers/Dashboard/Dashboard';
 import GameResults from './containers/GameResults/GameResults';
 import JoinGame from './containers/JoinGame/JoinGame';
 import NewGame from './containers/NewGame/NewGame';
 import PlayGame from './containers/PlayGame/PlayGame';
+import { StoredRunningGameInfo } from './models/game.interface';
 import { StoredPlayerInfo } from './models/player.interface';
-import { AppAction, setStoredPlayerInfo } from './store/app.actions';
+import { AppAction, setStoredPlayerInfo, setStoredRunningGameInfo } from './store/app.actions';
 import { convertDateToUnixTimestamp } from './utils/general.utils';
 import {
     getAppThemeIdFromLocalStorage,
     getPlayerInfoFromLocalStorage,
+    getRunningGameInfoFromLocalStorage,
+    removeRunningGameInfoFromLocalStorage,
     setAppThemeIdInLocalStorage,
     setPlayerInfoInLocalStorage,
 } from './utils/local-storage.utils';
@@ -25,7 +31,8 @@ import {
 const backspaceDisabler = require('backspace-disabler');
 
 interface AppDispatchProps {
-    onSetStoredPlayerInfo: (payload: StoredPlayerInfo) => void
+    onSetStoredPlayerInfo: (payload: StoredPlayerInfo) => void,
+    onSetStoredRunningGameInfo: (payload: StoredRunningGameInfo) => void
 }
 interface AppState {
     activeTheme: AppTheme;
@@ -80,6 +87,15 @@ class App extends Component<AppDispatchProps, AppState> {
             setPlayerInfoInLocalStorage(storedPlayerInfo);
         }
         this.props.onSetStoredPlayerInfo(storedPlayerInfo);
+        const runningGameInfo = getRunningGameInfoFromLocalStorage();
+        if (runningGameInfo) {
+            // A running game is only valid for the time specified in the max validity constant.
+            if (nowTimestamp - runningGameInfo.idCreationTimestamp <= MAX_GAME_ID_VALIDITY_DURATION_IN_SECONDS) {
+                this.props.onSetStoredRunningGameInfo(runningGameInfo);
+            } else {
+                removeRunningGameInfoFromLocalStorage();
+            }
+        }
     }
 
     private switchThemeHandler = (newTheme: AppTheme) => {
@@ -90,9 +106,8 @@ class App extends Component<AppDispatchProps, AppState> {
 
 const mapDispatchToProps = (dispatch: Dispatch<AppAction>): AppDispatchProps => {
     return {
-        onSetStoredPlayerInfo: (payload: StoredPlayerInfo) => {
-            dispatch(setStoredPlayerInfo(payload))
-        }
+        onSetStoredPlayerInfo: (payload: StoredPlayerInfo) => dispatch(setStoredPlayerInfo(payload)),
+        onSetStoredRunningGameInfo: (payload: StoredRunningGameInfo) => dispatch(setStoredRunningGameInfo(payload))
     }
 };
 export default connect(null, mapDispatchToProps)(App);

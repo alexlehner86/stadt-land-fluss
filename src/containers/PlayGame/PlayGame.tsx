@@ -24,6 +24,8 @@ import {
 import { PlayerInfo } from '../../models/player.interface';
 import {
     PubNubCurrentRoundInputsMessage,
+    PubNubDataForCurrentGameMessage,
+    PubNubDataForCurrentGameMessagePayload,
     PubNubEvaluationOfPlayerInputMessage,
     PubNubKickPlayerMessage,
     PubNubMessage,
@@ -34,11 +36,15 @@ import { AppAction, resetAppState, setDataOfFinishedGame, SetDataOfFinishedGameP
 import { AppState } from '../../store/app.reducer';
 import {
     createGameRoundEvaluation,
+    getEmptyRoundInputs,
     getMinNumberOfMarkedAsInvalid,
     markEmptyPlayerInputsAsInvalid,
     processPlayerInputEvaluations,
+    shouldUserRespondToRequestGameDataMessage,
 } from '../../utils/game.utils';
-import { createAndFillArray } from '../../utils/general.utils';
+import { convertCollectionToMap, convertMapToCollection } from '../../utils/general.utils';
+import { removeRunningGameInfoFromLocalStorage } from '../../utils/local-storage.utils';
+import { Collection } from '../../models/collection.interface';
 
 interface PlayGamePropsFromStore {
     gameConfig: GameConfig | null;
@@ -50,12 +56,12 @@ interface PlayGameDispatchProps {
     onResetAppState: () => void;
 }
 interface PlayGameProps extends PlayGamePropsFromStore, PlayGameDispatchProps, RouterProps { }
-interface PlayGameState {
+export interface PlayGameState {
     allPlayers: Map<string, PlayerInfo>;
     currentPhase: GamePhase;
+    currentRound: number;
     currentRoundEvaluation: GameRoundEvaluation;
     currentRoundInputs: PlayerInput[];
-    currentRound: number;
     gameConfig: GameConfig | null;
     gameRounds: GameRound[];
     loadingScreenMessage: string | null;
@@ -68,9 +74,9 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     public state: PlayGameState = {
         allPlayers: new Map<string, PlayerInfo>(),
         currentPhase: GamePhase.waitingToStart,
+        currentRound: 1,
         currentRoundEvaluation: new Map<string, PlayerInputEvaluation[]>(),
         currentRoundInputs: [],
-        currentRound: 1,
         gameConfig: null,
         gameRounds: [],
         loadingScreenMessage: null,
@@ -166,19 +172,24 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     }
 
     public componentDidMount() {
+        const { gameConfig, gameId, playerInfo } = this.props;
         // If gameId and playerInfo aren't present in application state, then reroute user to dashboard.
-        if (this.props.gameId === null || this.props.playerInfo === null) {
+        if (gameId === null || playerInfo === null) {
             this.props.history.push('/');
             return;
         }
         const allPlayers = cloneDeep(this.state.allPlayers);
-        allPlayers.set(this.props.playerInfo.id, this.props.playerInfo);
-        // If player is the game admin, the gameConfig can be taken from application state
+        allPlayers.set(playerInfo.id, playerInfo);
+        // If user is the game admin and isn't rejoining, the gameConfig can be taken from application state
         // and we can hide the loading screen and show PhaseWaitingToStart component right away.
-        if (this.props.playerInfo.isAdmin) {
-            this.setState({ allPlayers, gameConfig: this.props.gameConfig, showLoadingScreen: false });
+        if (!playerInfo.isRejoiningGame && playerInfo.isAdmin) {
+            this.setState({ allPlayers, gameConfig: gameConfig, showLoadingScreen: false });
         } else {
             this.setState({ allPlayers });
+        }
+        // If player is rejoining the game, we need to request the game data from the other players.
+        if (playerInfo.isRejoiningGame) {
+            this.sendMessage({ type: PubNubMessageType.requestGameData });
         }
     }
 
@@ -199,14 +210,15 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     }
 
     private navigateToDashboard = () => {
-        this.props.history.push('/');
+        removeRunningGameInfoFromLocalStorage();
         this.props.onResetAppState();
+        this.props.history.push('/');
     }
 
     /**
      * Called by PubNubEventHandler when it receives a PubNub presence event with action 'state-change'.
-     * It processes information about players that had already joined the game before this user
-     * joined (hereNow result) or about a player that joins the game after this user joined.
+     * It processes information about players that had already joined the game before this user joined
+     * (hereNow result) or about a player that joins the game after this user joined.
      */
     private addPlayers = (...newPlayers: PubNubUserState[]) => {
         // Ignore information about players that try to join after the game has already started.
@@ -221,9 +233,11 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             }
         });
         // Only after we received the gameConfig from the admin, we hide the loading screen
-        // and render the PhaseWaitingToStart component instead.
+        // and render the PhaseWaitingToStart component instead, if the user isn't rejoining.
+        // If the user is rejoining a running game, we continue showing the loading screen
+        // until the requested game data from the other players is received.
         if (gameConfig) {
-            this.setState({ allPlayers, gameConfig, showLoadingScreen: false });
+            this.setState({ allPlayers, gameConfig, showLoadingScreen: this.props.playerInfo.isRejoiningGame });
         } else {
             this.setState({ allPlayers });
         }
@@ -253,6 +267,20 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             case PubNubMessageType.kickPlayer:
                 this.removePlayerFromGame(message.payload)
                 break;
+            case PubNubMessageType.requestGameData:
+                if (shouldUserRespondToRequestGameDataMessage(this.props.playerInfo, this.state.allPlayers, event.publisher)) {
+                    if (this.state.allPlayers.has(event.publisher)) {
+                        // Only send data to a rejoining player who hasn't been kicked out by the admin.
+                        this.sendDataForCurrentGame(event.publisher);
+                    } else {
+                        // Send kickPlayer message again for kicked out player that tried to rejoin game.
+                        this.sendKickPlayerMessage(event.publisher);
+                    }
+                }
+                break;
+            case PubNubMessageType.dataForCurrentGame:
+                this.processDataForCurrentGame(message.payload);
+                break;
             default:
         }
     }
@@ -262,7 +290,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     */
     private startGame = () => {
         const gameConfig = this.state.gameConfig as GameConfig;
-        const roundInputs = createAndFillArray<PlayerInput>(gameConfig.categories.length, { text: '', valid: true });
+        const roundInputs = getEmptyRoundInputs(gameConfig.categories.length);
         this.setState({
             currentPhase: GamePhase.fillOutTextfields,
             currentRoundInputs: roundInputs,
@@ -363,6 +391,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         );
         if (currentRound === gameConfig.numberOfRounds) {
             // Finish game and show results.
+            removeRunningGameInfoFromLocalStorage();
             this.props.onSetDataOfFinishedGame({ allPlayers, gameConfig, gameRounds: newGameRounds });
             this.props.history.push('/results');
         } else {
@@ -370,7 +399,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             this.setState({
                 currentPhase: GamePhase.fillOutTextfields,
                 currentRoundEvaluation: createGameRoundEvaluation(allPlayers, gameConfig.categories),
-                currentRoundInputs: createAndFillArray<PlayerInput>(gameConfig.categories.length, { text: '', valid: true }),
+                currentRoundInputs: getEmptyRoundInputs(gameConfig.categories.length),
                 currentRound: currentRound + 1,
                 gameRounds: newGameRounds,
                 loadingScreenMessage: null,
@@ -392,23 +421,69 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     private removePlayerFromGame = (playerId: string) => {
         // If the player to be removed is the user of this game instance, then navigate to dashboard.
         if (this.props.playerInfo.id === playerId) {
-            // TODO: delete current game data in local storage
+            removeRunningGameInfoFromLocalStorage();
+            this.props.onResetAppState();
             this.props.history.push('/');
             return;
         }
-        // Remove player's data from component's state.
-        const allPlayers = cloneDeep(this.state.allPlayers);
-        allPlayers.delete(playerId);
-        const currentRoundEvaluation = cloneDeep(this.state.currentRoundEvaluation);
-        currentRoundEvaluation.delete(playerId);
-        const gameRounds = cloneDeep(this.state.gameRounds);
-        gameRounds.forEach(round => round.delete(playerId));
-        const playersThatFinishedEvaluation = cloneDeep(this.state.playersThatFinishedEvaluation);
-        playersThatFinishedEvaluation.delete(playerId);
-        this.setState({ allPlayers, currentRoundEvaluation, gameRounds, playersThatFinishedEvaluation });
-        // If we're currently in evaluation phase, check if remaining players have finished evaluation.
-        if (this.state.currentPhase === GamePhase.evaluateRound && playersThatFinishedEvaluation.size === allPlayers.size) {
-            this.processEvaluationsAndStartNextRoundOrFinishGame();
+        if (this.state.allPlayers.has(playerId)) {
+            // Remove player's data from component's state.
+            const allPlayers = cloneDeep(this.state.allPlayers);
+            allPlayers.delete(playerId);
+            const currentRoundEvaluation = cloneDeep(this.state.currentRoundEvaluation);
+            currentRoundEvaluation.delete(playerId);
+            const gameRounds = cloneDeep(this.state.gameRounds);
+            gameRounds.forEach(round => round.delete(playerId));
+            const playersThatFinishedEvaluation = cloneDeep(this.state.playersThatFinishedEvaluation);
+            playersThatFinishedEvaluation.delete(playerId);
+            this.setState({ allPlayers, currentRoundEvaluation, gameRounds, playersThatFinishedEvaluation });
+            // If we're currently in evaluation phase, check if remaining players have finished evaluation.
+            if (this.state.currentPhase === GamePhase.evaluateRound && playersThatFinishedEvaluation.size === allPlayers.size) {
+                this.processEvaluationsAndStartNextRoundOrFinishGame();
+            }
+        }
+    }
+
+    private sendDataForCurrentGame = (requestingPlayerId: string) => {
+        const evaluationsAsCollections = new Map<string, Collection<boolean>[]>();
+        this.state.currentRoundEvaluation.forEach((data, playerId) => {
+            evaluationsAsCollections.set(playerId, data.map(item => convertMapToCollection<boolean>(item)));
+        });
+        const message = new PubNubDataForCurrentGameMessage({
+            allPlayers: convertMapToCollection<PlayerInfo>(this.state.allPlayers),
+            currentPhase: this.state.currentPhase,
+            currentRound: this.state.currentRound,
+            currentRoundEvaluation: convertMapToCollection<Collection<boolean>[]>(evaluationsAsCollections),
+            gameConfig: this.state.gameConfig as GameConfig,
+            gameRounds: this.state.gameRounds.map(round => convertMapToCollection<PlayerInput[]>(round)),
+            playersThatFinishedEvaluation: convertMapToCollection<boolean>(this.state.playersThatFinishedEvaluation),
+            requestingPlayerId
+        });
+        this.sendMessage(message.toPubNubMessage());
+    }
+
+    /**
+     * This method is called when the PubNub message 'dataForCurrentGame' is received.
+     */
+    private processDataForCurrentGame = (payload: PubNubDataForCurrentGameMessagePayload) => {
+        // Only process the information and update state if the message was meant for this user.
+        if (this.props.playerInfo.id === payload.requestingPlayerId) {
+            const evaluationsAsCollections = convertCollectionToMap<Collection<boolean>[]>(payload.currentRoundEvaluation);
+            const currentRoundEvaluation: GameRoundEvaluation = new Map<string, PlayerInputEvaluation[]>();
+            evaluationsAsCollections.forEach((data, playerId) => {
+                currentRoundEvaluation.set(playerId, data.map(item => convertCollectionToMap<boolean>(item)));
+            });
+            this.setState({
+                allPlayers: convertCollectionToMap<PlayerInfo>(payload.allPlayers),
+                currentPhase: payload.currentPhase,
+                currentRound: payload.currentRound,
+                currentRoundEvaluation,
+                currentRoundInputs: getEmptyRoundInputs(payload.gameConfig.categories.length),
+                gameConfig: payload.gameConfig,
+                gameRounds: payload.gameRounds.map(round => convertCollectionToMap<PlayerInput[]>(round)),
+                playersThatFinishedEvaluation: convertCollectionToMap<boolean>(payload.playersThatFinishedEvaluation),
+                showLoadingScreen: false
+            });
         }
     }
 }
@@ -422,12 +497,8 @@ const mapStateToProps = (state: AppState): PlayGamePropsFromStore => {
 }
 const mapDispatchToProps = (dispatch: Dispatch<AppAction>): PlayGameDispatchProps => {
     return {
-        onSetDataOfFinishedGame: (payload: SetDataOfFinishedGamePayload) => {
-            dispatch(setDataOfFinishedGame(payload))
-        },
-        onResetAppState: () => {
-            dispatch(resetAppState())
-        }
+        onSetDataOfFinishedGame: (payload: SetDataOfFinishedGamePayload) => dispatch(setDataOfFinishedGame(payload)),
+        onResetAppState: () => dispatch(resetAppState())
     }
 };
 export default connect(mapStateToProps, mapDispatchToProps)(PlayGame);

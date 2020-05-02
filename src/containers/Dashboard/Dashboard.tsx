@@ -3,8 +3,13 @@ import Link from '@material-ui/core/Link';
 import React, { Component } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
+import { connect } from 'react-redux';
+import { AppState } from '../../store/app.reducer';
 
-export class Dashboard extends Component {
+interface DashboardPropsFromStore {
+    gameId: string | null;
+}
+class Dashboard extends Component<DashboardPropsFromStore> {
     public render() {
         return (
             <div className="main-content-wrapper">
@@ -13,6 +18,7 @@ export class Dashboard extends Component {
                     <div className="link-container">
                         <Link component={RouterLink} to="/newgame">Neues Spiel</Link>
                         <Link component={RouterLink} to="/joingame">Spiel beitreten</Link>
+                        {this.props.gameId ? <Link component={RouterLink} to="/play">Zurück ins laufende Spiel</Link> : null}
                     </div>
                     <img
                         src={`${process.env.PUBLIC_URL}/assets/city-country-river.jpg`}
@@ -33,3 +39,10 @@ export class Dashboard extends Component {
         );
     }
 }
+
+const mapStateToProps = (state: AppState): DashboardPropsFromStore => {
+    return {
+        gameId: state.gameId
+    };
+}
+export default connect(mapStateToProps)(Dashboard);

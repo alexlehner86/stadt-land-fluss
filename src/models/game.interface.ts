@@ -4,6 +4,14 @@ export interface GameConfig {
     numberOfRounds: number;
 }
 
+export interface StoredRunningGameInfo {
+    /** Version 4 UUID */
+    gameId: string;
+    /** UNIX timestamp */
+    idCreationTimestamp: number;
+    isPlayerAdmin: boolean;
+}
+
 /**
  * Represents a player's input for one category in one round of the game.
  */

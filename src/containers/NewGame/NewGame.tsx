@@ -20,7 +20,8 @@ import { PlayerInfo } from '../../models/player.interface';
 import { AppAction, setDataForNewGame, SetDataForNewGamePayload } from '../../store/app.actions';
 import { AppState } from '../../store/app.reducer';
 import { getRandomnLetters } from '../../utils/game.utils';
-import { setPlayerInfoInLocalStorage } from '../../utils/local-storage.utils';
+import { convertDateToUnixTimestamp } from '../../utils/general.utils';
+import { setPlayerInfoInLocalStorage, setRunningGameInfoInLocalStorage } from '../../utils/local-storage.utils';
 
 enum CategoryArray {
     available = 'available',
@@ -170,6 +171,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
         const { nameInput, numberOfRoundsInput, selectedCategories } = this.state;
         setPlayerInfoInLocalStorage({ id: playerInfo.id, idCreationTimestamp, name: nameInput.trim() });
         const gameId = uuidv4(); // ⇨ e.g. '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d'
+        setRunningGameInfoInLocalStorage({ gameId, idCreationTimestamp: convertDateToUnixTimestamp(new Date()), isPlayerAdmin: true });
         this.props.onSetGameData({
             gameConfig: {
                 categories: selectedCategories,
@@ -180,6 +182,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
             playerInfo: {
                 id: playerInfo.id,
                 isAdmin: true,
+                isRejoiningGame: false,
                 name: nameInput.trim()
             }
         });
@@ -199,9 +202,7 @@ const mapStateToProps = (state: AppState): NewGamePropsFromStore => {
 }
 const mapDispatchToProps = (dispatch: Dispatch<AppAction>): NewGameDispatchProps => {
     return {
-        onSetGameData: (payload: SetDataForNewGamePayload) => {
-            dispatch(setDataForNewGame(payload))
-        }
+        onSetGameData: (payload: SetDataForNewGamePayload) => dispatch(setDataForNewGame(payload))
     }
 };
 export default connect(mapStateToProps, mapDispatchToProps)(NewGame);

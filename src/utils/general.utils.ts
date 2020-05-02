@@ -1,3 +1,5 @@
+import { Collection } from "../models/collection.interface";
+
 export const copyToClipboard = (text: string) => {
     const element = document.createElement('textarea');
     element.value = text;
@@ -19,3 +21,15 @@ export const makePluralIfCountIsNotOne = (count: number, singular: string, plura
 };
 
 export const convertDateToUnixTimestamp = (dateToConvert: Date): number => dateToConvert.getTime() / 1000 | 0;
+
+export const convertCollectionToMap = <T>(collectionToConvert: Collection<T>): Map<string, T> => {
+    const dataAsMap = new Map<string, T>();
+    Object.keys(collectionToConvert).forEach(key => dataAsMap.set(key, collectionToConvert[key]));
+    return dataAsMap;
+};
+
+export const convertMapToCollection = <T>(mapToConvert: Map<string, T>): Collection<T> => {
+    const dataAsCollection: Collection<T> = {};
+    mapToConvert.forEach((data, key) => dataAsCollection[key] = data);
+    return dataAsCollection;
+};

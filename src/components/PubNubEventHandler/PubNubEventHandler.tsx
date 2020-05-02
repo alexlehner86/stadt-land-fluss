@@ -21,18 +21,19 @@ const PubNubEventHandler: React.FunctionComponent<PubNubEventHandlerProps> = pro
         pubNubClient.history(
             { channel: props.gameChannel, count: 10 },
             (_, response) => {
-                // If history includes messages, then game has already started and user can't join.
-                // User gets rerouted to dashboard page by PlayGame component.
-                if (response.messages.length > 0) {
+                // If a new user wants to join the game but the channel's history already includes messages, then the game
+                // has already started and user can't join. They get rerouted to the dashboard page by PlayGame component.
+                if (!props.playerInfo.isRejoiningGame && response.messages.length > 0) {
                     props.navigateToDashboard();
-                } else {
+                    return;
+                }
+                // Only if player is joining game for the first time, set user state and retrieve hereNowData.
+                if (!props.playerInfo.isRejoiningGame) {
                     setUserState();
-                    if (!props.playerInfo.isAdmin) {
-                        getHereNowData();
-                        // Safeguard against the possibility of two players joining exactly at the same time:
-                        // We call hereNowData again after 2 seconds, to make sure we get all player info.
-                        setTimeout(getHereNowData, 2000);
-                    }
+                    getHereNowData();
+                    // Safeguard against the possibility of two players joining exactly at the same time:
+                    // We call hereNowData again after 3 seconds, to make sure we get all player info.
+                    setTimeout(getHereNowData, 3000);
                 }
             }
         );
@@ -55,6 +56,12 @@ const PubNubEventHandler: React.FunctionComponent<PubNubEventHandlerProps> = pro
             { channels: [props.gameChannel], includeUUIDs: true, includeState: true },
             (_, response) => {
                 console.log('PubNub hereNow', response);
+                // If player tries to rejoin but they are the only player left in game channel, then the game 
+                // is already over and the user gets rerouted to dashboard page by PlayGame component.
+                if (props.playerInfo.isRejoiningGame && response.totalOccupancy <= 1) {
+                    props.navigateToDashboard();
+                    return;
+                }
                 // Response includes states of players that joined before.
                 const dataForGameChannel = response.channels[props.gameChannel];
                 if (dataForGameChannel) {

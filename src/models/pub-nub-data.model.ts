@@ -1,4 +1,6 @@
-import { GameConfig, PlayerInput, EvaluationOfPlayerInput } from './game.interface';
+import { GamePhase } from '../constants/game.constant';
+import { Collection } from './collection.interface';
+import { EvaluationOfPlayerInput, GameConfig, PlayerInput } from './game.interface';
 import { PlayerInfo } from './player.interface';
 
 export interface PubNubUserState {
@@ -12,7 +14,9 @@ export enum PubNubMessageType {
     currentRoundInputs = 'currentRoundInputs',
     evaluationOfPlayerInput = 'evaluationOfPlayerInput',
     evaluationFinished = 'evaluationFinished',
-    kickPlayer = 'kickPlayer'
+    kickPlayer = 'kickPlayer',
+    requestGameData = 'requestGameData',
+    dataForCurrentGame = 'dataForCurrentGame'
 }
 
 export interface PubNubMessage {
@@ -48,6 +52,27 @@ export class PubNubKickPlayerMessage {
     public toPubNubMessage(): PubNubMessage {
         return {
             type: PubNubMessageType.kickPlayer,
+            payload: this.payload
+        }
+    }
+}
+
+export interface PubNubDataForCurrentGameMessagePayload {
+    allPlayers: Collection<PlayerInfo>;
+    currentPhase: GamePhase;
+    currentRound: number;
+    currentRoundEvaluation: Collection<Collection<boolean>[]>;
+    gameConfig: GameConfig;
+    gameRounds: Collection<PlayerInput[]>[];
+    playersThatFinishedEvaluation: Collection<boolean>;
+    requestingPlayerId: string;
+}
+export class PubNubDataForCurrentGameMessage {
+    constructor(private payload: PubNubDataForCurrentGameMessagePayload) {}
+
+    public toPubNubMessage(): PubNubMessage {
+        return {
+            type: PubNubMessageType.dataForCurrentGame,
             payload: this.payload
         }
     }

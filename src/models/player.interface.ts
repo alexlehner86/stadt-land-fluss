@@ -4,6 +4,7 @@
 export interface PlayerInfo {
     id: string;
     isAdmin: boolean;
+    isRejoiningGame: boolean;
     name: string;
 }
 

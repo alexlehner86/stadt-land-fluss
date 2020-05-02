@@ -1,9 +1,11 @@
 import { cloneDeep } from 'lodash';
 import randomnItem from 'random-item';
 import { ALPHABET_WITHOUT_QXY } from '../constants/game.constant';
+import { Collection } from '../models/collection.interface';
 import { PlayerInput } from '../models/game.interface';
 import { PlayerInfo } from '../models/player.interface';
 import { GameResultForPlayer, GameRound, GameRoundEvaluation, PlayerInputEvaluation } from './../models/game.interface';
+import { createAndFillArray } from './general.utils';
 
 /**
 * Returns an array of unique letters. The number of letters is defined by the parameter numberOfLetters.
@@ -30,6 +32,13 @@ export const getPlayersInAlphabeticalOrder = (players: Map<string, PlayerInfo>):
         if (a.name.toLowerCase() > b.name.toLowerCase()) { return 1; }
         return 0;
     });
+}
+
+/**
+ * Returns an array of PlayerInput objects with empty strings and valid set to true.
+ */
+export const getEmptyRoundInputs = (numberOfInputs: number): PlayerInput[] => {
+    return createAndFillArray<PlayerInput>(numberOfInputs, { text: '', valid: true });
 }
 
  /**
@@ -114,7 +123,7 @@ export const processPlayerInputEvaluations = (
  */
 export const calculateGameResults = (allPlayers: Map<string, PlayerInfo>, gameRounds: GameRound[]): GameResultForPlayer[] => {
     const gameResults: GameResultForPlayer[] = [];
-    const pointsPerPlayer: { [key: string]: GameResultForPlayer } = {};
+    const pointsPerPlayer: Collection<GameResultForPlayer> = {};
     allPlayers.forEach((playerInfo, playerId) => pointsPerPlayer[playerId] = { playerName: playerInfo.name, points: 0 });
     gameRounds.forEach(round => {
         round.forEach((playerInputs, playerId) => {
@@ -125,3 +134,24 @@ export const calculateGameResults = (allPlayers: Map<string, PlayerInfo>, gameRo
     Object.keys(pointsPerPlayer).forEach(playerId => gameResults.push(pointsPerPlayer[playerId]));
     return gameResults.sort((a, b) => b.points - a.points);
 }
+
+export const shouldUserRespondToRequestGameDataMessage = (user: PlayerInfo, allPlayers: Map<string, PlayerInfo>, requestingPlayerId: string): boolean => {
+    // User should not respond to their own message.
+    if (user.id === requestingPlayerId) { return false; }
+    // If user is admin, then they should respond to the message.
+    if (user.isAdmin) { return true; }
+    // If the requesting user is the admin, then an algorithm determines who of
+    // the remaining players is the one to respond to the admin's message.
+    const requestingPlayerInfo = allPlayers.get(requestingPlayerId);
+    if (requestingPlayerInfo && requestingPlayerInfo.isAdmin) {
+        const playersWithoutRequestingPlayer = cloneDeep(allPlayers);
+        playersWithoutRequestingPlayer.delete(requestingPlayerId);
+        const playersSortedById = Array.from(playersWithoutRequestingPlayer).map(data => data[1]).sort((a, b) => {
+            if (a.id < b.id) { return -1; }
+            if (a.id > b.id) { return 1; }
+            return 0;
+        });
+        return playersSortedById[0].id === user.id;
+    }
+    return false;
+};

@@ -6,9 +6,11 @@ import {
     SET_DATA_FOR_NEW_GAME,
     SET_DATA_OF_FINISHED_GAME,
     SET_STORED_PLAYER_INFO,
+    SET_STORED_RUNNING_GAME_INFO,
     SetDataForNewGameAction,
     SetDataOfFinishedGameAction,
     SetStoredPlayerInfoAction,
+    SetStoredRunningGameInfoAction,
 } from './app.actions';
 
 export interface AppState {
@@ -39,7 +41,19 @@ export const appReducer = (state: AppState = initialState, action: AppAction): A
                 playerInfo: {
                     id: storedPlayerInfo.id,
                     isAdmin: false,
+                    isRejoiningGame: false,
                     name: storedPlayerInfo.name
+                }
+            };
+        case SET_STORED_RUNNING_GAME_INFO:
+            const storedRunningGameInfo = (action as SetStoredRunningGameInfoAction).payload;
+            return {
+                ...state,
+                gameId: storedRunningGameInfo.gameId,
+                playerInfo: {
+                    ...state.playerInfo as PlayerInfo,
+                    isAdmin: storedRunningGameInfo.isPlayerAdmin,
+                    isRejoiningGame: true
                 }
             };
         case SET_DATA_FOR_NEW_GAME:
