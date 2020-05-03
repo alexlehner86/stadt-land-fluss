@@ -75,7 +75,7 @@ interface AdminPanelProps {
 }
 const AdminPanel: React.FunctionComponent<AdminPanelProps> = props => {
     const classes = useStyles();
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [openDialog, setOpenDialog] = useState(false);
     const [playerToBeKicked, setPlayerToBeKicked] = useState<PlayerInfo | null>(null);
 

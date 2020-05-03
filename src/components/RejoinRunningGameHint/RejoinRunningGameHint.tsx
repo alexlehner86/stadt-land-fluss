@@ -22,7 +22,7 @@ export const RejoinRunningGameHint: React.FunctionComponent<RejoinRunningGameHin
                 <span className="rejoin-running-game-hint-highlighted">Achtung: </span>
                 {hintText}
             </p>
-            <Link component={RouterLink} to="/play" className="rejoin-running-game-hint-highlighted">⇒ Zurück ins laufende Spiel</Link>
+            <Link component={RouterLink} to="/play" className="bold-text">⇒ Zurück ins laufende Spiel</Link>
         </div>
     );
 }

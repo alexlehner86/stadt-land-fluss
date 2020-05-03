@@ -49,6 +49,7 @@ import { Collection } from '../../models/collection.interface';
 interface PlayGamePropsFromStore {
     gameConfig: GameConfig | null;
     gameId: string | null;
+    /** Player info for the user of this instance of the "Stadt-Land-Fluss" app. */
     playerInfo: PlayerInfo;
 }
 interface PlayGameDispatchProps {
@@ -64,7 +65,6 @@ export interface PlayGameState {
     currentRoundInputs: PlayerInput[];
     gameConfig: GameConfig | null;
     gameRounds: GameRound[];
-    loadingScreenMessage: string | null;
     playersThatFinishedEvaluation: Map<string, boolean>;
     showLetterAnimation: boolean;
     showLoadingScreen: boolean;
@@ -79,7 +79,6 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         currentRoundInputs: [],
         gameConfig: null,
         gameRounds: [],
-        loadingScreenMessage: null,
         playersThatFinishedEvaluation: new Map<string, boolean>(),
         showLetterAnimation: false,
         showLoadingScreen: true
@@ -92,7 +91,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         if (this.props.gameId === null || this.props.playerInfo === null) { return null; }
 
         const { gameId, playerInfo } = this.props;
-        const { allPlayers, loadingScreenMessage, showLetterAnimation, showLoadingScreen } = this.state;
+        const { showLetterAnimation, showLoadingScreen } = this.state;
         if (!this.pubNubClient) {
             this.pubNubClient = new Pubnub({ ...PUBNUB_CONFIG, uuid: playerInfo.id });
         }
@@ -102,9 +101,9 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             case GamePhase.waitingToStart:
                 currentPhaseElement = (
                     <PhaseWaitingToStart
+                        allPlayers={this.state.allPlayers}
                         gameConfig={this.state.gameConfig}
                         gameId={gameId}
-                        allPlayers={allPlayers}
                         playerInfo={playerInfo}
                         sendMessage={this.sendMessage}
                     />
@@ -124,12 +123,13 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             case GamePhase.evaluateRound:
                 currentPhaseElement = (
                     <PhaseEvaluateRound
-                        allPlayers={allPlayers}
+                        allPlayers={this.state.allPlayers}
                         currentRound={this.state.currentRound}
                         currentRoundEvaluation={this.state.currentRoundEvaluation}
                         gameConfig={this.state.gameConfig as GameConfig}
                         gameRounds={this.state.gameRounds}
                         playerInfo={playerInfo}
+                        playersThatFinishedEvaluation={this.state.playersThatFinishedEvaluation}
                         updateEvaluationOfPlayerInput={this.updateEvaluationOfPlayerInput}
                         sendEvaluationFinishedMessage={this.sendEvaluationFinishedMessage}
                     />
@@ -137,13 +137,14 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                 break;
             default:
         }
-        const letterAnimationElement = this.state.gameConfig && showLetterAnimation ? (
+        const letterAnimationElement =  (
             <LetterAnimation
-                letterToUnveil={this.state.gameConfig.letters[this.state.currentRound - 1]}
+                letterToUnveil={this.state.gameConfig ? this.state.gameConfig.letters[this.state.currentRound - 1] : ''}
                 callbackWhenAnimationDone={this.callbackWhenAnimationDone}
             />
-        ) : null;
-        const loadingScreenElement = showLoadingScreen ? <LoadingScreen message={loadingScreenMessage} /> : null;
+        );
+        const adminPanel = <AdminPanel allPlayers={this.state.allPlayers} kickPlayer={this.sendKickPlayerMessage} />;
+
         return (
             <PubNubProvider client={this.pubNubClient}>
                 {/* The props passed to PubNubEventHandler must never be changed,
@@ -157,16 +158,14 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                     addPlayers={this.addPlayers}
                     processPubNubMessage={this.processPubNubMessage}
                 />
-                {letterAnimationElement}
-                {loadingScreenElement}
+                {showLetterAnimation ? letterAnimationElement : null}
+                {showLoadingScreen ? <LoadingScreen /> : null}
                 {!showLoadingScreen && !showLetterAnimation ? (
                     <div className="main-content-wrapper">
                         {currentPhaseElement}
                     </div>
                 ) : null}
-                {playerInfo.isAdmin && allPlayers.size > 1 ?
-                    <AdminPanel allPlayers={allPlayers} kickPlayer={this.sendKickPlayerMessage} />
-                    : null}
+                {playerInfo.isAdmin && this.state.allPlayers.size > 1 ? adminPanel : null}
             </PubNubProvider>
         );
     }
@@ -233,11 +232,9 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             }
         });
         // Only after we received the gameConfig from the admin, we hide the loading screen
-        // and render the PhaseWaitingToStart component instead, if the user isn't rejoining.
-        // If the user is rejoining a running game, we continue showing the loading screen
-        // until the requested game data from the other players is received.
+        // and render the PhaseWaitingToStart component instead.
         if (gameConfig) {
-            this.setState({ allPlayers, gameConfig, showLoadingScreen: this.props.playerInfo.isRejoiningGame });
+            this.setState({ allPlayers, gameConfig, showLoadingScreen: false });
         } else {
             this.setState({ allPlayers });
         }
@@ -364,10 +361,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
      * Is called by PhaseEvaluateRound component in order to communicate to all players
      * that the user of this instance of the game has finished evaluating the current round.
      */
-    private sendEvaluationFinishedMessage = () => {
-        this.setState({ loadingScreenMessage: 'Warte auf Mitspieler', showLoadingScreen: true });
-        this.sendMessage({ type: PubNubMessageType.evaluationFinished });
-    }
+    private sendEvaluationFinishedMessage = () => this.sendMessage({ type: PubNubMessageType.evaluationFinished });
 
     /**
      * This method is called when the PubNub message 'evaluationFinished' is received.
@@ -402,10 +396,8 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                 currentRoundInputs: getEmptyRoundInputs(gameConfig.categories.length),
                 currentRound: currentRound + 1,
                 gameRounds: newGameRounds,
-                loadingScreenMessage: null,
                 playersThatFinishedEvaluation: new Map<string, boolean>(),
-                showLetterAnimation: true,
-                showLoadingScreen: false
+                showLetterAnimation: true
             });
         }
     }

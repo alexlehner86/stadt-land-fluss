@@ -14,40 +14,22 @@ const useStyles = makeStyles(_ =>
             width: '100%',
             backgroundColor: 'rgba(0, 0, 0, 0.5)'
         },
-        centralContent: {
+        loadingSpinner: {
             position: 'absolute',
             top: '50%',
             left: '50%',
-            transform: 'translate(-50%, -50%)'
-        },
-        text: {
-            marginBlockStart: '0',
-            color: 'white',
-            fontSize: '1.5rem',
-            fontWeight: 'bold',
-            textAlign: 'center'
-        },
-        loadingSpinner: {
-            margin: '0 auto',
+            transform: 'translate(-50%, -50%)',
             width: loadingSpinnerSize + 'px'
         }
     }),
 );
 
-interface LoadingScreenProps {
-    message: string | null;
-}
-
-const LoadingScreen: React.FunctionComponent<LoadingScreenProps> = props => {
+const LoadingScreen: React.FunctionComponent = () => {
     const classes = useStyles();
-    const messageElement = props.message ? (<p className={classes.text}>{props.message}</p>) : null;
     return (
         <div className={classes.loadingScreen}>
-            <div className={classes.centralContent}>
-                {messageElement}
-                <div className={classes.loadingSpinner}>
-                    <CircularProgress color="secondary" size={loadingSpinnerSize} />
-                </div>
+            <div className={classes.loadingSpinner}>
+                <CircularProgress color="secondary" size={loadingSpinnerSize} />
             </div>
         </div>
     );

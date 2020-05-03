@@ -30,8 +30,8 @@ const PlayerList: React.FunctionComponent<PlayerListProps> = props => {
                 <Chip
                     key={`player-name-${index}`}
                     icon={<FaceIcon />}
-                    color="primary"
-                    label={playerInfo.name}
+                    color={playerInfo.isAdmin ? 'secondary' : 'primary'}
+                    label={playerInfo.isAdmin ? `${playerInfo.name} (Admin)` : playerInfo.name}
                     className={classes.chip}
                 />
             ))}

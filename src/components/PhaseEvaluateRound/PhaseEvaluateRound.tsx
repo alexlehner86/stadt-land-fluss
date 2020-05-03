@@ -1,9 +1,10 @@
 import './PhaseEvaluateRound.css';
 import { Badge, createStyles, IconButton, InputAdornment, TextField, Theme, Tooltip, withStyles } from '@material-ui/core';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import SearchIcon from '@material-ui/icons/Search';
 import ThumbDownRoundedIcon from '@material-ui/icons/ThumbDownRounded';
-import React from 'react';
+import React, { useState } from 'react';
 import {
     EvaluationOfPlayerInput,
     GameConfig,
@@ -41,24 +42,33 @@ interface PhaseEvaluateRoundProps {
     gameRounds: GameRound[];
     /** Player info for the user of this instance of the "Stadt-Land-Fluss" app. */
     playerInfo: PlayerInfo;
+    playersThatFinishedEvaluation: Map<string, boolean>;
     updateEvaluationOfPlayerInput: (newEvaluation: EvaluationOfPlayerInput) => void;
     sendEvaluationFinishedMessage: () => void;
 }
 const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = props => {
-    const { allPlayers, currentRound, currentRoundEvaluation, gameConfig, playerInfo } = props;
+    const [hasFinishedEvaluation, setHasFinishedEvaluation] = useState(props.playersThatFinishedEvaluation.has(props.playerInfo.id));
+    const { allPlayers, currentRound, currentRoundEvaluation, gameConfig, playerInfo, playersThatFinishedEvaluation } = props;
     const minNumberOfInvalids = getMinNumberOfNecessaryMarkedAsInvalid(allPlayers.size);
     // Retrieve data for finished round; e.g. if current round is 1, then data is at index 0.
     const finishedGameRound = props.gameRounds[currentRound - 1];
     const currentLetter = gameConfig.letters[currentRound - 1];
     const sortedPlayers = getPlayersInAlphabeticalOrder(allPlayers);
+    const notFinishedPlayers: string[] = [];
+    sortedPlayers.forEach(player => {
+        if (!playersThatFinishedEvaluation.has(player.id)) { notFinishedPlayers.push(player.name); }
+    });
 
-   /**
-     * Toggles the user's evaluation of a player's input for a category.
-     */
+    /**
+      * Toggles the user's evaluation of a player's input for a category,
+      * but only if the user hasn't accepted the round evaluation yet.
+      */
     const handleEvaluationButtonClick = (
         categoryIndex: number, evaluatedPlayerId: string, currentEvaluation: boolean
     ) => {
-        props.updateEvaluationOfPlayerInput({ categoryIndex, evaluatedPlayerId, markedAsValid: !currentEvaluation });
+        if (!hasFinishedEvaluation) {
+            props.updateEvaluationOfPlayerInput({ categoryIndex, evaluatedPlayerId, markedAsValid: !currentEvaluation });
+        }
     }
     /**
      * Displays a button that allows the user to reject a player's input for a category.
@@ -75,34 +85,38 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
         const tooltipText = rejectingPlayers.length === 0 ? 'Keine Ablehnungen' :
             'Abgelehnt von ' + rejectingPlayers.map(p => p.name).join(', ');
         const hasPlayerTypedText = !!(finishedGameRound.get(evaluatedPlayer.id) as PlayerInput[])[categoryIndex].text;
+
+        const evaluationButtonForTypedText = (
+            <Tooltip
+                key={`slf-evaluation-tooltip-${categoryIndex}-${indexInSortedPlayers}`}
+                title={tooltipText}
+            >
+                <IconButton
+                    className="slf-evaluation-button"
+                    color={isInputAcceptedByUser ? 'default' : 'secondary'}
+                    onClick={() => handleEvaluationButtonClick(categoryIndex, evaluatedPlayer.id, isInputAcceptedByUser)}
+                >
+                    <StyledBadge badgeContent={rejectingPlayers.length} color="secondary">
+                        <ThumbDownRoundedIcon />
+                    </StyledBadge>
+                </IconButton>
+            </Tooltip>
+        );
+        const autoRejectIconForMissingText = (
+            <Tooltip
+                key={`slf-evaluation-tooltip-${categoryIndex}-${indexInSortedPlayers}`}
+                title="Automatisch abgelehnt"
+            >
+                <ThumbDownRoundedIcon color="secondary" className="slf-auto-reject-icon" />
+            </Tooltip>
+        );
+
         return (
             <div
                 key={`slf-evaluation-button-wrapper-${categoryIndex}-${indexInSortedPlayers}`}
                 className="slf-evaluation-button-wrapper"
             >
-                {hasPlayerTypedText ? (
-                    <Tooltip
-                        key={`slf-evaluation-tooltip-${categoryIndex}-${indexInSortedPlayers}`}
-                        title={tooltipText}
-                    >
-                        <IconButton
-                            className="slf-evaluation-button"
-                            color={isInputAcceptedByUser ? 'default' : 'secondary'}
-                            onClick={() => handleEvaluationButtonClick(categoryIndex, evaluatedPlayer.id, isInputAcceptedByUser)}
-                        >
-                            <StyledBadge badgeContent={rejectingPlayers.length} color="secondary">
-                                <ThumbDownRoundedIcon />
-                            </StyledBadge>
-                        </IconButton>
-                    </Tooltip>
-                ) : (
-                        <Tooltip
-                            key={`slf-evaluation-tooltip-${categoryIndex}-${indexInSortedPlayers}`}
-                            title="Automatisch abgelehnt"
-                        >
-                            <ThumbDownRoundedIcon color="secondary" className="slf-auto-reject-icon" />
-                        </Tooltip>
-                    )}
+                {hasPlayerTypedText ? evaluationButtonForTypedText : autoRejectIconForMissingText}
             </div>
         );
     }
@@ -179,6 +193,12 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
             {sortedPlayers.map((_, indexInSortedPlayers) => playerEvaluationElements(categoryIndex, indexInSortedPlayers))}
         </div>
     );
+    const onAcceptEvaluationButtonClick = () => {
+        if (!hasFinishedEvaluation) {
+            setHasFinishedEvaluation(true);
+            props.sendEvaluationFinishedMessage();
+        }
+    }
 
     return (
         <React.Fragment>
@@ -189,15 +209,18 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
             />
             <form className="app-form" noValidate autoComplete="off">
                 {gameConfig.categories.map(createCategorySection)}
+                <div className="material-card-style">
+                    Bestätigung ausstehend: <span className="bold-text">{notFinishedPlayers.join(', ')}</span>.
+                </div>
                 <IconButton
                     type="button"
                     className="fixed-bottom-right-button"
                     color="secondary"
-                    title="Akzeptieren"
-                    aria-label="Akzeptieren"
-                    onClick={() => props.sendEvaluationFinishedMessage()}
+                    title="Bestätigen"
+                    aria-label="Bestätigen"
+                    onClick={onAcceptEvaluationButtonClick}
                 >
-                    <CheckCircleIcon />
+                    {hasFinishedEvaluation ? <CheckCircleIcon /> : <RadioButtonUncheckedIcon />}
                 </IconButton>
             </form>
         </React.Fragment>

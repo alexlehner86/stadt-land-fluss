@@ -1,7 +1,7 @@
 import './JoinGameLink.css';
 import { IconButton, InputAdornment, OutlinedInput, Snackbar } from '@material-ui/core';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
-import React from 'react';
+import React, { useState } from 'react';
 import { copyToClipboard } from '../../utils/general.utils';
 
 interface JoinGameLinkProps {
@@ -9,7 +9,7 @@ interface JoinGameLinkProps {
 }
 
 export const JoinGameLink: React.FunctionComponent<JoinGameLinkProps> = props => {
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = useState(false);
     const handleClick = () => {
         copyToClipboard(joinGameLink)
         setOpen(true);

@@ -11,15 +11,15 @@ import PlayerList from '../PlayerList/PlayerList';
 import { SectionHeader } from '../SectionHeader/SectionHeader';
 
 interface PhaseWaitingToStartProps {
+    allPlayers: Map<string, PlayerInfo>;
     gameConfig: GameConfig | null;
     gameId: string;
-    allPlayers: Map<string, PlayerInfo>;
     playerInfo: PlayerInfo;
     sendMessage: (message: PubNubMessage) => void;
 }
 
 const PhaseWaitingToStart: React.FunctionComponent<PhaseWaitingToStartProps> = props => {
-    const { gameId, allPlayers, playerInfo } = props;
+    const { allPlayers, gameId, playerInfo } = props;
     const waitForGameStartElement = (
         <p className="wait-for-start-animation">Warte auf Spielbeginn <span>.</span><span>.</span><span>.</span></p>
     );
