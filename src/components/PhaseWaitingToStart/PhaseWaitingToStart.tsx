@@ -64,7 +64,7 @@ const PhaseWaitingToStart: React.FunctionComponent<PhaseWaitingToStartProps> = p
             <div className="material-card-style">
                 <SectionHeader showDivider={true} text="Gleich geht's los..."></SectionHeader>
                 <div className="players-wrapper">
-                    <h3>Mitspieler:</h3>
+                    <h3>Mitspieler ({props.allPlayers.size}):</h3>
                     <PlayerList players={props.allPlayers} />
                 </div>
                 {props.gameConfig ? createGameSettingsElement() : null}

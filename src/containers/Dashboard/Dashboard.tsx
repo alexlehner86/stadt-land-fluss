@@ -5,20 +5,27 @@ import { Link as RouterLink } from 'react-router-dom';
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
 import { connect } from 'react-redux';
 import { AppState } from '../../store/app.reducer';
+import DirectionsRunIcon from '@material-ui/icons/DirectionsRun';
 
 interface DashboardPropsFromStore {
     gameId: string | null;
 }
 class Dashboard extends Component<DashboardPropsFromStore> {
     public render() {
+        const rejoinGameElement = (
+            <Link component={RouterLink} to="/play" className="rejoin-game-link">
+                <DirectionsRunIcon />
+                Zurück ins laufende Spiel
+            </Link>
+        );
         return (
             <div className="main-content-wrapper">
                 <div className="dashboard-container material-card-style">
                     <SectionHeader showDivider={true} text="Dashboard"></SectionHeader>
                     <div className="link-container">
+                        {this.props.gameId ? rejoinGameElement : null}
                         <Link component={RouterLink} to="/newgame">Neues Spiel</Link>
                         <Link component={RouterLink} to="/joingame">Spiel beitreten</Link>
-                        {this.props.gameId ? <Link component={RouterLink} to="/play">Zurück ins laufende Spiel</Link> : null}
                     </div>
                     <img
                         src={`${process.env.PUBLIC_URL}/assets/city-country-river.jpg`}

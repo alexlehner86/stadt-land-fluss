@@ -2,6 +2,13 @@ This project is an online version of the popular European game "Stadt-Land-Fluss
 
 ## Release Notes
 
+### v1.3.0
+
+- Implement "Rejoin Running Game" feature.
+- Add admin panel with "Kick Player" feature.
+- Persist player name and id.
+- Minor bugfixes.
+
 ### v1.2.0
 
 - Add new categories.

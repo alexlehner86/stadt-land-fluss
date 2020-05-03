@@ -17,7 +17,14 @@
     border-radius: 5px;
     text-align: center;
 }
-
+.dashboard-container .link-container a.rejoin-game-link {
+    min-width: calc(100% - 3.1rem);
+    border: 5px solid rgba(255,255,255,0.5);
+    font-weight: bold;
+}
+.dashboard-container .link-container a.rejoin-game-link svg {
+    margin-right: 0.5rem;
+}
 .dashboard-slf-image {
     margin-left: -1rem;
     width: calc(100% + 2rem);
