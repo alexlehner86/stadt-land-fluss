@@ -7,6 +7,10 @@ import { RouteComponentProps } from 'react-router';
 import { v4 as uuidv4 } from 'uuid';
 import AddCustomCategory from '../../components/AddCustomCategory/AddCustomCategory';
 import ChipsArray, { ChipType } from '../../components/ChipsArray/ChipsArray';
+import {
+    RejoinRunningGameHint,
+    RejoinRunningGameHintContext,
+} from '../../components/RejoinRunningGameHint/RejoinRunningGameHint';
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
 import ToDashboardButton from '../../components/ToDashboardButton/ToDashboardButton';
 import {
@@ -29,6 +33,7 @@ enum CategoryArray {
 }
 
 interface NewGamePropsFromStore {
+    gameId: string | null;
     playerIdCreationTimestamp: number;
     playerInfo: PlayerInfo | null;
 }
@@ -108,6 +113,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
         );
         return (
             <div className="main-content-wrapper">
+                {this.props.gameId ? <RejoinRunningGameHint context={RejoinRunningGameHintContext.newgame} /> : null}
                 <div className="material-card-style">
                     <SectionHeader showDivider={true} text="Neues Spiel" />
                     {newGameForm}
@@ -196,6 +202,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
 
 const mapStateToProps = (state: AppState): NewGamePropsFromStore => {
     return {
+        gameId: state.gameId,
         playerIdCreationTimestamp: state.playerIdCreationTimestamp,
         playerInfo: state.playerInfo
     };

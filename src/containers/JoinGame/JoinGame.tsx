@@ -4,6 +4,10 @@ import DirectionsWalkIcon from '@material-ui/icons/DirectionsWalk';
 import React, { ChangeEvent, Component, Dispatch, FormEvent } from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
+import {
+    RejoinRunningGameHint,
+    RejoinRunningGameHintContext,
+} from '../../components/RejoinRunningGameHint/RejoinRunningGameHint';
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
 import ToDashboardButton from '../../components/ToDashboardButton/ToDashboardButton';
 import { PlayerInfo } from '../../models/player.interface';
@@ -13,6 +17,7 @@ import { convertDateToUnixTimestamp } from '../../utils/general.utils';
 import { setPlayerInfoInLocalStorage, setRunningGameInfoInLocalStorage } from '../../utils/local-storage.utils';
 
 interface JoinGamePropsFromStore {
+    gameId: string | null;
     playerIdCreationTimestamp: number;
     playerInfo: PlayerInfo | null;
 }
@@ -72,6 +77,7 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
         );
         return (
             <div className="main-content-wrapper">
+                {this.props.gameId ? <RejoinRunningGameHint context={RejoinRunningGameHintContext.joingame} /> : null}
                 <div className="material-card-style">
                     <SectionHeader showDivider={true} text="Spiel beitreten"></SectionHeader>
                     {joinGameForm}
@@ -134,6 +140,7 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
 
 const mapStateToProps = (state: AppState): JoinGamePropsFromStore => {
     return {
+        gameId: state.gameId,
         playerIdCreationTimestamp: state.playerIdCreationTimestamp,
         playerInfo: state.playerInfo
     };
