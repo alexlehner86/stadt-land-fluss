@@ -11,6 +11,7 @@ import {
 } from './constants/app.constant';
 import { AppTheme, AppThemes } from './constants/themes.constant';
 import Dashboard from './containers/Dashboard/Dashboard';
+import GameManual from './containers/GameManual/GameManual';
 import GameResults from './containers/GameResults/GameResults';
 import JoinGame from './containers/JoinGame/JoinGame';
 import NewGame from './containers/NewGame/NewGame';
@@ -46,24 +47,25 @@ class App extends Component<AppDispatchProps, AppState> {
         return (
             <ThemeProvider theme={this.state.activeTheme.muiTheme}>
                 <div className="app-container">
-                    <Header
-                        theme={this.state.activeTheme}
-                        switchTheme={this.switchThemeHandler}
-                    />
-                    <main
-                        className={'app-main ' + this.state.activeTheme.className}
-                        style={this.state.activeTheme.style}
-                    >
-                        <HashRouter basename={process.env.PUBLIC_URL}>
+                    <HashRouter basename={process.env.PUBLIC_URL}>
+                        <Header
+                            theme={this.state.activeTheme}
+                            switchTheme={this.switchThemeHandler}
+                        />
+                        <main
+                            className={'app-main ' + this.state.activeTheme.className}
+                            style={this.state.activeTheme.style}
+                        >
                             <Switch>
-                                <Route path="/" exact component={Dashboard} />
+                                <Route path="/manual" exact component={GameManual} />
                                 <Route path="/newgame" exact component={NewGame} />
                                 <Route path="/joingame" exact component={JoinGame} />
                                 <Route path="/play" exact component={PlayGame} />
                                 <Route path="/results" exact component={GameResults} />
+                                <Route path="/" component={Dashboard} />
                             </Switch>
-                        </HashRouter>
-                    </main>
+                        </main>
+                    </HashRouter>
                 </div>
             </ThemeProvider>
         );

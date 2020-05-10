@@ -29,7 +29,8 @@ const PhaseWaitingToStart: React.FunctionComponent<PhaseWaitingToStartProps> = p
         return (
             <React.Fragment>
                 <Divider />
-                <h3>Spiele-Settings:</h3>
+                <h3>Spiel-Übersicht:</h3>
+                <p>ID: {props.gameId}</p>
                 <p>Runden: {gameConfig.numberOfRounds}</p>
                 <p>Kategorien: {gameConfig.categories.join(', ')}</p>
             </React.Fragment>
