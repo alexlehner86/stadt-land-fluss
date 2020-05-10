@@ -4,7 +4,7 @@ import StarIcon from '@material-ui/icons/Star';
 import React, { Component, Dispatch } from 'react';
 import { connect } from 'react-redux';
 import { RouterProps } from 'react-router';
-
+import ScoringOptionsList from '../../components/ScoringOptionsList/ScoringOptionsList';
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
 import ToDashboardButton from '../../components/ToDashboardButton/ToDashboardButton';
 import { GameConfig, GameResultForPlayer } from '../../models/game.interface';
@@ -51,6 +51,7 @@ class GameResults extends Component<GameResultsProps, GameResultsState> {
                     <p>Runden: {gameConfig.numberOfRounds}</p>
                     <p>Buchstaben: {gameConfig.letters.join(', ')}</p>
                     <p>Kategorien: {gameConfig.categories.join(', ')}</p>
+                    <ScoringOptionsList rules={gameConfig.scoringOptions} />
                 </div>
                 <ToDashboardButton onReturnToDashboard={this.returnToDashboard} />
             </div>

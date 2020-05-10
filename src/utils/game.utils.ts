@@ -1,6 +1,6 @@
 import { cloneDeep } from 'lodash';
 import randomnItem from 'random-item';
-import { ALPHABET_WITHOUT_QXY } from '../constants/game.constant';
+import { STANDARD_POINTS } from '../constants/game.constant';
 import { Collection } from '../models/collection.interface';
 import { PlayerInput } from '../models/game.interface';
 import { PlayerInfo } from '../models/player.interface';
@@ -11,7 +11,7 @@ import { createAndFillArray } from './general.utils';
 * Returns an array of unique letters. The number of letters is defined by the parameter numberOfLetters.
 * If the second argument is not provided, then the standard alphabet (excluding Q, X and Y) is used.
 */
-export const getRandomnLetters = (numberOfLetters: number, possibleLetters = ALPHABET_WITHOUT_QXY): string[] => {
+export const getRandomnLetters = (numberOfLetters: number, possibleLetters: string[]): string[] => {
     if (numberOfLetters > possibleLetters.length) {
         throw new Error('Cannot create more randomn unique letters than the number of possibleLetters provided!');
     }
@@ -35,10 +35,10 @@ export const getPlayersInAlphabeticalOrder = (players: Map<string, PlayerInfo>):
 }
 
 /**
- * Returns an array of PlayerInput objects with empty strings and valid set to true.
+ * Returns an array of PlayerInput objects with empty strings and default settings (isMarkedCreative=false, valid=true, standard points).
  */
 export const getEmptyRoundInputs = (numberOfInputs: number): PlayerInput[] => {
-    return createAndFillArray<PlayerInput>(numberOfInputs, { text: '', valid: true });
+    return createAndFillArray<PlayerInput>(numberOfInputs, { isMarkedCreative: false, points: STANDARD_POINTS, text: '', valid: true });
 }
 
  /**

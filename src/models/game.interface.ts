@@ -1,7 +1,14 @@
+export interface GameConfigScoringSystem {
+    checkForDuplicates: boolean;
+    creativeAnswersExtraPoints: boolean;
+    onlyPlayerWithValidAnswer: boolean;
+}
+
 export interface GameConfig {
     categories: string[];
     letters: string[];
     numberOfRounds: number;
+    scoringOptions: GameConfigScoringSystem;
 }
 
 export interface StoredRunningGameInfo {
@@ -16,6 +23,8 @@ export interface StoredRunningGameInfo {
  * Represents a player's input for one category in one round of the game.
  */
 export interface PlayerInput {
+    isMarkedCreative: boolean;
+    points: number;
     text: string;
     valid: boolean;
 }

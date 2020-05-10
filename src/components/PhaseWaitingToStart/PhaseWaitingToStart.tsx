@@ -8,6 +8,7 @@ import { PlayerInfo } from '../../models/player.interface';
 import { PubNubMessage, PubNubMessageType } from '../../models/pub-nub-data.model';
 import { JoinGameLink } from '../JoinGameLink/JoinGameLink';
 import PlayerList from '../PlayerList/PlayerList';
+import ScoringOptionsList from '../ScoringOptionsList/ScoringOptionsList';
 import { SectionHeader } from '../SectionHeader/SectionHeader';
 
 interface PhaseWaitingToStartProps {
@@ -20,45 +21,37 @@ interface PhaseWaitingToStartProps {
 
 const PhaseWaitingToStart: React.FunctionComponent<PhaseWaitingToStartProps> = props => {
     const { allPlayers, gameId, playerInfo } = props;
+    const gameConfig = props.gameConfig as GameConfig;
     const waitForGameStartElement = (
         <p className="wait-for-start-animation">Warte auf Spielbeginn <span>.</span><span>.</span><span>.</span></p>
     );
-
-    const createGameSettingsElement = (): JSX.Element => {
-        const gameConfig = props.gameConfig as GameConfig;
-        return (
-            <React.Fragment>
-                <Divider />
-                <h3>Spiel-Übersicht:</h3>
-                <p>ID: {props.gameId}</p>
-                <p>Runden: {gameConfig.numberOfRounds}</p>
-                <p>Kategorien: {gameConfig.categories.join(', ')}</p>
-            </React.Fragment>
-        );
-    }
-
-    const createStartGameButton = (): JSX.Element => {
-        return (
-            <div className="button-wrapper add-margin-top">
-                <Button
-                    color="primary"
-                    variant="contained"
-                    size="large"
-                    startIcon={<PlayCircleFilled />}
-                    disabled={allPlayers.size < MIN_NUMBER_OF_PLAYERS}
-                    onClick={() => props.sendMessage({ type: PubNubMessageType.startGame })}
-                >Starten</Button>
-            </div>
-        );
-    }
-
-    const createInvitePlayersElement = (): JSX.Element => {
-        return (
-            <div className="material-card-style">
-                <JoinGameLink gameId={gameId as string} />
-            </div>
-        );
-    }
+    const createGameSettingsElement = (): JSX.Element => (
+        <React.Fragment>
+            <Divider />
+            <h3>Spiel-Übersicht:</h3>
+            <p>ID: {props.gameId}</p>
+            <p>Runden: {gameConfig.numberOfRounds}</p>
+            <p>Kategorien: {gameConfig.categories.join(', ')}</p>
+            <ScoringOptionsList rules={gameConfig.scoringOptions} />
+        </React.Fragment>
+    );
+    const createStartGameButton = (): JSX.Element => (
+        <div className="button-wrapper add-margin-top">
+            <Button
+                color="primary"
+                variant="contained"
+                size="large"
+                startIcon={<PlayCircleFilled />}
+                disabled={allPlayers.size < MIN_NUMBER_OF_PLAYERS}
+                onClick={() => props.sendMessage({ type: PubNubMessageType.startGame })}
+            >Starten</Button>
+        </div>
+    );
+    const createInvitePlayersElement = (): JSX.Element => (
+        <div className="material-card-style">
+            <JoinGameLink gameId={gameId as string} />
+        </div>
+    );
 
     return (
         <React.Fragment>

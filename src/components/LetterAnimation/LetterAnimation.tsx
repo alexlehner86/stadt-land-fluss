@@ -1,9 +1,9 @@
 import './LetterAnimation.css';
 import React, { useEffect } from 'react';
 import {
-    ALPHABET_WITHOUT_QXY,
     LETTER_ANIMATION_LETTER_COUNT,
     LETTER_ANIMATION_REDRAW_SPEED,
+    STANDARD_ALPHABET,
 } from '../../constants/game.constant';
 import { AppTheme, AppThemes } from '../../constants/themes.constant';
 import { getRandomnLetters } from '../../utils/game.utils';
@@ -145,7 +145,7 @@ interface LetterAnimationProps {
     callbackWhenAnimationDone: () => void;
 }
 export const LetterAnimation: React.FunctionComponent<LetterAnimationProps> = props => {
-    const lettersToUse = [...ALPHABET_WITHOUT_QXY].filter(letter => letter !== props.letterToUnveil);
+    const lettersToUse = [...STANDARD_ALPHABET].filter(letter => letter !== props.letterToUnveil);
     const lettersForAnimation = [...getRandomnLetters(LETTER_ANIMATION_LETTER_COUNT - 1, lettersToUse), props.letterToUnveil];
     useEffect(() => {
         const particleAlphabet = new ParticleAlphabet(lettersForAnimation, props.callbackWhenAnimationDone);

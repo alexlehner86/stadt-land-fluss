@@ -1,6 +1,18 @@
 import './NewGame.css';
-import { Button, TextField } from '@material-ui/core';
+import {
+    Button,
+    Checkbox,
+    ExpansionPanel,
+    ExpansionPanelDetails,
+    ExpansionPanelSummary,
+    FormControlLabel,
+    FormGroup,
+    TextField,
+    Divider,
+    Snackbar,
+} from '@material-ui/core';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import React, { ChangeEvent, Component, Dispatch, FormEvent } from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
@@ -19,6 +31,10 @@ import {
     MAX_NUMBER_OF_ROUNDS,
     MIN_NUMBER_OF_ROUNDS,
     STANDARD_CATEGORIES,
+    GAME_OPTION_LABEL,
+    STANDARD_EXCLUDED_LETTERS,
+    STANDARD_ALPHABET,
+    MIN_NUMBER_OF_CATEGORIES,
 } from '../../constants/game.constant';
 import { PlayerInfo } from '../../models/player.interface';
 import { AppAction, setDataForNewGame, SetDataForNewGamePayload } from '../../store/app.actions';
@@ -26,10 +42,16 @@ import { AppState } from '../../store/app.reducer';
 import { getRandomnLetters } from '../../utils/game.utils';
 import { convertDateToUnixTimestamp } from '../../utils/general.utils';
 import { setPlayerInfoInLocalStorage, setRunningGameInfoInLocalStorage } from '../../utils/local-storage.utils';
+import { xor } from 'lodash';
 
 enum CategoryArray {
     available = 'available',
     selected = 'selected'
+}
+enum CheckboxName {
+    checkForDuplicates = 'checkForDuplicates',
+    creativeAnswersExtraPoints = 'creativeAnswersExtraPoints',
+    onlyPlayerWithValidAnswer = 'onlyPlayerWithValidAnswer'
 }
 
 interface NewGamePropsFromStore {
@@ -43,18 +65,30 @@ interface NewGameDispatchProps {
 interface NewGameProps extends NewGamePropsFromStore, NewGameDispatchProps, RouteComponentProps { }
 interface NewGameState {
     availableCategories: string[];
+    [CheckboxName.checkForDuplicates]: boolean;
+    [CheckboxName.creativeAnswersExtraPoints]: boolean;
+    isSnackbarOpen: boolean;
+    lettersToExclude: string[];
     nameInput: string;
     numberOfRoundsInput: number;
+    [CheckboxName.onlyPlayerWithValidAnswer]: boolean;
     selectedCategories: string[];
+    snackBarMessage: string;
     validateInputs: boolean;
 }
 
 class NewGame extends Component<NewGameProps, NewGameState> {
     public state: NewGameState = {
         availableCategories: AVAILABLE_CATEGORIES,
+        checkForDuplicates: true,
+        creativeAnswersExtraPoints: false,
+        isSnackbarOpen: false,
+        lettersToExclude: [...STANDARD_EXCLUDED_LETTERS],
         nameInput: this.props.playerInfo ? this.props.playerInfo.name : '',
         numberOfRoundsInput: DEFAULT_NUMBER_OF_ROUNDS,
+        onlyPlayerWithValidAnswer: true,
         selectedCategories: STANDARD_CATEGORIES,
+        snackBarMessage: '',
         validateInputs: false
     };
 
@@ -86,7 +120,70 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     required
                     inputProps={{ 'min': MIN_NUMBER_OF_ROUNDS, 'max': MAX_NUMBER_OF_ROUNDS }}
                 />
-                <p className="category-array-label">Ausgewählte Kategorien (mind. 3):</p>
+                <ExpansionPanel className="more-options-expansion-panel">
+                    <ExpansionPanelSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        aria-controls="panel1a-content"
+                        id="panel1a-header"
+                    >
+                        Weitere Optionen
+                    </ExpansionPanelSummary>
+                    <ExpansionPanelDetails>
+                        <FormGroup className="game-options-list">
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={this.state.checkForDuplicates}
+                                        name={CheckboxName.checkForDuplicates}
+                                        color="primary"
+                                        onChange={this.handleGameOptionChange}
+                                    />
+                                }
+                                label={GAME_OPTION_LABEL.checkForDuplicates}
+                            />
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={this.state.onlyPlayerWithValidAnswer}
+                                        name={CheckboxName.onlyPlayerWithValidAnswer}
+                                        color="primary"
+                                        onChange={this.handleGameOptionChange}
+                                    />
+                                }
+                                label={GAME_OPTION_LABEL.onlyPlayerWithValidAnswer}
+                            />
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={this.state.creativeAnswersExtraPoints}
+                                        name={CheckboxName.creativeAnswersExtraPoints}
+                                        color="primary"
+                                        onChange={this.handleGameOptionChange}
+                                    />
+                                }
+                                label={GAME_OPTION_LABEL.creativeAnswersExtraPoints}
+                            />
+                        </FormGroup>
+                        <Divider />
+                        <p className="category-array-label">Folgende Buchstaben ausschließen:</p>
+                        <FormGroup row className="letters-to-exclude">
+                            {STANDARD_ALPHABET.map((letter, letterIndex) => (
+                                <FormControlLabel
+                                    key={`slf-letters-to-exclude-${letterIndex}`}
+                                    control={
+                                        <Checkbox
+                                            checked={this.state.lettersToExclude.includes(letter)}
+                                            color="primary"
+                                            onChange={(event) => this.handleLetterToExcludeChange(event, letter)}
+                                        />
+                                    }
+                                    label={letter}
+                                />
+                            ))}
+                        </FormGroup>
+                    </ExpansionPanelDetails>
+                </ExpansionPanel>
+                <p className="category-array-label">Ausgewählte Kategorien (mind. {MIN_NUMBER_OF_CATEGORIES}):</p>
                 <ChipsArray
                     chipsArray={this.state.selectedCategories}
                     chipType={ChipType.selected}
@@ -119,6 +216,13 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     {newGameForm}
                 </div>
                 <ToDashboardButton onReturnToDashboard={this.returnToDashboard} />
+                <Snackbar
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                    open={this.state.isSnackbarOpen}
+                    autoHideDuration={3000}
+                    onClose={this.handleSnackBarClose}
+                    message={this.state.snackBarMessage}
+                />
             </div>
         );
     }
@@ -138,6 +242,16 @@ class NewGame extends Component<NewGameProps, NewGameState> {
         if (value >= MIN_NUMBER_OF_ROUNDS && value <= MAX_NUMBER_OF_ROUNDS) {
             this.setState({ numberOfRoundsInput: value });
         }
+    }
+
+    private handleGameOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        this.setState({ ...this.state, [event.target.name]: event.target.checked });
+    }
+
+    private handleLetterToExcludeChange = (event: React.ChangeEvent<HTMLInputElement>, letter: string) => {
+        const { lettersToExclude } = this.state;
+        const newLettersToExclude = event.target.checked ? [...lettersToExclude, letter] : lettersToExclude.filter(l => l !== letter);
+        this.setState({ lettersToExclude: newLettersToExclude });
     }
 
     private updateCategoryArrays = (chipToRemove: string, removeFromArray: CategoryArray) => {
@@ -164,12 +278,27 @@ class NewGame extends Component<NewGameProps, NewGameState> {
 
     private handleSubmit = (event: FormEvent) => {
         event.preventDefault();
-        if (this.state.nameInput.trim() && this.state.selectedCategories.length >= 3) {
+        if (this.isReadyToStartGame()) {
             this.startNewGame();
         } else {
             this.setState({ nameInput: this.state.nameInput.trim(), validateInputs: true });
         }
     }
+
+    private isReadyToStartGame = (): boolean => {
+        if (this.state.selectedCategories.length < MIN_NUMBER_OF_CATEGORIES) {
+            this.showSnackBar(`Du musst mindestens ${MIN_NUMBER_OF_CATEGORIES} Kategorien auswählen!`);
+            return false;
+        }
+        if (STANDARD_ALPHABET.length - this.state.lettersToExclude.length < this.state.numberOfRoundsInput) {
+            this.showSnackBar(`Du hast zu viele Buchstaben ausgeschlossen!`);
+            return false;
+        }
+        return !!this.state.nameInput.trim();
+    }
+
+    private showSnackBar = (message: string) =>  this.setState({ isSnackbarOpen: true, snackBarMessage: message});
+    private handleSnackBarClose = () =>  this.setState({ isSnackbarOpen: false });
 
     private startNewGame = () => {
         const playerInfo = this.props.playerInfo as PlayerInfo;
@@ -181,8 +310,13 @@ class NewGame extends Component<NewGameProps, NewGameState> {
         this.props.onSetGameData({
             gameConfig: {
                 categories: selectedCategories,
-                letters: getRandomnLetters(numberOfRoundsInput),
-                numberOfRounds: numberOfRoundsInput
+                letters: getRandomnLetters(numberOfRoundsInput, xor(STANDARD_ALPHABET, this.state.lettersToExclude)),
+                numberOfRounds: numberOfRoundsInput,
+                scoringOptions: {
+                    checkForDuplicates: this.state.checkForDuplicates,
+                    creativeAnswersExtraPoints: this.state.creativeAnswersExtraPoints,
+                    onlyPlayerWithValidAnswer: this.state.onlyPlayerWithValidAnswer
+                }
             },
             gameId,
             playerInfo: {

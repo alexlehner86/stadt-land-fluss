@@ -44,10 +44,7 @@ export const JoinGameLink: React.FunctionComponent<JoinGameLinkProps> = props =>
                 }
             />
             <Snackbar
-                anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'center',
-                }}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                 open={open}
                 autoHideDuration={1500}
                 onClose={handleClose}
