@@ -1,11 +1,12 @@
 import './GameManual.css';
-import React, { Component } from 'react';
-import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
-import { RouteComponentProps } from 'react-router';
-import ToDashboardButton from '../../components/ToDashboardButton/ToDashboardButton';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 import ThumbDownRoundedIcon from '@material-ui/icons/ThumbDownRounded';
+import React, { Component } from 'react';
+import { RouteComponentProps } from 'react-router';
+import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
+import ToDashboardButton from '../../components/ToDashboardButton/ToDashboardButton';
+import { GAME_OPTION_LABEL } from '../../constants/game.constant';
 
 class GameManual extends Component<RouteComponentProps> {
     public render() {
@@ -46,8 +47,16 @@ class GameManual extends Component<RouteComponentProps> {
                         sich auch jede beliebige, weitere Kategorie hinzufügen und für das Spiel auswählen.
                     </p>
                     <p>
-                        Im Bereich <span>Weitere Optionen</span> können optional weitere Einstellungen vorgenommen werden. (TODO)
+                        Im Bereich <span>Weitere Optionen</span> können optional weitere Einstellungen vorgenommen werden.
+                        Der Nutzer kann bestimmen, welche Buchstaben ausgeschlossen werden sollen. Standardmäßig sind hier
+                        Q, X und Y ausgewählt. Weiters stehen drei zusätzliche <span>Regeln für die Punktevergabe</span> zur
+                        Auswahl, von denen die ersten beiden vorausgewählt sind:
                     </p>
+                    <ul>
+                        <li>{GAME_OPTION_LABEL.checkForDuplicates}</li>
+                        <li>{GAME_OPTION_LABEL.onlyPlayerWithValidAnswer}</li>
+                        <li>{GAME_OPTION_LABEL.creativeAnswersExtraPoints}</li>
+                    </ul>
                     <p>
                         Nach einem Klick auf <span>Spiel erstellen</span> gelangt der Nutzer zur Spiel-Übersicht, wo alle Settings
                         für das erstellte Spiel sowie die bisher dem Spiel beigetretenen Mitspieler sichtbar sind. Zu Beginn ist nur der
@@ -78,12 +87,13 @@ class GameManual extends Component<RouteComponentProps> {
                             rechts unten auf der Seite geklickt hat oder wenn die festgelegte Rundendauer abgelaufen ist.
                         </li>
                         <li>
-                            Nachdem die Runde beendet ist, wird jedem Spieler eine Übersicht aller Antworten aller Spieler pro
-                            Kategorie angezeigt. Falls ein Spieler in ein Feld nichts eingetragen hat, wird dieses automatisch
+                            Nachdem die Runde beendet ist, wird jedem Spieler eine Übersicht aller Begriffe aller Spieler pro
+                            Kategorie angezeigt. Grundsätzlich zählt ein gültiger Begriff 10 Punkte, außer die gewählten Regeln besagen
+                            etwas anderes (siehe oben). Falls ein Spieler in ein Feld nichts eingetragen hat, wird dieses automatisch
                             als 0 Punkte gewertet. Über den <ThumbDownRoundedIcon fontSize="small" className="inline-material-icon" />-Button
-                            können die Spieler konkrete Antworten ablehnen. Abhängig von der Spieleranzahl führt dies dazu,
-                            dass der jeweilige Spieler keine Punkte für die Antwort erhält. Bei zwei bis drei Spielern reicht die
-                            Ablehnung durch einen Mitspieler aus. Bei mehr als drei Spielern müssen mindesten zwei Spieler eine Antwort ablehnen.
+                            können die Spieler konkrete Antworten ablehnen. Abhängig von der Spieleranzahl führt dies dazu, dass
+                            der jeweilige Spieler keine Punkte für die Antwort erhält. Bei zwei bis drei Spielern reicht die Ablehnung
+                            durch einen Mitspieler aus. Bei mehr als drei Spielern müssen mindesten zwei Spieler eine Antwort ablehnen.
                             Die Ablehnung einer Antwort kann durch erneutes Klicken auf den Button wieder zurückgezogen werden.
                         </li>
                         <li>

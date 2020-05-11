@@ -354,6 +354,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
      * It processes the new evaluation and changes data in currentRoundEvaluation and gameRounds accordingly.
      */
     private processEvaluationOfPlayerInput = (evaluatingPlayerId: string, newEvaluation: EvaluationOfPlayerInput) => {
+        if (!this.state.allPlayers.has(evaluatingPlayerId)) { return; }
         const { categoryIndex, evaluatedPlayerId, markedAsValid } = newEvaluation;
         const currentRoundEvaluation = cloneDeep(this.state.currentRoundEvaluation);
         const playerInputEvaluations = currentRoundEvaluation.get(evaluatedPlayerId) as PlayerInputEvaluation[];

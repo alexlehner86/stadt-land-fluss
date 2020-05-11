@@ -2,6 +2,13 @@ This project is an online version of the popular European game "Stadt-Land-Fluss
 
 ## Release Notes
 
+### v1.4.0
+
+- Add new game settings (select scoring options, select letters to exclude)
+- Show scoring in evaluation phase
+- Add game manual
+- Minor UI changes and refactoring
+
 ### v1.3.0
 
 - Implement "Rejoin Running Game" feature.

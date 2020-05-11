@@ -1,9 +1,14 @@
 .slf-game-manual {
     line-height: 1.5;
+    padding: 1rem 2rem;
 }
 .slf-game-manual p,
-.slf-game-manual ol {
+.slf-game-manual ol,
+.slf-game-manual ul {
     font-size: 0.9rem;
+}
+.slf-game-manual li {
+    margin-bottom: 0.5rem;
 }
 .slf-game-manual p span {
     font-style: italic;
