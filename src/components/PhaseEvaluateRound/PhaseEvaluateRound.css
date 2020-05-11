@@ -7,20 +7,17 @@
     color: crimson;
     text-decoration: line-through;
 }
-.slf-search-link-container {
-    position: absolute;
-    top: 50%;
-    right: 3.8rem;
-    transform: translateY(-50%);
+.slf-evaluation-textfield-end-adornment {
     display: flex;
     align-items: center;
-    font-size: 1.5rem;
 }
-.slf-evaluation-search-link {
+a.slf-evaluation-search-link {
     display: flex;
     width: 1em;
     height: 1em;
+    margin-right: 0.5rem;
     background-color: rgba(255, 255, 255, 0.8);
+    font-size: 1.5rem;
 }
 .slf-evaluation-button-wrapper {
     display: flex;

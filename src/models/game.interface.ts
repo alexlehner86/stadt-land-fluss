@@ -1,4 +1,4 @@
-export interface GameConfigScoringSystem {
+export interface GameConfigScoringOptions {
     checkForDuplicates: boolean;
     creativeAnswersExtraPoints: boolean;
     onlyPlayerWithValidAnswer: boolean;
@@ -8,7 +8,7 @@ export interface GameConfig {
     categories: string[];
     letters: string[];
     numberOfRounds: number;
-    scoringOptions: GameConfigScoringSystem;
+    scoringOptions: GameConfigScoringOptions;
 }
 
 export interface StoredRunningGameInfo {
@@ -23,9 +23,13 @@ export interface StoredRunningGameInfo {
  * Represents a player's input for one category in one round of the game.
  */
 export interface PlayerInput {
-    isMarkedCreative: boolean;
+    /** The points the player gains with this input if it is valid */
     points: number;
+    /** Whether input is marked as very creative, funny etc answer */
+    star: boolean;
+    /** The text input by the player */
     text: string;
+    /** Is the input valid or was it rejected by the other players */
     valid: boolean;
 }
 
@@ -50,8 +54,8 @@ export type GameRoundEvaluation = Map<string, PlayerInputEvaluation[]>;
  * Represents the user's evaluation of a player's input for a category.
  */
 export interface EvaluationOfPlayerInput {
-    evaluatedPlayerId: string;
     categoryIndex: number;
+    evaluatedPlayerId: string;
     markedAsValid: boolean;
 }
 

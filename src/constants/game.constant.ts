@@ -51,14 +51,6 @@ export const AVAILABLE_CATEGORIES = [
     'Wort in einer Fremdsprache'
 ];
 
-export const GAME_OPTION_LABEL = {
-    checkForDuplicates: `Wenn zwei oder mehr Spieler einen identischen Begriff in einer Kategorie eintragen,
-        so zählt dieser nur 5 statt 10 Punkte.`,
-    creativeAnswersExtraPoints: 'Von Mitspielern als besonders kreativ oder lustig ausgezeichnete Begriffe bringen 5 Extrapunkte.',
-    onlyPlayerWithValidAnswer: `Wenn ein Spieler als einziger einen zulässigen Begriff in einer Kategorie
-        einträgt, so zählt dieser Begriff 20 statt 10 Punkte.`
-}
-
 export enum GamePhase {
     waitingToStart = 'waitingToStart',
     fillOutTextfields = 'fillOutTextfields',
@@ -79,3 +71,11 @@ export const ONLY_ANSWER_POINTS = 20;
  * Werden nur vergeben, wenn diese Option für das Spiel aktiviert wurde.
  */
 export const EXTRA_POINTS = 5;
+
+export const GAME_OPTION_LABEL = {
+    checkForDuplicates: `Wenn zwei oder mehr Spieler einen identischen Begriff in einer Kategorie eintragen,
+        so zählt dieser nur ${SAME_WORD_POINTS} statt ${STANDARD_POINTS} Punkte.`,
+    creativeAnswersExtraPoints: `Von Mitspielern als besonders kreativ oder lustig ausgezeichnete Begriffe bringen ${EXTRA_POINTS} Extrapunkte.`,
+    onlyPlayerWithValidAnswer: `Wenn ein Spieler als einziger einen zulässigen Begriff in einer Kategorie
+        einträgt, so zählt dieser Begriff ${ONLY_ANSWER_POINTS} statt ${STANDARD_POINTS} Punkte.`
+}

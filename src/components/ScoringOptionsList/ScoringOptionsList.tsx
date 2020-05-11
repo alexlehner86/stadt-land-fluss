@@ -1,9 +1,9 @@
 import React from 'react';
 import { GAME_OPTION_LABEL } from '../../constants/game.constant';
-import { GameConfigScoringSystem } from '../../models/game.interface';
+import { GameConfigScoringOptions } from '../../models/game.interface';
 
 interface ScoringOptionsListProps {
-    rules: GameConfigScoringSystem;
+    rules: GameConfigScoringOptions;
 }
 
 const ScoringOptionsList: React.FunctionComponent<ScoringOptionsListProps> = props => {

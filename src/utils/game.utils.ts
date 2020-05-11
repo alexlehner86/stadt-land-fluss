@@ -1,8 +1,8 @@
-import { cloneDeep } from 'lodash';
+import { cloneDeep, some } from 'lodash';
 import randomnItem from 'random-item';
-import { STANDARD_POINTS } from '../constants/game.constant';
+import { STANDARD_POINTS, ONLY_ANSWER_POINTS, SAME_WORD_POINTS } from '../constants/game.constant';
 import { Collection } from '../models/collection.interface';
-import { PlayerInput } from '../models/game.interface';
+import { PlayerInput, GameConfigScoringOptions } from '../models/game.interface';
 import { PlayerInfo } from '../models/player.interface';
 import { GameResultForPlayer, GameRound, GameRoundEvaluation, PlayerInputEvaluation } from './../models/game.interface';
 import { createAndFillArray } from './general.utils';
@@ -38,15 +38,16 @@ export const getPlayersInAlphabeticalOrder = (players: Map<string, PlayerInfo>):
  * Returns an array of PlayerInput objects with empty strings and default settings (isMarkedCreative=false, valid=true, standard points).
  */
 export const getEmptyRoundInputs = (numberOfInputs: number): PlayerInput[] => {
-    return createAndFillArray<PlayerInput>(numberOfInputs, { isMarkedCreative: false, points: STANDARD_POINTS, text: '', valid: true });
+    return createAndFillArray<PlayerInput>(numberOfInputs, { points: STANDARD_POINTS, star: false, text: '', valid: true });
 }
 
- /**
- * Checks each PlayerInput object whether it contains text.
- * If text string is empty, valid is set to false, otherwise to true.
- */
+/**
+* Checks each PlayerInput object whether it contains text.
+* If text string is empty, valid is set to false, otherwise to true.
+* The text is also trimmed in order to support correct scoring (finding duplicates).
+*/
 export const markEmptyPlayerInputsAsInvalid = (playerInputs: PlayerInput[]): PlayerInput[] => {
-    return playerInputs.map(input => ({ ...input, valid: !!input.text }));
+    return playerInputs.map(input => ({ ...input, text: input.text.trim(), valid: !!input.text }));
 };
 
 export const createGameRoundEvaluation = (players: Map<string, PlayerInfo>, categories: string[]): GameRoundEvaluation => {
@@ -67,10 +68,64 @@ export const createGameRoundEvaluation = (players: Map<string, PlayerInfo>, cate
 };
 
 /**
+ * Calculates the points for the round's inputs according to the active scoring options.
+ */
+export const calculatePointsForRound = (scoringOptions: GameConfigScoringOptions, round: GameRound) => {
+    if (!scoringOptions.checkForDuplicates && !scoringOptions.onlyPlayerWithValidAnswer) { return; }
+    const playerId = round.keys().next().value;
+    const playerInputsOfPlayer1 = round.get(playerId) as PlayerInput[];
+    // Loop through all categories.
+    for (let categoryIndex = 0; categoryIndex < playerInputsOfPlayer1.length; categoryIndex++) {
+        calculatePointsForCategory(scoringOptions, round, categoryIndex);
+    }
+}
+
+/**
+ * Calculates the points for the round's inputs for one category according to the active scoring options.
+ */
+export const calculatePointsForCategory = (scoringOptions: GameConfigScoringOptions, round: GameRound, categoryIndex: number) => {
+    if (!scoringOptions.checkForDuplicates && !scoringOptions.onlyPlayerWithValidAnswer) { return; }
+    Array.from(round.keys()).forEach(playerId => {
+        const playerInputs = round.get(playerId) as PlayerInput[];
+        // Only check valid inputs.
+        if (playerInputs[categoryIndex].valid) {
+            if (scoringOptions.onlyPlayerWithValidAnswer && isOnlyPlayerWithValidAnswer(playerId, round, categoryIndex)) {
+                playerInputs[categoryIndex].points = ONLY_ANSWER_POINTS;
+            } else {
+                if (scoringOptions.checkForDuplicates && isDuplicateOfOtherPlayersInput(playerId, round, categoryIndex)) {
+                    playerInputs[categoryIndex].points = SAME_WORD_POINTS;
+                } else {
+                    playerInputs[categoryIndex].points = STANDARD_POINTS;
+                }
+            }
+        }
+    });
+}
+
+export const isOnlyPlayerWithValidAnswer = (playerId: string, round: GameRound, categoryIndex: number): boolean => {
+    const otherPlayersIds = Array.from(round.keys()).filter(id => id !== playerId);
+    let isOnlyPlayer = true;
+    otherPlayersIds.forEach(id => isOnlyPlayer = isOnlyPlayer && !(round.get(id) as PlayerInput[])[categoryIndex].valid);
+    return isOnlyPlayer;
+}
+
+/**
+ * Returns true if a duplicate (same text, not case sensitive) for playerId's input was found.
+ */
+export const isDuplicateOfOtherPlayersInput = (playerId: string, round: GameRound, categoryIndex: number):boolean => {
+    const otherPlayersIds = Array.from(round.keys()).filter(id => id !== playerId);
+    const playerInputText = (round.get(playerId) as PlayerInput[])[categoryIndex].text.toLowerCase();
+    return some(otherPlayersIds, id => {
+        const otherPlayersInput = (round.get(id) as PlayerInput[])[categoryIndex];
+        return otherPlayersInput.valid && playerInputText === otherPlayersInput.text.toLowerCase();
+    });
+}
+
+/**
  * Determines the minimum number of players that need to mark a player's input as invalid
  * for the input text to be set to invalid and not count as a point for the player.
  */
-export const getMinNumberOfMarkedAsInvalid = (numberOfPlayers: number): number => {
+export const getMinNumberOfInvalids = (numberOfPlayers: number): number => {
     return numberOfPlayers <= 3 ? 1 : 2;
 };
 
@@ -101,23 +156,6 @@ export const getRejectingPlayers = (evaluations: PlayerInputEvaluation, players:
     return getPlayersInAlphabeticalOrder(rejectingPlayers);;
 };
 
-export const processPlayerInputEvaluations = (
-    gameRound: GameRound, roundEvaluation: GameRoundEvaluation, minNumberOfInvalids: number
-): GameRound => {
-    const evaluatedGameRound = cloneDeep(gameRound);
-    evaluatedGameRound.forEach((playerInputs, playerId) => {
-        const evaluations = roundEvaluation.get(playerId) as PlayerInputEvaluation[];
-        for (let i = 0; i < playerInputs.length; i++) {
-            // Only process evaluations for inputs that were not
-            // already marked as invalid because of being empty strings.
-            if (playerInputs[i].valid) {
-                playerInputs[i].valid = getNumberOfInvalids(evaluations[i]) < minNumberOfInvalids;
-            }
-        }
-    });
-    return evaluatedGameRound;
-};
-
 /**
  * Calculates game results and sorts them by points in descending order.
  */
@@ -127,7 +165,7 @@ export const calculateGameResults = (allPlayers: Map<string, PlayerInfo>, gameRo
     allPlayers.forEach((playerInfo, playerId) => pointsPerPlayer[playerId] = { playerName: playerInfo.name, points: 0 });
     gameRounds.forEach(round => {
         round.forEach((playerInputs, playerId) => {
-            const points = playerInputs.reduce((total, input) => input.valid ? total + 1 : total, 0);
+            const points = playerInputs.reduce((total, input) => input.valid ? total + input.points : total, 0);
             pointsPerPlayer[playerId].points += points;
         });
     });

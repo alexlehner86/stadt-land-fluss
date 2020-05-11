@@ -13,6 +13,7 @@ import PhaseWaitingToStart from '../../components/PhaseWaitingToStart/PhaseWaiti
 import PubNubEventHandler from '../../components/PubNubEventHandler/PubNubEventHandler';
 import { PUBNUB_CONFIG } from '../../config/pubnub.config';
 import { GamePhase } from '../../constants/game.constant';
+import { Collection } from '../../models/collection.interface';
 import {
     EvaluationOfPlayerInput,
     GameConfig,
@@ -35,16 +36,17 @@ import {
 import { AppAction, resetAppState, setDataOfFinishedGame, SetDataOfFinishedGamePayload } from '../../store/app.actions';
 import { AppState } from '../../store/app.reducer';
 import {
+    calculatePointsForRound,
     createGameRoundEvaluation,
     getEmptyRoundInputs,
-    getMinNumberOfMarkedAsInvalid,
+    getMinNumberOfInvalids,
+    getNumberOfInvalids,
     markEmptyPlayerInputsAsInvalid,
-    processPlayerInputEvaluations,
     shouldUserRespondToRequestGameDataMessage,
+    calculatePointsForCategory,
 } from '../../utils/game.utils';
 import { convertCollectionToMap, convertMapToCollection } from '../../utils/general.utils';
 import { removeRunningGameInfoFromLocalStorage } from '../../utils/local-storage.utils';
-import { Collection } from '../../models/collection.interface';
 
 interface PlayGamePropsFromStore {
     gameConfig: GameConfig | null;
@@ -137,7 +139,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                 break;
             default:
         }
-        const letterAnimationElement =  (
+        const letterAnimationElement = (
             <LetterAnimation
                 letterToUnveil={this.state.gameConfig ? this.state.gameConfig.letters[this.state.currentRound - 1] : ''}
                 callbackWhenAnimationDone={this.callbackWhenAnimationDone}
@@ -325,10 +327,12 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
      */
     private addPlayerInputForFinishedRound = (playerId: string, playerInputsForFinishedRound: PlayerInput[]) => {
         const gameRounds = cloneDeep(this.state.gameRounds);
-        gameRounds[this.state.currentRound - 1].set(playerId, playerInputsForFinishedRound);
+        const roundIndex = this.state.currentRound - 1;
+        gameRounds[roundIndex].set(playerId, playerInputsForFinishedRound);
         // Did we collect the inputs from all players?
-        if (gameRounds[this.state.currentRound - 1].size === this.state.allPlayers.size) {
-            // If yes, then start the evaluation of the finished round.
+        if (gameRounds[roundIndex].size === this.state.allPlayers.size) {
+            // If yes, then calculate points and start the evaluation of the finished round.
+            calculatePointsForRound((this.state.gameConfig as GameConfig).scoringOptions, gameRounds[roundIndex]);
             this.setState({ currentPhase: GamePhase.evaluateRound, gameRounds, showLoadingScreen: false });
         } else {
             // If no, then only store the updated gameRounds object in state.
@@ -347,14 +351,19 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
 
     /**
      * This method is called when the PubNub message 'evaluationOfPlayerInput' is received.
+     * It processes the new evaluation and changes data in currentRoundEvaluation and gameRounds accordingly.
      */
     private processEvaluationOfPlayerInput = (evaluatingPlayerId: string, newEvaluation: EvaluationOfPlayerInput) => {
+        const { categoryIndex, evaluatedPlayerId, markedAsValid } = newEvaluation;
         const currentRoundEvaluation = cloneDeep(this.state.currentRoundEvaluation);
-        const playerInputEvaluations = currentRoundEvaluation.get(newEvaluation.evaluatedPlayerId);
-        if (playerInputEvaluations) {
-            playerInputEvaluations[newEvaluation.categoryIndex].set(evaluatingPlayerId, newEvaluation.markedAsValid);
-        }
-        this.setState({ currentRoundEvaluation });
+        const playerInputEvaluations = currentRoundEvaluation.get(evaluatedPlayerId) as PlayerInputEvaluation[];
+        playerInputEvaluations[categoryIndex].set(evaluatingPlayerId, markedAsValid);
+        const gameRounds = cloneDeep(this.state.gameRounds);
+        const isInputValid = getNumberOfInvalids(playerInputEvaluations[categoryIndex]) < getMinNumberOfInvalids(this.state.allPlayers.size);
+        const finishedRound = gameRounds[this.state.currentRound - 1];
+        (finishedRound.get(evaluatedPlayerId) as PlayerInput[])[categoryIndex].valid = isInputValid;
+        calculatePointsForCategory((this.state.gameConfig as GameConfig).scoringOptions, finishedRound, categoryIndex);
+        this.setState({ currentRoundEvaluation, gameRounds });
     }
 
     /**
@@ -377,16 +386,12 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     }
 
     private processEvaluationsAndStartNextRoundOrFinishGame = () => {
-        const { allPlayers, currentRound, currentRoundEvaluation, gameRounds } = this.state;
+        const { allPlayers, currentRound, gameRounds } = this.state;
         const gameConfig = this.state.gameConfig as GameConfig;
-        const newGameRounds = cloneDeep(gameRounds);
-        newGameRounds[currentRound - 1] = processPlayerInputEvaluations(
-            gameRounds[currentRound - 1], currentRoundEvaluation, getMinNumberOfMarkedAsInvalid(allPlayers.size)
-        );
         if (currentRound === gameConfig.numberOfRounds) {
             // Finish game and show results.
             removeRunningGameInfoFromLocalStorage();
-            this.props.onSetDataOfFinishedGame({ allPlayers, gameConfig, gameRounds: newGameRounds });
+            this.props.onSetDataOfFinishedGame({ allPlayers, gameConfig, gameRounds });
             this.props.history.push('/results');
         } else {
             // Start next round of the game.
@@ -395,7 +400,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                 currentRoundEvaluation: createGameRoundEvaluation(allPlayers, gameConfig.categories),
                 currentRoundInputs: getEmptyRoundInputs(gameConfig.categories.length),
                 currentRound: currentRound + 1,
-                gameRounds: newGameRounds,
+                gameRounds,
                 playersThatFinishedEvaluation: new Map<string, boolean>(),
                 showLetterAnimation: true
             });

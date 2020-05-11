@@ -1,5 +1,15 @@
 import './PhaseEvaluateRound.css';
-import { Badge, createStyles, IconButton, InputAdornment, TextField, Theme, Tooltip, withStyles } from '@material-ui/core';
+import {
+    Badge,
+    Chip,
+    createStyles,
+    IconButton,
+    InputAdornment,
+    TextField,
+    Theme,
+    Tooltip,
+    withStyles,
+} from '@material-ui/core';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import SearchIcon from '@material-ui/icons/Search';
@@ -14,12 +24,7 @@ import {
     PlayerInputEvaluation,
 } from '../../models/game.interface';
 import { PlayerInfo } from '../../models/player.interface';
-import {
-    getMinNumberOfMarkedAsInvalid as getMinNumberOfNecessaryMarkedAsInvalid,
-    getNumberOfInvalids,
-    getPlayersInAlphabeticalOrder,
-    getRejectingPlayers,
-} from '../../utils/game.utils';
+import { getPlayersInAlphabeticalOrder, getRejectingPlayers } from '../../utils/game.utils';
 import GameRoundChip from '../GameRoundChip/GameRoundChip';
 import { SectionHeader } from '../SectionHeader/SectionHeader';
 
@@ -49,9 +54,8 @@ interface PhaseEvaluateRoundProps {
 const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = props => {
     const [hasFinishedEvaluation, setHasFinishedEvaluation] = useState(props.playersThatFinishedEvaluation.has(props.playerInfo.id));
     const { allPlayers, currentRound, currentRoundEvaluation, gameConfig, playerInfo, playersThatFinishedEvaluation } = props;
-    const minNumberOfInvalids = getMinNumberOfNecessaryMarkedAsInvalid(allPlayers.size);
     // Retrieve data for finished round; e.g. if current round is 1, then data is at index 0.
-    const finishedGameRound = props.gameRounds[currentRound - 1];
+    const finishedRound = props.gameRounds[currentRound - 1];
     const currentLetter = gameConfig.letters[currentRound - 1];
     const sortedPlayers = getPlayersInAlphabeticalOrder(allPlayers);
     const notFinishedPlayers: string[] = [];
@@ -84,7 +88,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
         const rejectingPlayers = getRejectingPlayers(evaluationForCategory, allPlayers);
         const tooltipText = rejectingPlayers.length === 0 ? 'Keine Ablehnungen' :
             'Abgelehnt von ' + rejectingPlayers.map(p => p.name).join(', ');
-        const hasPlayerTypedText = !!(finishedGameRound.get(evaluatedPlayer.id) as PlayerInput[])[categoryIndex].text;
+        const hasPlayerTypedText = !!(finishedRound.get(evaluatedPlayer.id) as PlayerInput[])[categoryIndex].text;
 
         const evaluationButtonForTypedText = (
             <Tooltip
@@ -126,29 +130,23 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
     const createSearchLink = (categoryIndex: number, indexInSortedPlayers: number): JSX.Element => {
         const category = gameConfig.categories[categoryIndex];
         const evaluatedPlayer = sortedPlayers[indexInSortedPlayers];
-        const playerInput = (finishedGameRound.get(evaluatedPlayer.id) as PlayerInput[])[categoryIndex].text;
+        const playerInput = (finishedRound.get(evaluatedPlayer.id) as PlayerInput[])[categoryIndex].text;
         const searchLink = `https://www.ecosia.org/search?q=${encodeURIComponent(category)}+${encodeURIComponent(playerInput)}`
         return (
-            <div
-                key={`slf-search-link-container-${categoryIndex}-${indexInSortedPlayers}`}
-                className="slf-search-link-container"
+            <a
+                className="slf-evaluation-search-link"
+                href={searchLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Begriff nachschlagen"
             >
-                <a
-                    key={`slf-evaluation-search-link-${categoryIndex}-${indexInSortedPlayers}`}
-                    className="slf-evaluation-search-link"
-                    href={searchLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Begriff nachschlagen"
+                <Tooltip
+                    title="Begriff nachschlagen"
+                    placement="bottom"
                 >
-                    <Tooltip
-                        title="Begriff nachschlagen"
-                        placement="right"
-                    >
-                        <SearchIcon color="primary" />
-                    </Tooltip>
-                </a>
-            </div>
+                    <SearchIcon color="primary" />
+                </Tooltip>
+            </a>
         );
     }
     /**
@@ -157,8 +155,9 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
      */
     const playerEvaluationElements = (categoryIndex: number, indexInSortedPlayers: number): JSX.Element => {
         const evaluatedPlayer = sortedPlayers[indexInSortedPlayers];
-        const hasPlayerTypedText = !!(finishedGameRound.get(evaluatedPlayer.id) as PlayerInput[])[categoryIndex].text;
-        const isInputValid = getNumberOfInvalids((currentRoundEvaluation.get(evaluatedPlayer.id) as PlayerInputEvaluation[])[categoryIndex]) < minNumberOfInvalids;
+        const evaluatedPlayerInput = (finishedRound.get(evaluatedPlayer.id) as PlayerInput[])[categoryIndex];
+        const hasPlayerTypedText = !!evaluatedPlayerInput.text;
+        const isInputValid = evaluatedPlayerInput.valid;
         return (
             <div
                 key={`slf-evaluation-textfield-wrapper-${categoryIndex}-${indexInSortedPlayers}`}
@@ -166,15 +165,20 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
             >
                 <TextField
                     key={'slf-textfield-category-no-' + categoryIndex + '-player-' + indexInSortedPlayers}
-                    value={(finishedGameRound.get(evaluatedPlayer.id) as PlayerInput[])[categoryIndex].text}
+                    value={evaluatedPlayerInput.text}
                     variant="outlined"
                     fullWidth
                     InputProps={{
+                        className: !isInputValid ? 'invalid-player-input' : '',
                         startAdornment: <InputAdornment position="start">{evaluatedPlayer.name}:</InputAdornment>,
-                        className: !hasPlayerTypedText || !isInputValid ? 'invalid-player-input' : ''
+                        endAdornment: <InputAdornment position="end">
+                            <div className="slf-evaluation-textfield-end-adornment">
+                                {hasPlayerTypedText ? createSearchLink(categoryIndex, indexInSortedPlayers) : null}
+                                {isInputValid ? <Chip label={`+${evaluatedPlayerInput.points}`} color="primary" /> : null}
+                            </div>
+                        </InputAdornment>
                     }}
                 />
-                {hasPlayerTypedText ? createSearchLink(categoryIndex, indexInSortedPlayers) : null}
                 {createEvaluationButton(categoryIndex, indexInSortedPlayers)}
             </div>
         );
@@ -210,7 +214,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
             <form className="app-form" noValidate autoComplete="off">
                 {gameConfig.categories.map(createCategorySection)}
                 <div className="material-card-style">
-                    Bestätigung ausstehend: <span className="bold-text">{notFinishedPlayers.join(', ')}</span>.
+                    Bestätigung ausstehend: <span className="bold-text">{notFinishedPlayers.join(', ')}</span>
                 </div>
                 <IconButton
                     type="button"
