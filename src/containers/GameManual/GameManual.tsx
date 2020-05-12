@@ -1,6 +1,7 @@
 import './GameManual.css';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
+import SettingsIcon from '@material-ui/icons/Settings';
 import ThumbDownRoundedIcon from '@material-ui/icons/ThumbDownRounded';
 import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router';
@@ -105,7 +106,9 @@ class GameManual extends Component<RouteComponentProps> {
                     <p>
                         Hinweis: Falls ein Mitspieler aus irgendeinem Grund (Browserabsturz, Akku leer etc.) aus dem Spiel fliegt, kann
                         sie oder er über den <span>Zurück ins laufende Spiel-Button</span> wieder ins Spiel zurückkehren. Dieser findet
-                        sich auf der Startseite.
+                        sich auf der Startseite. Darüber hinaus hat der Administrator in einem laufenden Spiel die Möglichkeit, über
+                        den <SettingsIcon fontSize="small" className="inline-material-icon" />-Button (rechts oben, unterhalb des Headers)
+                        andere Spieler aus dem Spiel zu werfen. Natürlich nur in Notfällen ;)
                     </p>
                     <h3>Spielende</h3>
                     <p>

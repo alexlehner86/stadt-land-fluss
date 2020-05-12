@@ -1,4 +1,4 @@
-This project is an online version of the popular European game "Stadt-Land-Fluss" (German for: City, Country, River). It was bootstrapped with [Create React App](https://github.com/facebook/create-react-app) and uses the [PubNub framework](https://www.pubnub.com/) for realtime communication.
+This project is an online version of the popular European game "Stadt-Land-Fluss" (German for: City, Country, River). It was bootstrapped with [Create React App](https://github.com/facebook/create-react-app) and uses the [PubNub framework](https://www.pubnub.com/) for realtime communication. You can play a [live version of the game](https://alexlehner86.github.io/stadt-land-fluss/#/) (in German) on GitHub Pages.
 
 ## Release Notes
 
@@ -48,6 +48,17 @@ This project is an online version of the popular European game "Stadt-Land-Fluss
 
 - Basic functionality: Start new game, share join link with other players, start game, enter text and evaluate inputs alternately, finish game and see results.
 - Offer three themes with different color sets: Green, Orange and Pink  
+
+## Installation
+
+Run `npm install` to install the necessary dependencies. You need to create a [PubNub Account](https://www.pubnub.com/) to obtain the necessary [subscribe and publish key](https://www.pubnub.com/developers/tech/admin-dashboard/keys-object/). Then provide these keys in your app so that the game can establish real time communication between the players. Create a JSON file named `pubnub.config.json` in the src/config/ folder. The JSON should have the following structure:
+
+{
+    "publishKey": "YOUR-PUBLISH-KEY",
+    "subscribeKey": "YOUR-SUBSCRIBE-KEY"
+}
+
+Now you can run the app with `npm start`.
 
 ## Available Scripts
 
