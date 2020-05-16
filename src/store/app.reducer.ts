@@ -18,6 +18,7 @@ export interface AppState {
     gameId: string | null;
     gameConfig: GameConfig | null;
     gameRounds: GameRound[] | null;
+    isRejoiningGame: boolean;
     playerIdCreationTimestamp: number;
     playerInfo: PlayerInfo | null;
 }
@@ -27,6 +28,7 @@ const initialState: AppState = {
     gameId: null,
     gameConfig: null,
     gameRounds: null,
+    isRejoiningGame: false,
     playerIdCreationTimestamp: 0,
     playerInfo: null
 };
@@ -37,11 +39,11 @@ export const appReducer = (state: AppState = initialState, action: AppAction): A
             const storedPlayerInfo = (action as SetStoredPlayerInfoAction).payload;
             return {
                 ...state,
+                isRejoiningGame: false,
                 playerIdCreationTimestamp: storedPlayerInfo.idCreationTimestamp,
                 playerInfo: {
                     id: storedPlayerInfo.id,
                     isAdmin: false,
-                    isRejoiningGame: false,
                     name: storedPlayerInfo.name
                 }
             };
@@ -49,11 +51,11 @@ export const appReducer = (state: AppState = initialState, action: AppAction): A
             const storedRunningGameInfo = (action as SetStoredRunningGameInfoAction).payload;
             return {
                 ...state,
+                isRejoiningGame: true,
                 gameId: storedRunningGameInfo.gameId,
                 playerInfo: {
                     ...state.playerInfo as PlayerInfo,
-                    isAdmin: storedRunningGameInfo.isPlayerAdmin,
-                    isRejoiningGame: true
+                    isAdmin: storedRunningGameInfo.isPlayerAdmin
                 }
             };
         case SET_DATA_FOR_NEW_GAME:

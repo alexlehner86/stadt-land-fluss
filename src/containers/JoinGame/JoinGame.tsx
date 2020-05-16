@@ -14,7 +14,11 @@ import { PlayerInfo } from '../../models/player.interface';
 import { AppAction, setDataForNewGame, SetDataForNewGamePayload } from '../../store/app.actions';
 import { AppState } from '../../store/app.reducer';
 import { convertDateToUnixTimestamp } from '../../utils/general.utils';
-import { setPlayerInfoInLocalStorage, setRunningGameInfoInLocalStorage } from '../../utils/local-storage.utils';
+import {
+    removeAllDataOfRunningGameFromLocalStorage,
+    setPlayerInfoInLocalStorage,
+    setRunningGameInfoInLocalStorage,
+} from '../../utils/local-storage.utils';
 
 interface JoinGamePropsFromStore {
     gameId: string | null;
@@ -118,15 +122,16 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
         const playerInfo = this.props.playerInfo as PlayerInfo;
         const idCreationTimestamp = this.props.playerIdCreationTimestamp
         const { idInput, nameInput } = this.state;
+        removeAllDataOfRunningGameFromLocalStorage();
         setPlayerInfoInLocalStorage({ id: playerInfo.id, idCreationTimestamp, name: nameInput.trim() });
         setRunningGameInfoInLocalStorage({ gameId: idInput, idCreationTimestamp: convertDateToUnixTimestamp(new Date()), isPlayerAdmin: false });
         this.props.onSetGameData({
             gameConfig: null,
             gameId: idInput,
+            isRejoiningGame: false,
             playerInfo: {
                 id: playerInfo.id,
                 isAdmin: false,
-                isRejoiningGame: false,
                 name: nameInput.trim()
             }
         });

@@ -13,7 +13,6 @@ import PhaseWaitingToStart from '../../components/PhaseWaitingToStart/PhaseWaiti
 import PubNubEventHandler from '../../components/PubNubEventHandler/PubNubEventHandler';
 import { PUBNUB_CONFIG } from '../../config/pubnub.config';
 import { GamePhase } from '../../constants/game.constant';
-import { Collection } from '../../models/collection.interface';
 import {
     EvaluationOfPlayerInput,
     GameConfig,
@@ -36,21 +35,32 @@ import {
 import { AppAction, resetAppState, setDataOfFinishedGame, SetDataOfFinishedGamePayload } from '../../store/app.actions';
 import { AppState } from '../../store/app.reducer';
 import {
+    calculatePointsForCategory,
     calculatePointsForRound,
+    compressGameRoundEvaluation,
     createGameRoundEvaluation,
+    decompressGameRoundEvaluation,
     getEmptyRoundInputs,
     getMinNumberOfInvalids,
     getNumberOfInvalids,
+    getPlayersInAlphabeticalOrder,
     markEmptyPlayerInputsAsInvalid,
+    restoreGameRoundsOfRunningGameFromLocalStorage,
     shouldUserRespondToRequestGameDataMessage,
-    calculatePointsForCategory,
+    setPointsAndValidityOfPlayerInputs,
 } from '../../utils/game.utils';
 import { convertCollectionToMap, convertMapToCollection } from '../../utils/general.utils';
-import { removeRunningGameInfoFromLocalStorage } from '../../utils/local-storage.utils';
+import {
+    getRunningGameConfigFromLocalStorage,
+    removeAllDataOfRunningGameFromLocalStorage,
+    setRunningGameConfigInLocalStorage,
+    setRunningGameRoundInLocalStorage,
+} from '../../utils/local-storage.utils';
 
 interface PlayGamePropsFromStore {
     gameConfig: GameConfig | null;
     gameId: string | null;
+    isRejoiningGame: boolean;
     /** Player info for the user of this instance of the "Stadt-Land-Fluss" app. */
     playerInfo: PlayerInfo;
 }
@@ -155,6 +165,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                 <PubNubEventHandler
                     gameChannel={this.props.gameId}
                     gameConfig={this.props.gameConfig}
+                    isRejoiningGame={this.props.isRejoiningGame}
                     playerInfo={this.props.playerInfo}
                     navigateToDashboard={this.navigateToDashboard}
                     addPlayers={this.addPlayers}
@@ -173,24 +184,26 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     }
 
     public componentDidMount() {
-        const { gameConfig, gameId, playerInfo } = this.props;
+        const { gameConfig, gameId, isRejoiningGame, playerInfo } = this.props;
         // If gameId and playerInfo aren't present in application state, then reroute user to dashboard.
         if (gameId === null || playerInfo === null) {
             this.props.history.push('/');
             return;
         }
-        const allPlayers = cloneDeep(this.state.allPlayers);
-        allPlayers.set(playerInfo.id, playerInfo);
-        // If user is the game admin and isn't rejoining, the gameConfig can be taken from application state
-        // and we can hide the loading screen and show PhaseWaitingToStart component right away.
-        if (!playerInfo.isRejoiningGame && playerInfo.isAdmin) {
-            this.setState({ allPlayers, gameConfig: gameConfig, showLoadingScreen: false });
-        } else {
-            this.setState({ allPlayers });
-        }
         // If player is rejoining the game, we need to request the game data from the other players.
-        if (playerInfo.isRejoiningGame) {
+        if (isRejoiningGame) {
             this.sendMessage({ type: PubNubMessageType.requestGameData });
+        } else {
+            const allPlayers = new Map<string, PlayerInfo>();
+            allPlayers.set(playerInfo.id, playerInfo);
+            // If user is the game admin, the gameConfig can be taken from application state
+            // and we can hide the loading screen and show PhaseWaitingToStart component right away.
+            if (playerInfo.isAdmin) {
+                setRunningGameConfigInLocalStorage(gameConfig as GameConfig);
+                this.setState({ allPlayers, gameConfig, showLoadingScreen: false });
+            } else {
+                this.setState({ allPlayers });
+            }
         }
     }
 
@@ -211,7 +224,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     }
 
     private navigateToDashboard = () => {
-        removeRunningGameInfoFromLocalStorage();
+        removeAllDataOfRunningGameFromLocalStorage();
         this.props.onResetAppState();
         this.props.history.push('/');
     }
@@ -236,6 +249,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         // Only after we received the gameConfig from the admin, we hide the loading screen
         // and render the PhaseWaitingToStart component instead.
         if (gameConfig) {
+            setRunningGameConfigInLocalStorage(gameConfig);
             this.setState({ allPlayers, gameConfig, showLoadingScreen: false });
         } else {
             this.setState({ allPlayers });
@@ -289,10 +303,11 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     */
     private startGame = () => {
         const gameConfig = this.state.gameConfig as GameConfig;
-        const roundInputs = getEmptyRoundInputs(gameConfig.categories.length);
+        const currentRoundEvaluation = createGameRoundEvaluation(this.state.allPlayers, gameConfig.categories);
         this.setState({
             currentPhase: GamePhase.fillOutTextfields,
-            currentRoundInputs: roundInputs,
+            currentRoundEvaluation,
+            currentRoundInputs: getEmptyRoundInputs(gameConfig.categories.length),
             showLetterAnimation: true
         });
     }
@@ -313,10 +328,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         // Prepare new GameRound object for addPlayerInputForFinishedRound method
         // as well as new currentRoundEvaluation object for evaluation phase.
         const gameRounds: GameRound[] = [...this.state.gameRounds, new Map<string, PlayerInput[]>()];
-        const currentRoundEvaluation = createGameRoundEvaluation(
-            this.state.allPlayers, (this.state.gameConfig as GameConfig).categories
-        );
-        this.setState({ currentRoundEvaluation, gameRounds, showLoadingScreen: true });
+        this.setState({ gameRounds, showLoadingScreen: true });
         // Send this player's text inputs of current round to other players (and herself/himself).
         const message = new PubNubCurrentRoundInputsMessage(markEmptyPlayerInputsAsInvalid(this.state.currentRoundInputs));
         this.sendMessage(message.toPubNubMessage());
@@ -333,6 +345,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         if (gameRounds[roundIndex].size === this.state.allPlayers.size) {
             // If yes, then calculate points and start the evaluation of the finished round.
             calculatePointsForRound((this.state.gameConfig as GameConfig).scoringOptions, gameRounds[roundIndex]);
+            setRunningGameRoundInLocalStorage(this.state.currentRound, gameRounds[roundIndex]);
             this.setState({ currentPhase: GamePhase.evaluateRound, gameRounds, showLoadingScreen: false });
         } else {
             // If no, then only store the updated gameRounds object in state.
@@ -391,11 +404,12 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         const gameConfig = this.state.gameConfig as GameConfig;
         if (currentRound === gameConfig.numberOfRounds) {
             // Finish game and show results.
-            removeRunningGameInfoFromLocalStorage();
+            removeAllDataOfRunningGameFromLocalStorage();
             this.props.onSetDataOfFinishedGame({ allPlayers, gameConfig, gameRounds });
             this.props.history.push('/results');
         } else {
-            // Start next round of the game.
+            // Save finished game round in local storage and start next round of the game.
+            setRunningGameRoundInLocalStorage(this.state.currentRound, gameRounds[currentRound - 1]);
             this.setState({
                 currentPhase: GamePhase.fillOutTextfields,
                 currentRoundEvaluation: createGameRoundEvaluation(allPlayers, gameConfig.categories),
@@ -419,7 +433,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     private removePlayerFromGame = (playerId: string) => {
         // If the player to be removed is the user of this game instance, then navigate to dashboard.
         if (this.props.playerInfo.id === playerId) {
-            removeRunningGameInfoFromLocalStorage();
+            removeAllDataOfRunningGameFromLocalStorage();
             this.props.onResetAppState();
             this.props.history.push('/');
             return;
@@ -443,19 +457,16 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     }
 
     private sendDataForCurrentGame = (requestingPlayerId: string) => {
-        const evaluationsAsCollections = new Map<string, Collection<boolean>[]>();
-        this.state.currentRoundEvaluation.forEach((data, playerId) => {
-            evaluationsAsCollections.set(playerId, data.map(item => convertMapToCollection<boolean>(item)));
-        });
+        const sortedPlayers = getPlayersInAlphabeticalOrder(this.state.allPlayers);
+        const compressedGameRoundEvaluation = this.state.currentPhase === GamePhase.evaluateRound
+            ? compressGameRoundEvaluation(this.state.currentRoundEvaluation, sortedPlayers) : [];
         const message = new PubNubDataForCurrentGameMessage({
-            allPlayers: convertMapToCollection<PlayerInfo>(this.state.allPlayers),
+            compressedGameRoundEvaluation,
             currentPhase: this.state.currentPhase,
             currentRound: this.state.currentRound,
-            currentRoundEvaluation: convertMapToCollection<Collection<boolean>[]>(evaluationsAsCollections),
-            gameConfig: this.state.gameConfig as GameConfig,
-            gameRounds: this.state.gameRounds.map(round => convertMapToCollection<PlayerInput[]>(round)),
             playersThatFinishedEvaluation: convertMapToCollection<boolean>(this.state.playersThatFinishedEvaluation),
-            requestingPlayerId
+            requestingPlayerId,
+            sortedPlayers
         });
         this.sendMessage(message.toPubNubMessage());
     }
@@ -465,23 +476,40 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
      */
     private processDataForCurrentGame = (payload: PubNubDataForCurrentGameMessagePayload) => {
         // Only process the information and update state if the message was meant for this user.
-        if (this.props.playerInfo.id === payload.requestingPlayerId) {
-            const evaluationsAsCollections = convertCollectionToMap<Collection<boolean>[]>(payload.currentRoundEvaluation);
-            const currentRoundEvaluation: GameRoundEvaluation = new Map<string, PlayerInputEvaluation[]>();
-            evaluationsAsCollections.forEach((data, playerId) => {
-                currentRoundEvaluation.set(playerId, data.map(item => convertCollectionToMap<boolean>(item)));
-            });
+        if (this.props.playerInfo.id !== payload.requestingPlayerId) { return; }
+
+        const gameConfig = getRunningGameConfigFromLocalStorage();
+        // If we're in the evaluation phase, then we also need to restore the data for the current round.
+        // Otherwise we only need to restore the data of the finished rounds.
+        const numberOfRoundsToRestore = payload.currentPhase === GamePhase.evaluateRound ? payload.currentRound : payload.currentRound - 1;
+        const gameRounds = restoreGameRoundsOfRunningGameFromLocalStorage(numberOfRoundsToRestore);
+        if (gameConfig && gameRounds.length === numberOfRoundsToRestore) {
+            const allPlayers = new Map<string, PlayerInfo>();
+            payload.sortedPlayers.forEach(player => allPlayers.set(player.id, player));
+            let currentRoundEvaluation: GameRoundEvaluation;
+            // If we are in evaluation phase, then we received the current evaluations and need to apply them to the player inputs.
+            if (payload.currentPhase === GamePhase.evaluateRound) {
+                currentRoundEvaluation = decompressGameRoundEvaluation(payload.compressedGameRoundEvaluation, payload.sortedPlayers);
+                setPointsAndValidityOfPlayerInputs(
+                    gameConfig.scoringOptions, currentRoundEvaluation, getMinNumberOfInvalids(allPlayers.size), gameRounds[payload.currentRound - 1]
+                );
+            } else {
+                currentRoundEvaluation = createGameRoundEvaluation(allPlayers, gameConfig.categories);
+            }
             this.setState({
-                allPlayers: convertCollectionToMap<PlayerInfo>(payload.allPlayers),
+                allPlayers,
                 currentPhase: payload.currentPhase,
                 currentRound: payload.currentRound,
                 currentRoundEvaluation,
-                currentRoundInputs: getEmptyRoundInputs(payload.gameConfig.categories.length),
-                gameConfig: payload.gameConfig,
-                gameRounds: payload.gameRounds.map(round => convertCollectionToMap<PlayerInput[]>(round)),
+                currentRoundInputs: getEmptyRoundInputs(gameConfig.categories.length),
+                gameConfig,
+                gameRounds,
                 playersThatFinishedEvaluation: convertCollectionToMap<boolean>(payload.playersThatFinishedEvaluation),
                 showLoadingScreen: false
             });
+        } else {
+            console.log('Error: Can\'t restore game session because data is missing in local storage!');
+            this.navigateToDashboard();
         }
     }
 }
@@ -490,6 +518,7 @@ const mapStateToProps = (state: AppState): PlayGamePropsFromStore => {
     return {
         gameConfig: state.gameConfig,
         gameId: state.gameId,
+        isRejoiningGame: state.isRejoiningGame,
         playerInfo: state.playerInfo as PlayerInfo
     };
 }

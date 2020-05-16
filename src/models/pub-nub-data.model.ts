@@ -58,14 +58,12 @@ export class PubNubKickPlayerMessage {
 }
 
 export interface PubNubDataForCurrentGameMessagePayload {
-    allPlayers: Collection<PlayerInfo>;
+    compressedGameRoundEvaluation: boolean[][][];
     currentPhase: GamePhase;
     currentRound: number;
-    currentRoundEvaluation: Collection<Collection<boolean>[]>;
-    gameConfig: GameConfig;
-    gameRounds: Collection<PlayerInput[]>[];
     playersThatFinishedEvaluation: Collection<boolean>;
     requestingPlayerId: string;
+    sortedPlayers: PlayerInfo[];
 }
 export class PubNubDataForCurrentGameMessage {
     constructor(private payload: PubNubDataForCurrentGameMessagePayload) {}

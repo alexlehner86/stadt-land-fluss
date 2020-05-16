@@ -26,7 +26,7 @@ export const AVAILABLE_CATEGORIES = [
     'Getränk',
     'Grund für eine Verspätung',
     'Hobby',
-    'In Zeiten von Corona verboten',
+    'In Zeiten des Corona-Lockdowns verboten',
     'Könnte ein Trump-Tweet sein',
     'Körperteil',
     'Krankheit',
@@ -47,6 +47,7 @@ export const AVAILABLE_CATEGORIES = [
     'Title of your Sex Tape',
     'Unnötige Superkraft',
     'Videospiel',
+    'Was bei einer Zoom-Konferenz schiefgehen kann',
     'Werkzeug',
     'Wort in einer Fremdsprache'
 ];
@@ -54,8 +55,7 @@ export const AVAILABLE_CATEGORIES = [
 export enum GamePhase {
     waitingToStart = 'waitingToStart',
     fillOutTextfields = 'fillOutTextfields',
-    evaluateRound = 'evaluateRound',
-    gameResult = 'gameResult'
+    evaluateRound = 'evaluateRound'
 }
 
 export const MIN_NUMBER_OF_PLAYERS = 2;
@@ -67,8 +67,8 @@ export const SAME_WORD_POINTS = 5;
 export const STANDARD_POINTS = 10;
 export const ONLY_ANSWER_POINTS = 20;
 /**
- * Zusatzpunkte für von Mitspielern als besonders kreativ oder lustig ausgezeichnete Begriffe.
- * Werden nur vergeben, wenn diese Option für das Spiel aktiviert wurde.
+ * Extra points for answers that are deemed especially creative or funny by other players.
+ * Are only awarded if the corresponding scoring option was selected.
  */
 export const EXTRA_POINTS = 5;
 

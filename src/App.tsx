@@ -24,7 +24,7 @@ import {
     getAppThemeIdFromLocalStorage,
     getPlayerInfoFromLocalStorage,
     getRunningGameInfoFromLocalStorage,
-    removeRunningGameInfoFromLocalStorage,
+    removeAllDataOfRunningGameFromLocalStorage,
     setAppThemeIdInLocalStorage,
     setPlayerInfoInLocalStorage,
 } from './utils/local-storage.utils';
@@ -95,7 +95,7 @@ class App extends Component<AppDispatchProps, AppState> {
             if (nowTimestamp - runningGameInfo.idCreationTimestamp <= MAX_GAME_ID_VALIDITY_DURATION_IN_SECONDS) {
                 this.props.onSetStoredRunningGameInfo(runningGameInfo);
             } else {
-                removeRunningGameInfoFromLocalStorage();
+                removeAllDataOfRunningGameFromLocalStorage();
             }
         }
     }

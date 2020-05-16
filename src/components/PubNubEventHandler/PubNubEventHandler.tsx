@@ -8,6 +8,7 @@ import { PubNubUserState } from '../../models/pub-nub-data.model';
 interface PubNubEventHandlerProps {
     gameChannel: string;
     gameConfig: GameConfig | null;
+    isRejoiningGame: boolean;
     playerInfo: PlayerInfo;
     navigateToDashboard: () => void;
     addPlayers: (...newPlayers: PubNubUserState[]) => void;
@@ -23,12 +24,12 @@ const PubNubEventHandler: React.FunctionComponent<PubNubEventHandlerProps> = pro
             (_, response) => {
                 // If a new user wants to join the game but the channel's history already includes messages, then the game
                 // has already started and user can't join. They get rerouted to the dashboard page by PlayGame component.
-                if (!props.playerInfo.isRejoiningGame && response.messages.length > 0) {
+                if (!props.isRejoiningGame && response.messages.length > 0) {
                     props.navigateToDashboard();
                     return;
                 }
                 // Only if player is joining game for the first time, set user state and retrieve hereNowData.
-                if (!props.playerInfo.isRejoiningGame) {
+                if (!props.isRejoiningGame) {
                     setUserState();
                     getHereNowData();
                     // Safeguard against the possibility of two players joining exactly at the same time:
@@ -58,7 +59,7 @@ const PubNubEventHandler: React.FunctionComponent<PubNubEventHandlerProps> = pro
                 console.log('PubNub hereNow', response);
                 // If player tries to rejoin but they are the only player left in game channel, then the game 
                 // is already over and the user gets rerouted to dashboard page by PlayGame component.
-                if (props.playerInfo.isRejoiningGame && response.totalOccupancy <= 1) {
+                if (props.isRejoiningGame && response.totalOccupancy <= 1) {
                     props.navigateToDashboard();
                     return;
                 }

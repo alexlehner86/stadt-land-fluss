@@ -18,6 +18,7 @@ export interface SetStoredRunningGameInfoAction extends Action {
 export interface SetDataForNewGamePayload {
     gameId: string;
     gameConfig: GameConfig | null;
+    isRejoiningGame: boolean;
     playerInfo: PlayerInfo | null;
 }
 export interface SetDataForNewGameAction extends Action {
