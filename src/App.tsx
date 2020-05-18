@@ -18,7 +18,7 @@ import NewGame from './containers/NewGame/NewGame';
 import PlayGame from './containers/PlayGame/PlayGame';
 import { StoredRunningGameInfo } from './models/game.interface';
 import { StoredPlayerInfo } from './models/player.interface';
-import { AppAction, setStoredPlayerInfo, setStoredRunningGameInfo } from './store/app.actions';
+import { AppAction, setStoredPlayerInfo, setStoredRunningGameInfo, setAppTheme } from './store/app.actions';
 import { convertDateToUnixTimestamp } from './utils/general.utils';
 import {
     getAppThemeIdFromLocalStorage,
@@ -28,33 +28,33 @@ import {
     setAppThemeIdInLocalStorage,
     setPlayerInfoInLocalStorage,
 } from './utils/local-storage.utils';
+import { AppState } from './store/app.reducer';
 
 const backspaceDisabler = require('backspace-disabler');
 
+interface AppPropsFromStore {
+    activeTheme: AppTheme;
+}
 interface AppDispatchProps {
+    onSetAppTheme: (payload: AppTheme) => void,
     onSetStoredPlayerInfo: (payload: StoredPlayerInfo) => void,
     onSetStoredRunningGameInfo: (payload: StoredRunningGameInfo) => void
 }
-interface AppState {
-    activeTheme: AppTheme;
-}
-class App extends Component<AppDispatchProps, AppState> {
-    public state: AppState = {
-        activeTheme: AppThemes[0],
-    };
+interface AppProps extends AppPropsFromStore, AppDispatchProps { }
+class App extends Component<AppProps> {
 
     public render() {
         return (
-            <ThemeProvider theme={this.state.activeTheme.muiTheme}>
+            <ThemeProvider theme={this.props.activeTheme.muiTheme}>
                 <div className="app-container">
                     <HashRouter basename={process.env.PUBLIC_URL}>
                         <Header
-                            theme={this.state.activeTheme}
+                            theme={this.props.activeTheme}
                             switchTheme={this.switchThemeHandler}
                         />
                         <main
-                            className={'app-main ' + this.state.activeTheme.className}
-                            style={this.state.activeTheme.style}
+                            className={'app-main ' + this.props.activeTheme.className}
+                            style={this.props.activeTheme.style}
                         >
                             <Switch>
                                 <Route path="/manual" exact component={GameManual} />
@@ -78,7 +78,7 @@ class App extends Component<AppDispatchProps, AppState> {
         if (appThemeId) {
             const appTheme = AppThemes.find(theme => theme.id === appThemeId);
             if (appTheme) {
-                this.setState({ activeTheme: appTheme });
+                this.props.onSetAppTheme(appTheme);
             }
         }
         let storedPlayerInfo = getPlayerInfoFromLocalStorage();
@@ -101,15 +101,21 @@ class App extends Component<AppDispatchProps, AppState> {
     }
 
     private switchThemeHandler = (newTheme: AppTheme) => {
-        this.setState({ activeTheme: newTheme });
+        this.props.onSetAppTheme(newTheme);
         setAppThemeIdInLocalStorage(newTheme.id);
     }
 }
 
+const mapStateToProps = (state: AppState): AppPropsFromStore => {
+    return {
+        activeTheme: state.activeTheme
+    };
+}
 const mapDispatchToProps = (dispatch: Dispatch<AppAction>): AppDispatchProps => {
     return {
+        onSetAppTheme: (payload: AppTheme) => dispatch(setAppTheme(payload)),
         onSetStoredPlayerInfo: (payload: StoredPlayerInfo) => dispatch(setStoredPlayerInfo(payload)),
         onSetStoredRunningGameInfo: (payload: StoredRunningGameInfo) => dispatch(setStoredRunningGameInfo(payload))
     }
 };
-export default connect(null, mapDispatchToProps)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(App);

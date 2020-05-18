@@ -1,13 +1,15 @@
 import './Dashboard.css';
 import Link from '@material-ui/core/Link';
+import DirectionsRunIcon from '@material-ui/icons/DirectionsRun';
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
-import { connect } from 'react-redux';
+import { AppTheme } from '../../constants/themes.constant';
 import { AppState } from '../../store/app.reducer';
-import DirectionsRunIcon from '@material-ui/icons/DirectionsRun';
 
 interface DashboardPropsFromStore {
+    activeTheme: AppTheme
     gameId: string | null;
 }
 class Dashboard extends Component<DashboardPropsFromStore> {
@@ -26,9 +28,10 @@ class Dashboard extends Component<DashboardPropsFromStore> {
                         {this.props.gameId ? rejoinGameElement : null}
                         <Link component={RouterLink} to="/newgame">Neues Spiel</Link>
                         <Link component={RouterLink} to="/joingame">Spiel beitreten</Link>
+                        <Link component={RouterLink} to="/manual">Spielanleitung</Link>
                     </div>
                     <img
-                        src={`${process.env.PUBLIC_URL}/assets/city-country-river.jpg`}
+                        src={this.props.activeTheme.homepageImageUrl}
                         alt="Stadt, Land, Fluss"
                         className="dashboard-slf-image"
                     />
@@ -49,6 +52,7 @@ class Dashboard extends Component<DashboardPropsFromStore> {
 
 const mapStateToProps = (state: AppState): DashboardPropsFromStore => {
     return {
+        activeTheme: state.activeTheme,
         gameId: state.gameId
     };
 }

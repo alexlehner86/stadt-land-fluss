@@ -1,12 +1,15 @@
+import { AppTheme, AppThemes } from '../constants/themes.constant';
 import { GameConfig, GameRound } from '../models/game.interface';
 import { PlayerInfo } from '../models/player.interface';
 import {
     AppAction,
     RESET_APP_STATE,
+    SET_APP_THEME,
     SET_DATA_FOR_NEW_GAME,
     SET_DATA_OF_FINISHED_GAME,
     SET_STORED_PLAYER_INFO,
     SET_STORED_RUNNING_GAME_INFO,
+    SetAppThemeAction,
     SetDataForNewGameAction,
     SetDataOfFinishedGameAction,
     SetStoredPlayerInfoAction,
@@ -14,6 +17,7 @@ import {
 } from './app.actions';
 
 export interface AppState {
+    activeTheme: AppTheme;
     allPlayers: Map<string, PlayerInfo> | null;
     gameId: string | null;
     gameConfig: GameConfig | null;
@@ -24,6 +28,7 @@ export interface AppState {
 }
 
 const initialState: AppState = {
+    activeTheme: AppThemes[0],
     allPlayers: null,
     gameId: null,
     gameConfig: null,
@@ -35,6 +40,8 @@ const initialState: AppState = {
 
 export const appReducer = (state: AppState = initialState, action: AppAction): AppState => {
     switch (action.type) {
+        case SET_APP_THEME:
+            return { ...state, activeTheme: (action as SetAppThemeAction).payload };
         case SET_STORED_PLAYER_INFO:
             const storedPlayerInfo = (action as SetStoredPlayerInfoAction).payload;
             return {

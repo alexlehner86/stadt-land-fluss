@@ -8,6 +8,7 @@ import { RouteComponentProps } from 'react-router';
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
 import ToDashboardButton from '../../components/ToDashboardButton/ToDashboardButton';
 import { GAME_OPTION_LABEL } from '../../constants/game.constant';
+import BrushIcon from '@material-ui/icons/Brush';
 
 class GameManual extends Component<RouteComponentProps> {
     public render() {
@@ -27,9 +28,9 @@ class GameManual extends Component<RouteComponentProps> {
                     <h3>Allgemeines</h3>
                     <p>
                         Auf der Startseite kann man über <span>Neues Spiel</span> ein neues Spiel erstellen bzw. über <span>Spiel
-                        beitreten</span> einem bereits erstellten Spiel beitreten (siehe unten). Die Website bietet fünf verschiedene
-                        Themes zur Auswahl. Das aktuelle Theme kann über den Pinsel-Button rechts im Header geändert werden. Die
-                        Theme-Auswahl des Nutzers sowie der zuletzt gewählte Spielername wird im{' '}
+                        beitreten</span> einem bereits erstellten Spiel beitreten. Die Website bietet fünf verschiedene Themes zur
+                        Auswahl. Das aktuelle Theme kann über den <BrushIcon fontSize="small" className="inline-material-icon" />-Button
+                        rechts im Header geändert werden. Die Theme-Auswahl des Nutzers sowie der zuletzt gewählte Spielername wird im{' '}
                         <a
                             href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage"
                             target="_blank"
@@ -40,12 +41,11 @@ class GameManual extends Component<RouteComponentProps> {
                     <h3>Neues Spiel</h3>
                     <p>
                         Um ein neues Spiel zu erstellen, muss der Nutzer einen Spielernamen eingeben, die Anzahl der zu spielenden
-                        Runden festlegen und mindestens drei Kategorien auswählen. Es stehen 40 vordefinierte Kategorien zur Auswahl,
-                        darunter Klassiker wie <span>Stadt</span>, <span>Land</span> und <span>Fluss/Gewässer</span>, jedoch auch
-                        neue, lustige Kategorien wie <span>Könnte ein Trump-Tweet sein</span>, <span>Scheidungsgrund</span> oder <span>
-                        Unnötige Superkraft</span>. Über den <AddCircleOutlineIcon fontSize="small" className="inline-material-icon" />
-                        -Button am Ende der Kategorien-Liste lässt
-                        sich auch jede beliebige, weitere Kategorie hinzufügen und für das Spiel auswählen.
+                        Runden festlegen und mindestens drei Kategorien auswählen. Es stehen 40 Kategorien zur Auswahl, darunter
+                        Klassiker wie <span>Stadt</span>, <span>Land</span> und <span>Fluss/Gewässer</span>, jedoch auch
+                        neue Kategorien wie <span>Könnte ein Trump-Tweet sein</span>. Über
+                        den <AddCircleOutlineIcon fontSize="small" className="inline-material-icon" />-Button am Ende der Kategorien-Liste
+                        lässt sich auch jede beliebige, weitere Kategorie hinzufügen und für das Spiel auswählen.
                     </p>
                     <p>
                         Im Bereich <span>Weitere Optionen</span> können optional weitere Einstellungen vorgenommen werden.
@@ -90,8 +90,8 @@ class GameManual extends Component<RouteComponentProps> {
                         <li>
                             Nachdem die Runde beendet ist, wird jedem Spieler eine Übersicht aller Begriffe aller Spieler pro
                             Kategorie angezeigt. Grundsätzlich zählt ein gültiger Begriff 10 Punkte, außer die gewählten Regeln besagen
-                            etwas anderes (siehe oben). Falls ein Spieler in ein Feld nichts eingetragen hat, wird dieses automatisch
-                            als 0 Punkte gewertet. Über den <ThumbDownRoundedIcon fontSize="small" className="inline-material-icon" />-Button
+                            etwas anderes. Falls ein Spieler in ein Feld nichts eingetragen hat, wird dieses automatisch als 0 Punkte
+                            gewertet. Über den <ThumbDownRoundedIcon fontSize="small" className="inline-material-icon" />-Button
                             können die Spieler konkrete Antworten ablehnen. Abhängig von der Spieleranzahl führt dies dazu, dass
                             der jeweilige Spieler keine Punkte für die Antwort erhält. Bei zwei bis drei Spielern reicht die Ablehnung
                             durch einen Mitspieler aus. Bei mehr als drei Spielern müssen mindesten zwei Spieler eine Antwort ablehnen.

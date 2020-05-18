@@ -52,6 +52,7 @@
 .main-content-wrapper {
     max-width: 36rem;
     margin: 0 auto;
+    padding-bottom: 6rem;
 }
 
 .material-card-style {
@@ -82,7 +83,7 @@
 
 .fixed-bottom-right-button.MuiIconButton-root {
     position: fixed;
-    right: 1rem;
+    right: 1.5rem;
     bottom: 1rem;
     background-color: rgba(250, 250, 250, 0.9);
 }
@@ -107,9 +108,6 @@
 }
 
 @media only screen and (max-width: 800px) {
-    .main-content-wrapper {
-        padding-bottom: 6rem;
-    }
     .app-main.green-theme {
         background-size: 45% !important;
     }
@@ -124,5 +122,10 @@
     }
     .app-main.black-theme {
         background-size: 90% !important;
+    }
+}
+@media only screen and (min-width: 480px) {
+    .app-main {
+        overflow-y: auto;
     }
 }

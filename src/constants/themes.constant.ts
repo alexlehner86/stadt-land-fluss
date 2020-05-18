@@ -26,6 +26,8 @@ export interface AppTheme {
     className: string;
     /** The text displayed in the header's color picker dropdown */
     displayName: string;
+    /** URL of the "Stadt-Land-Fluss" image visible on the homepage */
+    homepageImageUrl: string;
     muiTheme: Theme;
     style: CSS.Properties;
 }
@@ -36,6 +38,7 @@ export const AppThemes: AppTheme[] = [
         animationBackgroundColor: 'rgb(31, 121, 52)',
         className: 'green-theme',
         displayName: 'Grün/Wald',
+        homepageImageUrl: `${process.env.PUBLIC_URL}/assets/city-country-river-green.jpg`,
         muiTheme: createMuiTheme({ palette: { primary: green, secondary: red } }),
         style: {
             background:
@@ -48,6 +51,7 @@ export const AppThemes: AppTheme[] = [
         animationBackgroundColor: 'rgb(9, 100, 204)',
         className: 'blue-theme',
         displayName: 'Blau/Meer',
+        homepageImageUrl: `${process.env.PUBLIC_URL}/assets/city-country-river-blue.jpg`,
         muiTheme: createMuiTheme({ palette: { primary: blue, secondary: deepOrange } }),
         style: {
             background:
@@ -60,6 +64,7 @@ export const AppThemes: AppTheme[] = [
         animationBackgroundColor: 'rgb(187, 138, 5)',
         className: 'orange-theme',
         displayName: 'Orange/Strand',
+        homepageImageUrl: `${process.env.PUBLIC_URL}/assets/city-country-river-orange.jpg`,
         muiTheme: createMuiTheme({ palette: { primary: orange, secondary: indigo } }),
         style: {
             background:
@@ -72,6 +77,7 @@ export const AppThemes: AppTheme[] = [
         animationBackgroundColor: 'rgb(167, 34, 207)',
         className: 'pink-theme',
         displayName: 'Pink/Musik',
+        homepageImageUrl: `${process.env.PUBLIC_URL}/assets/city-country-river-pink.jpg`,
         muiTheme: createMuiTheme({ palette: { primary: purple, secondary: amber } }),
         style: {
             background:
@@ -84,6 +90,7 @@ export const AppThemes: AppTheme[] = [
         animationBackgroundColor: 'rgb(0, 0, 0)',
         className: 'black-theme',
         displayName: 'Schwarz/Goth',
+        homepageImageUrl: `${process.env.PUBLIC_URL}/assets/city-country-river-bw.jpg`,
         muiTheme: createMuiTheme({ palette: { primary: blueGrey, secondary: orange } }),
         style: {
             background:
