@@ -3,6 +3,9 @@
     display: flex;
     margin-bottom: 0.5rem;
 }
+.very-creative-player-input.MuiInputBase-root {
+    background-color: rgba(0, 0, 0, 0.1);
+}
 .invalid-player-input.MuiInputBase-root {
     color: crimson;
     text-decoration: line-through;
@@ -13,11 +16,13 @@
 }
 a.slf-evaluation-search-link {
     display: flex;
+    align-items: center;
     width: 1em;
     height: 1em;
-    margin-right: 0.5rem;
-    background-color: rgba(255, 255, 255, 0.8);
     font-size: 1.5rem;
+}
+.slf-mark-as-creative-button.MuiIconButton-root {
+    margin-right: 0.4rem;
 }
 .slf-evaluation-button-wrapper {
     display: flex;

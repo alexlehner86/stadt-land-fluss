@@ -111,14 +111,14 @@ export const isOnlyPlayerWithValidAnswer = (playerId: string, round: GameRound, 
 }
 
 /**
- * Returns true if a duplicate (same text, not case sensitive) for playerId's input was found.
+ * Returns true if a duplicate (removes all non-alphanumeric characters for comparison) for playerId's input was found.
  */
 export const isDuplicateOfOtherPlayersInput = (playerId: string, round: GameRound, categoryIndex: number): boolean => {
     const otherPlayersIds = Array.from(round.keys()).filter(id => id !== playerId);
-    const playerInputText = (round.get(playerId) as PlayerInput[])[categoryIndex].text.toLowerCase();
+    const playerInputText = (round.get(playerId) as PlayerInput[])[categoryIndex].text.toLowerCase().replace(/[^0-9a-z]/gi, '');
     return some(otherPlayersIds, id => {
         const otherPlayersInput = (round.get(id) as PlayerInput[])[categoryIndex];
-        return otherPlayersInput.valid && playerInputText === otherPlayersInput.text.toLowerCase();
+        return otherPlayersInput.valid && playerInputText === otherPlayersInput.text.toLowerCase().replace(/[^0-9a-z]/gi, '');
     });
 }
 

@@ -13,6 +13,8 @@ import {
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import SearchIcon from '@material-ui/icons/Search';
+import StarIcon from '@material-ui/icons/Star';
+import StarBorderIcon from '@material-ui/icons/StarBorder';
 import ThumbDownRoundedIcon from '@material-ui/icons/ThumbDownRounded';
 import React, { useState } from 'react';
 import {
@@ -20,6 +22,7 @@ import {
     GameConfig,
     GameRound,
     GameRoundEvaluation,
+    IsPlayerInputVeryCreativeStatus,
     PlayerInput,
     PlayerInputEvaluation,
 } from '../../models/game.interface';
@@ -48,8 +51,9 @@ interface PhaseEvaluateRoundProps {
     /** Player info for the user of this instance of the "Stadt-Land-Fluss" app. */
     playerInfo: PlayerInfo;
     playersThatFinishedEvaluation: Map<string, boolean>;
-    updateEvaluationOfPlayerInput: (newEvaluation: EvaluationOfPlayerInput) => void;
     sendEvaluationFinishedMessage: () => void;
+    updateEvaluationOfPlayerInput: (newEvaluation: EvaluationOfPlayerInput) => void;
+    updateIsPlayerInputVeryCreativeStatus: (newStatus: IsPlayerInputVeryCreativeStatus) => void;
 }
 const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = props => {
     const [hasFinishedEvaluation, setHasFinishedEvaluation] = useState(props.playersThatFinishedEvaluation.has(props.playerInfo.id));
@@ -144,9 +148,42 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                     title="Begriff nachschlagen"
                     placement="bottom"
                 >
-                    <SearchIcon color="primary" />
+                    <SearchIcon color="primary" fontSize="small" />
                 </Tooltip>
             </a>
+        );
+    }
+    /**
+      * Toggles the "marked as very creative" status of a player's input for a category,
+      * but only if the user hasn't accepted the round evaluation yet and isn't trying to mark their own answer as "very creative".
+      */
+    const handleMarkAsCreativeAnswerToggleClick = (
+        categoryIndex: number, evaluatedPlayerId: string, isMarkedAsCreative: boolean
+    ) => {
+        if (!hasFinishedEvaluation && props.playerInfo.id !== evaluatedPlayerId) {
+            props.updateIsPlayerInputVeryCreativeStatus({ categoryIndex, evaluatedPlayerId, markedAsCreative: !isMarkedAsCreative });
+        }
+    }
+    /**
+     * Creates a "mark as creative answer" toggle button for a specific category and player input.
+     */
+    const createMarkAsCreativeAnswerToggle = (categoryIndex: number, indexInSortedPlayers: number): JSX.Element => {
+        const evaluatedPlayer = sortedPlayers[indexInSortedPlayers];
+        const playerInput = (finishedRound.get(evaluatedPlayer.id) as PlayerInput[])[categoryIndex];
+        return (
+            <Tooltip
+                title={playerInput.star ? 'Besonders kreativ? Nope!' : 'Als besonders kreativ markieren'}
+                placement="bottom"
+            >
+                <IconButton
+                    className="slf-mark-as-creative-button"
+                    color="primary"
+                    size="small"
+                    onClick={() => handleMarkAsCreativeAnswerToggleClick(categoryIndex, evaluatedPlayer.id, playerInput.star)}
+                >
+                    {playerInput.star ? <StarIcon /> : <StarBorderIcon />}
+                </IconButton>
+            </Tooltip>
         );
     }
     /**
@@ -158,6 +195,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
         const evaluatedPlayerInput = (finishedRound.get(evaluatedPlayer.id) as PlayerInput[])[categoryIndex];
         const hasPlayerTypedText = !!evaluatedPlayerInput.text;
         const isInputValid = evaluatedPlayerInput.valid;
+        const inputCssClass = isInputValid ? (evaluatedPlayerInput.star ? 'very-creative-player-input' : '') : 'invalid-player-input';
         return (
             <div
                 key={`slf-evaluation-textfield-wrapper-${categoryIndex}-${indexInSortedPlayers}`}
@@ -169,11 +207,12 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                     variant="outlined"
                     fullWidth
                     InputProps={{
-                        className: !isInputValid ? 'invalid-player-input' : '',
+                        className: inputCssClass,
                         startAdornment: <InputAdornment position="start">{evaluatedPlayer.name}:</InputAdornment>,
                         endAdornment: <InputAdornment position="end">
                             <div className="slf-evaluation-textfield-end-adornment">
                                 {hasPlayerTypedText ? createSearchLink(categoryIndex, indexInSortedPlayers) : null}
+                                {isInputValid ? createMarkAsCreativeAnswerToggle(categoryIndex, indexInSortedPlayers) : null}
                                 {isInputValid ? <Chip label={`+${evaluatedPlayerInput.points}`} color="primary" /> : null}
                             </div>
                         </InputAdornment>

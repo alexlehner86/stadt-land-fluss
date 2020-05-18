@@ -59,6 +59,15 @@ export interface EvaluationOfPlayerInput {
     markedAsValid: boolean;
 }
 
+/**
+ * Represents whether a player's input for a category is deemed a very creative answer.
+ */
+export interface IsPlayerInputVeryCreativeStatus {
+    categoryIndex: number;
+    evaluatedPlayerId: string;
+    markedAsCreative: boolean;
+}
+
 export interface GameResultForPlayer {
     playerName: string;
     points: number;

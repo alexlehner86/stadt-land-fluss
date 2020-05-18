@@ -1,6 +1,6 @@
 import { GamePhase } from '../constants/game.constant';
 import { Collection } from './collection.interface';
-import { EvaluationOfPlayerInput, GameConfig, PlayerInput } from './game.interface';
+import { EvaluationOfPlayerInput, GameConfig, PlayerInput, IsPlayerInputVeryCreativeStatus } from './game.interface';
 import { PlayerInfo } from './player.interface';
 
 export interface PubNubUserState {
@@ -9,14 +9,15 @@ export interface PubNubUserState {
 }
 
 export enum PubNubMessageType {
-    startGame = 'startGame',
-    roundFinished = 'roundFinished',
     currentRoundInputs = 'currentRoundInputs',
-    evaluationOfPlayerInput = 'evaluationOfPlayerInput',
+    dataForCurrentGame = 'dataForCurrentGame',
     evaluationFinished = 'evaluationFinished',
+    evaluationOfPlayerInput = 'evaluationOfPlayerInput',
+    isPlayerInputVeryCreative = 'isPlayerInputVeryCreative',
     kickPlayer = 'kickPlayer',
     requestGameData = 'requestGameData',
-    dataForCurrentGame = 'dataForCurrentGame'
+    roundFinished = 'roundFinished',
+    startGame = 'startGame'
 }
 
 export interface PubNubMessage {
@@ -41,6 +42,17 @@ export class PubNubEvaluationOfPlayerInputMessage {
     public toPubNubMessage(): PubNubMessage {
         return {
             type: PubNubMessageType.evaluationOfPlayerInput,
+            payload: this.payload
+        }
+    }
+}
+
+export class PubNubIsPlayerInputVeryCreativeMessage {
+    constructor(private payload: IsPlayerInputVeryCreativeStatus) {}
+
+    public toPubNubMessage(): PubNubMessage {
+        return {
+            type: PubNubMessageType.isPlayerInputVeryCreative,
             payload: this.payload
         }
     }

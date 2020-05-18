@@ -18,6 +18,7 @@ import {
     GameConfig,
     GameRound,
     GameRoundEvaluation,
+    IsPlayerInputVeryCreativeStatus,
     PlayerInput,
     PlayerInputEvaluation,
 } from '../../models/game.interface';
@@ -27,6 +28,7 @@ import {
     PubNubDataForCurrentGameMessage,
     PubNubDataForCurrentGameMessagePayload,
     PubNubEvaluationOfPlayerInputMessage,
+    PubNubIsPlayerInputVeryCreativeMessage,
     PubNubKickPlayerMessage,
     PubNubMessage,
     PubNubMessageType,
@@ -46,8 +48,8 @@ import {
     getPlayersInAlphabeticalOrder,
     markEmptyPlayerInputsAsInvalid,
     restoreGameRoundsOfRunningGameFromLocalStorage,
-    shouldUserRespondToRequestGameDataMessage,
     setPointsAndValidityOfPlayerInputs,
+    shouldUserRespondToRequestGameDataMessage,
 } from '../../utils/game.utils';
 import { convertCollectionToMap, convertMapToCollection } from '../../utils/general.utils';
 import {
@@ -142,8 +144,9 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                         gameRounds={this.state.gameRounds}
                         playerInfo={playerInfo}
                         playersThatFinishedEvaluation={this.state.playersThatFinishedEvaluation}
-                        updateEvaluationOfPlayerInput={this.updateEvaluationOfPlayerInput}
                         sendEvaluationFinishedMessage={this.sendEvaluationFinishedMessage}
+                        updateEvaluationOfPlayerInput={this.updateEvaluationOfPlayerInput}
+                        updateIsPlayerInputVeryCreativeStatus={this.updateIsPlayerInputVeryCreativeStatus}
                     />
                 );
                 break;
@@ -274,6 +277,9 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             case PubNubMessageType.evaluationOfPlayerInput:
                 this.processEvaluationOfPlayerInput(event.publisher, message.payload);
                 break;
+            case PubNubMessageType.isPlayerInputVeryCreative:
+                this.processIsPlayerInputVeryCreativeStatus(message.payload);
+                break;
             case PubNubMessageType.evaluationFinished:
                 this.countPlayerAsEvaluationFinished(event.publisher);
                 break;
@@ -363,6 +369,15 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     }
 
     /**
+     * Is called by PhaseEvaluateRound component in order to communicate the "marked as very creative" status of a player input
+     * via a PubNub message. This message is then processed by all players in the game (including the user who sent it).
+     */
+    private updateIsPlayerInputVeryCreativeStatus = (newStatus: IsPlayerInputVeryCreativeStatus) => {
+        const message = new PubNubIsPlayerInputVeryCreativeMessage(newStatus);
+        this.sendMessage(message.toPubNubMessage());
+    }
+
+    /**
      * This method is called when the PubNub message 'evaluationOfPlayerInput' is received.
      * It processes the new evaluation and changes data in currentRoundEvaluation and gameRounds accordingly.
      */
@@ -378,6 +393,18 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         (finishedRound.get(evaluatedPlayerId) as PlayerInput[])[categoryIndex].valid = isInputValid;
         calculatePointsForCategory((this.state.gameConfig as GameConfig).scoringOptions, finishedRound, categoryIndex);
         this.setState({ currentRoundEvaluation, gameRounds });
+    }
+    
+    /**
+     * This method is called when the PubNub message 'isPlayerInputVeryCreative' is received.
+     * It processes the new status and changes data in gameRounds accordingly.
+     */
+    private processIsPlayerInputVeryCreativeStatus = (newStatus: IsPlayerInputVeryCreativeStatus) => {
+        const { categoryIndex, evaluatedPlayerId, markedAsCreative } = newStatus;
+        const gameRounds = cloneDeep(this.state.gameRounds);
+        const finishedRound = gameRounds[this.state.currentRound - 1];
+        (finishedRound.get(evaluatedPlayerId) as PlayerInput[])[categoryIndex].star = markedAsCreative;
+        this.setState({ gameRounds });
     }
 
     /**
