@@ -1,14 +1,15 @@
 import './GameManual.css';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
+import BrushIcon from '@material-ui/icons/Brush';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 import SettingsIcon from '@material-ui/icons/Settings';
+import StarIcon from '@material-ui/icons/Star';
 import ThumbDownRoundedIcon from '@material-ui/icons/ThumbDownRounded';
 import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router';
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
 import ToDashboardButton from '../../components/ToDashboardButton/ToDashboardButton';
 import { GAME_OPTION_LABEL } from '../../constants/game.constant';
-import BrushIcon from '@material-ui/icons/Brush';
 
 class GameManual extends Component<RouteComponentProps> {
     public render() {
@@ -96,6 +97,8 @@ class GameManual extends Component<RouteComponentProps> {
                             der jeweilige Spieler keine Punkte für die Antwort erhält. Bei zwei bis drei Spielern reicht die Ablehnung
                             durch einen Mitspieler aus. Bei mehr als drei Spielern müssen mindesten zwei Spieler eine Antwort ablehnen.
                             Die Ablehnung einer Antwort kann durch erneutes Klicken auf den Button wieder zurückgezogen werden.
+                            Mit dem <StarIcon fontSize="small" className="inline-material-icon" />-Button können Begriffe von Mitspielern
+                            als besonders kreativ oder lustig ausgezeichnet werden.
                         </li>
                         <li>
                             Über den Bestätigen-Button rechts unten auf der Seite muss ein Spieler signalisieren, dass sie oder er
@@ -114,6 +117,12 @@ class GameManual extends Component<RouteComponentProps> {
                     <p>
                         Am Ende des Spiels gelangt der Nutzer auf die <span>Ergebnisseite</span>, wo ein Ranking der Mitspieler nach
                         erzielten Punkten sowie die Details zum Spiel (Buchstaben, Anzahl Runden, Kategorien etc.) dargestellt werden.
+                    </p>
+                    <p>
+                        Der Button <span>Alle Runden im Detail</span> öffnet einen Dialog, in dem alle Runden des beendeten Spiels
+                        im Detail (Antworten, Punkte etc.) dargestellt werden. Falls während des Spiels einzelne Begriffe als besonders
+                        kreativ oder lustig ausgezeichnet wurden, so kann man über den <span>Hall of Fame</span>-Button
+                        einen Dialog öffnen, der eine Liste mit allen Begriffen anzeigt.
                     </p>
                 </div>
                 <ToDashboardButton onReturnToDashboard={this.returnToDashboard} />

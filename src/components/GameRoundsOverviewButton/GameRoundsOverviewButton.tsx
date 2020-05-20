@@ -15,7 +15,6 @@ interface TabPanelProps {
 }
 const TabPanel: React.FunctionComponent<TabPanelProps> = props => {
     const { children, value, index, ...other } = props;
-
     return (
         <div
             role="tabpanel"
@@ -64,7 +63,7 @@ const GameRoundsOverviewDialog: React.FunctionComponent<GameRoundsOverviewDialog
                         value={tabValue}
                         onChange={handleChange}
                         indicatorColor="secondary"
-                        textColor="secondary"
+                        textColor="primary"
                         variant="scrollable"
                         scrollButtons="auto"
                     >
@@ -99,6 +98,11 @@ interface GameRoundsOverviewButtonProps {
     rounds: GameRound[];
     sortedPlayers: PlayerInfo[];
 }
+
+/**
+ * Displays a button that opens a dialog with all player inputs, scoring etc. of all rounds.
+ * The displayed data is organized in tabs, one tab per round.
+ */
 const GameRoundsOverviewButton: React.FunctionComponent<GameRoundsOverviewButtonProps> = props => {
     const [open, setOpen] = useState(false);
     const handleClose = () => setOpen(false);

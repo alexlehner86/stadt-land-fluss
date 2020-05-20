@@ -103,11 +103,12 @@
     background-color: rgba(0, 0, 0, 0) !important;
 }
 
-.MuiFormLabel-root.MuiInputLabel-root {
+.MuiFormLabel-root.MuiInputLabel-root,
+.MuiDialogContentText-root.MuiTypography-colorTextSecondary {
     color: black;
 }
 
-li {
+li:not(.MuiListItem-root) {
     margin-bottom: 0.5rem;
 }
 

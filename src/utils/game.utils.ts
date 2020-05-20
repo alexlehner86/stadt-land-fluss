@@ -2,10 +2,10 @@ import { some } from 'lodash';
 import randomnItem from 'random-item';
 import { ONLY_ANSWER_POINTS, SAME_WORD_POINTS, STANDARD_POINTS } from '../constants/game.constant';
 import { Collection } from '../models/collection.interface';
-import { GameConfigScoringOptions, PlayerInput } from '../models/game.interface';
+import { GameConfigScoringOptions, PlayerInput, HallOfFameEntry } from '../models/game.interface';
 import { PlayerInfo } from '../models/player.interface';
 import { EXTRA_POINTS } from './../constants/game.constant';
-import { GameResultForPlayer, GameRound, GameRoundEvaluation, PlayerInputEvaluation } from './../models/game.interface';
+import { GameResultForPlayer, GameRound, GameRoundEvaluation, PlayerInputEvaluation, GameConfig } from './../models/game.interface';
 import { createAndFillArray } from './general.utils';
 
 /**
@@ -188,4 +188,26 @@ export const calculateGameResults = (allPlayers: Map<string, PlayerInfo>, gameRo
     });
     Object.keys(pointsPerPlayer).forEach(playerId => gameResults.push(pointsPerPlayer[playerId]));
     return gameResults.sort((a, b) => b.points - a.points);
+};
+
+/**
+ * Creates a list of entries for the "Hall of Fame", the list of answers marked as "very creative".
+ */
+export const createHallOfFameData = (allPlayers: Map<string, PlayerInfo>, gameConfig: GameConfig, gameRounds: GameRound[]): HallOfFameEntry[] => {
+    const hallOfFameData: HallOfFameEntry[] = [];
+    gameRounds.forEach(round => {
+        round.forEach((playerInputs, playerId) => {
+            const playerInfo = allPlayers.get(playerId) as PlayerInfo;
+            playerInputs.forEach((playerInput, categoryIndex) => {
+                if (playerInput.valid && playerInput.star) {
+                    hallOfFameData.push({
+                        category: gameConfig.categories[categoryIndex],
+                        playerName: playerInfo.name,
+                        text: playerInput.text
+                    });
+                }
+            });
+        });
+    });
+    return hallOfFameData;
 };

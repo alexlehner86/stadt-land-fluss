@@ -34,7 +34,8 @@ const PhaseFillOutTextfields: React.FunctionComponent<PhaseFillOutTextfieldsProp
                 variant="outlined"
                 fullWidth
                 InputProps={{
-                    startAdornment: <InputAdornment position="start">{currentLetter}:</InputAdornment>
+                    startAdornment: <InputAdornment position="start">{currentLetter}:</InputAdornment>,
+                    spellCheck: false
                 }}
             />
         </div>

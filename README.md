@@ -2,6 +2,13 @@ This project is an online version of the popular European game "Stadt-Land-Fluss
 
 ## Release Notes
 
+### v1.5.0
+
+- Add feature to mark answers as very creative
+- Implement scoring option to score extra points for very creative answers
+- Add game rounds overview and "Hall of Fame" to game results page
+- Various UI improvements and bugfixes
+
 ### v1.4.0
 
 - Add new game settings (select scoring options, select letters to exclude)

@@ -72,3 +72,13 @@ export interface GameResultForPlayer {
     playerName: string;
     points: number;
 }
+
+/**
+ * Player inputs that are marked as "very creative" by other players are
+ * displayed in a "Hall of Fame" at the end of the game.
+ */
+export interface HallOfFameEntry {
+    category: string;
+    playerName: string;
+    text: string;
+}

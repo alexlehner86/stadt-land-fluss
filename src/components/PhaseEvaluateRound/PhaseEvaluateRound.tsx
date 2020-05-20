@@ -214,6 +214,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                     fullWidth
                     InputProps={{
                         className: inputCssClass,
+                        spellCheck: false,
                         startAdornment: <InputAdornment position="start">{evaluatedPlayer.name}:</InputAdornment>,
                         endAdornment: <InputAdornment position="end">
                             <div className="slf-evaluation-textfield-end-adornment">

@@ -1,0 +1,100 @@
+import {
+    Button,
+    Chip,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    Divider,
+    List,
+    ListItem,
+    ListItemAvatar,
+    ListItemText,
+    makeStyles,
+} from '@material-ui/core';
+import FaceIcon from '@material-ui/icons/Face';
+import StarIcon from '@material-ui/icons/Star';
+import React, { useState } from 'react';
+import { HallOfFameEntry } from '../../models/game.interface';
+
+const useStyles = makeStyles({
+    list: {
+        paddingBottom: 0,
+    },
+    listItem: {
+        padding: '0.25rem 0',
+    },
+    listItemAvatar: {
+        marginRight: '1rem',
+    },
+});
+
+export interface HallOfFameDialogProps {
+    hallOfFameData: HallOfFameEntry[];
+    open: boolean;
+    onClose: () => void;
+}
+const HallOfFameDialog: React.FunctionComponent<HallOfFameDialogProps> = props => {
+    const classes = useStyles();
+    const { hallOfFameData, open, onClose } = props;
+    return (
+        <Dialog onClose={onClose} open={open} maxWidth="lg">
+            <DialogContent>
+                <DialogContentText>Hall of Fame</DialogContentText>
+                <Divider />
+                <List className={classes.list}>
+                    {hallOfFameData.map((item, index) => (
+                        <ListItem key={`slf-hall-of-fame-item-${index}`} className={classes.listItem}>
+                            <ListItemAvatar className={classes.listItemAvatar}>
+                                <Chip
+                                    icon={<FaceIcon />}
+                                    color="primary"
+                                    label={item.playerName}
+                                />
+                            </ListItemAvatar>
+                            <ListItemText
+                                primary={item.text}
+                                secondary={item.category}
+                            />
+                        </ListItem>
+                    ))}
+                </List>
+            </DialogContent>
+            <DialogActions>
+                <Button type="button" onClick={onClose}>Schließen</Button>
+            </DialogActions>
+        </Dialog>
+    );
+}
+
+interface HallOfFameButtonProps {
+    hallOfFameData: HallOfFameEntry[];
+}
+
+/**
+ * Displays a button that opens a dialog with all player inputs that were marked as "very creative".
+ */
+const HallOfFameButton: React.FunctionComponent<HallOfFameButtonProps> = props => {
+    const [open, setOpen] = useState(false);
+    const handleClose = () => setOpen(false);
+
+    return (
+        <React.Fragment>
+            <Button
+                color="primary"
+                variant="contained"
+                size="large"
+                startIcon={<StarIcon />}
+                disabled={props.hallOfFameData.length === 0}
+                onClick={() => setOpen(true)}
+            >Hall of Fame</Button>
+            <HallOfFameDialog
+                hallOfFameData={props.hallOfFameData}
+                open={open}
+                onClose={handleClose}
+            />
+        </React.Fragment>
+    );
+}
+
+export default HallOfFameButton;
