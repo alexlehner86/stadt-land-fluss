@@ -4,13 +4,15 @@ import StarIcon from '@material-ui/icons/Star';
 import React, { Component, Dispatch } from 'react';
 import { connect } from 'react-redux';
 import { RouterProps } from 'react-router';
+import GameRoundsOverviewButton from '../../components/GameRoundsOverviewButton/GameRoundsOverviewButton';
 import ScoringOptionsList from '../../components/ScoringOptionsList/ScoringOptionsList';
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
 import ToDashboardButton from '../../components/ToDashboardButton/ToDashboardButton';
 import { GameConfig, GameResultForPlayer } from '../../models/game.interface';
+import { PlayerInfo } from '../../models/player.interface';
 import { AppAction, resetAppState } from '../../store/app.actions';
 import { AppState } from '../../store/app.reducer';
-import { calculateGameResults } from '../../utils/game.utils';
+import { calculateGameResults, getPlayersInAlphabeticalOrder } from '../../utils/game.utils';
 import { makePluralIfCountIsNotOne } from '../../utils/general.utils';
 
 interface GameResultsDispatchProps {
@@ -19,10 +21,14 @@ interface GameResultsDispatchProps {
 interface GameResultsProps extends AppState, GameResultsDispatchProps, RouterProps { }
 interface GameResultsState {
     gameResults: GameResultForPlayer[];
+    sortedPlayers: PlayerInfo[];
 }
 
 class GameResults extends Component<GameResultsProps, GameResultsState> {
-    public state: GameResultsState = { gameResults: [] };
+    public state: GameResultsState = {
+        gameResults: [],
+        sortedPlayers: []
+    };
 
     public render() {
         if (this.props.gameRounds === null) { return null; }
@@ -45,6 +51,11 @@ class GameResults extends Component<GameResultsProps, GameResultsState> {
                             </ListItem>
                         ))}
                     </List>
+                    <GameRoundsOverviewButton
+                        gameConfig={gameConfig}
+                        rounds={this.props.gameRounds}
+                        sortedPlayers={this.state.sortedPlayers}
+                    />
                 </div>
                 <div className="material-card-style">
                     <SectionHeader showDivider={true} text="Spiele-Settings"></SectionHeader>
@@ -64,7 +75,10 @@ class GameResults extends Component<GameResultsProps, GameResultsState> {
             this.props.history.push('/');
             return;
         }
-        this.setState({ gameResults: calculateGameResults(this.props.allPlayers, this.props.gameRounds) });
+        this.setState({
+            gameResults: calculateGameResults(this.props.allPlayers, this.props.gameRounds),
+            sortedPlayers: getPlayersInAlphabeticalOrder(this.props.allPlayers)
+        });
     }
 
     private getResultIcon = (isWinner: boolean): JSX.Element => {
