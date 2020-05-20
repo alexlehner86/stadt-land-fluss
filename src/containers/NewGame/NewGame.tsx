@@ -162,11 +162,10 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                                         checked={this.state.creativeAnswersExtraPoints}
                                         name={CheckboxName.creativeAnswersExtraPoints}
                                         color="primary"
-                                        disabled
                                         onChange={this.handleGameOptionChange}
                                     />
                                 }
-                                label={GAME_OPTION_LABEL.creativeAnswersExtraPoints + ' (Coming Soon!)'}
+                                label={GAME_OPTION_LABEL.creativeAnswersExtraPoints}
                             />
                         </FormGroup>
                         <Divider />

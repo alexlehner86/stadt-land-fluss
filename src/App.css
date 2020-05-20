@@ -107,6 +107,10 @@
     color: black;
 }
 
+li {
+    margin-bottom: 0.5rem;
+}
+
 @media only screen and (max-width: 800px) {
     .app-main.green-theme {
         background-size: 45% !important;

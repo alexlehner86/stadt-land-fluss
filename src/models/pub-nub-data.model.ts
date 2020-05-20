@@ -1,6 +1,6 @@
 import { GamePhase } from '../constants/game.constant';
 import { Collection } from './collection.interface';
-import { EvaluationOfPlayerInput, GameConfig, PlayerInput, IsPlayerInputVeryCreativeStatus } from './game.interface';
+import { EvaluationOfPlayerInput, GameConfig, IsPlayerInputVeryCreativeStatus, PlayerInput } from './game.interface';
 import { PlayerInfo } from './player.interface';
 
 export interface PubNubUserState {
@@ -71,6 +71,7 @@ export class PubNubKickPlayerMessage {
 
 export interface PubNubDataForCurrentGameMessagePayload {
     compressedGameRoundEvaluation: boolean[][][];
+    compressedMarkedAsCreativeFlags: boolean[][];
     currentPhase: GamePhase;
     currentRound: number;
     playersThatFinishedEvaluation: Collection<boolean>;

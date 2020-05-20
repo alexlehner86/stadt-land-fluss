@@ -1,12 +1,12 @@
-import { cloneDeep, some } from 'lodash';
+import { some } from 'lodash';
 import randomnItem from 'random-item';
 import { ONLY_ANSWER_POINTS, SAME_WORD_POINTS, STANDARD_POINTS } from '../constants/game.constant';
 import { Collection } from '../models/collection.interface';
 import { GameConfigScoringOptions, PlayerInput } from '../models/game.interface';
 import { PlayerInfo } from '../models/player.interface';
+import { EXTRA_POINTS } from './../constants/game.constant';
 import { GameResultForPlayer, GameRound, GameRoundEvaluation, PlayerInputEvaluation } from './../models/game.interface';
 import { createAndFillArray } from './general.utils';
-import { getRunningGameRoundFromLocalStorage } from './local-storage.utils';
 
 /**
 * Returns an array of unique letters. The number of letters is defined by the parameter numberOfLetters.
@@ -33,14 +33,14 @@ export const getPlayersInAlphabeticalOrder = (players: Map<string, PlayerInfo>):
         if (a.name.toLowerCase() > b.name.toLowerCase()) { return 1; }
         return 0;
     });
-}
+};
 
 /**
  * Returns an array of PlayerInput objects with empty strings and default settings (isMarkedCreative=false, valid=true, standard points).
  */
 export const getEmptyRoundInputs = (numberOfInputs: number): PlayerInput[] => {
     return createAndFillArray<PlayerInput>(numberOfInputs, { points: STANDARD_POINTS, star: false, text: '', valid: true });
-}
+};
 
 /**
 * Checks each PlayerInput object whether it contains text.
@@ -79,7 +79,7 @@ export const calculatePointsForRound = (scoringOptions: GameConfigScoringOptions
     for (let categoryIndex = 0; categoryIndex < playerInputsOfPlayer1.length; categoryIndex++) {
         calculatePointsForCategory(scoringOptions, round, categoryIndex);
     }
-}
+};
 
 /**
  * Calculates the points for the round's inputs for one category according to the active scoring options.
@@ -101,14 +101,14 @@ export const calculatePointsForCategory = (scoringOptions: GameConfigScoringOpti
             }
         }
     });
-}
+};
 
 export const isOnlyPlayerWithValidAnswer = (playerId: string, round: GameRound, categoryIndex: number): boolean => {
     const otherPlayersIds = Array.from(round.keys()).filter(id => id !== playerId);
     let isOnlyPlayer = true;
     otherPlayersIds.forEach(id => isOnlyPlayer = isOnlyPlayer && !(round.get(id) as PlayerInput[])[categoryIndex].valid);
     return isOnlyPlayer;
-}
+};
 
 /**
  * Returns true if a duplicate (removes all non-alphanumeric characters for comparison) for playerId's input was found.
@@ -120,7 +120,7 @@ export const isDuplicateOfOtherPlayersInput = (playerId: string, round: GameRoun
         const otherPlayersInput = (round.get(id) as PlayerInput[])[categoryIndex];
         return otherPlayersInput.valid && playerInputText === otherPlayersInput.text.toLowerCase().replace(/[^0-9a-z]/gi, '');
     });
-}
+};
 
 /**
  * Determines the minimum number of players that need to mark a player's input as invalid
@@ -158,6 +158,22 @@ export const getRejectingPlayers = (evaluations: PlayerInputEvaluation, players:
 };
 
 /**
+ * Adds extra points for "very creative answers" if scoring option is active
+ * and sets invalid answer's points to zero.
+ */
+export const applyValidFlagAndStarFlagToPoints = (scoringOptions: GameConfigScoringOptions, round: GameRound) => {
+    round.forEach(playerInputs => {
+        playerInputs.forEach(input => {
+            if (!input.valid) {
+                input.points = 0;
+            } else if (scoringOptions.creativeAnswersExtraPoints && input.star) {
+                input.points = input.points + EXTRA_POINTS;
+            }
+        });
+    });
+};
+
+/**
  * Calculates game results and sorts them by points in descending order.
  */
 export const calculateGameResults = (allPlayers: Map<string, PlayerInfo>, gameRounds: GameRound[]): GameResultForPlayer[] => {
@@ -166,97 +182,10 @@ export const calculateGameResults = (allPlayers: Map<string, PlayerInfo>, gameRo
     allPlayers.forEach((playerInfo, playerId) => pointsPerPlayer[playerId] = { playerName: playerInfo.name, points: 0 });
     gameRounds.forEach(round => {
         round.forEach((playerInputs, playerId) => {
-            const points = playerInputs.reduce((total, input) => input.valid ? total + input.points : total, 0);
+            const points = playerInputs.reduce((total, input) => total + input.points, 0);
             pointsPerPlayer[playerId].points += points;
         });
     });
     Object.keys(pointsPerPlayer).forEach(playerId => gameResults.push(pointsPerPlayer[playerId]));
     return gameResults.sort((a, b) => b.points - a.points);
-}
-
-export const shouldUserRespondToRequestGameDataMessage = (user: PlayerInfo, allPlayers: Map<string, PlayerInfo>, requestingPlayerId: string): boolean => {
-    // User should not respond to their own message.
-    if (user.id === requestingPlayerId) { return false; }
-    // If user is admin, then they should respond to the message.
-    if (user.isAdmin) { return true; }
-    // If the requesting user is the admin, then an algorithm determines who of
-    // the remaining players is the one to respond to the admin's message.
-    const requestingPlayerInfo = allPlayers.get(requestingPlayerId);
-    if (requestingPlayerInfo && requestingPlayerInfo.isAdmin) {
-        const playersWithoutRequestingPlayer = cloneDeep(allPlayers);
-        playersWithoutRequestingPlayer.delete(requestingPlayerId);
-        const playersSortedById = Array.from(playersWithoutRequestingPlayer).map(data => data[1]).sort((a, b) => {
-            if (a.id < b.id) { return -1; }
-            if (a.id > b.id) { return 1; }
-            return 0;
-        });
-        return playersSortedById[0].id === user.id;
-    }
-    return false;
-};
-
-/**
- * Transforms the GameRoundEvaluation object from a nested Map into a nested array.
- * The order of the players in sortedPlayers defines the order of the information in the arrays.
- */
-export const compressGameRoundEvaluation = (gameRoundEvaluation: GameRoundEvaluation, sortedPlayers: PlayerInfo[]): boolean[][][] => {
-    const evaluationsAsArrays = new Map<string, boolean[][]>();
-    gameRoundEvaluation.forEach((data, playerId) => {
-        evaluationsAsArrays.set(playerId, data.map(item => {
-            const booleanArray: boolean[] = [];
-            sortedPlayers.forEach(player => booleanArray.push(item.get(player.id) as boolean));
-            return booleanArray;
-        }));
-    });
-    const compressedGameRoundEvaluation: boolean[][][] = [];
-    sortedPlayers.forEach(player => compressedGameRoundEvaluation.push(evaluationsAsArrays.get(player.id) as boolean[][]));
-    return compressedGameRoundEvaluation;
-};
-
-/**
- * Transforms the GameRoundEvaluation object from a nested array into a nested Map.
- * The order of the players in sortedPlayers defines the order of the information in the arrays.
- */
-export const decompressGameRoundEvaluation = (compressedData: boolean[][][], sortedPlayers: PlayerInfo[]): GameRoundEvaluation => {
-    const gameRoundEvaluation: GameRoundEvaluation = new Map<string, PlayerInputEvaluation[]>();
-    sortedPlayers.forEach((evaluatedPlayer, evaluatedPlayerIndex) => {
-        const evaluations: PlayerInputEvaluation[] = compressedData[evaluatedPlayerIndex].map(playerData => {
-            const playerInputEvaluation = new Map<string, boolean>();
-            sortedPlayers.forEach((evaluatingPlayer, evaluatingPlayerIndex) => playerInputEvaluation.set(evaluatingPlayer.id, playerData[evaluatingPlayerIndex]));
-            return playerInputEvaluation;
-        });
-        gameRoundEvaluation.set(evaluatedPlayer.id, evaluations);
-    });
-    return gameRoundEvaluation;
-};
-
-export const restoreGameRoundsOfRunningGameFromLocalStorage = (numberOfRoundsToRestore: number): GameRound[] => {
-    const gameRounds: GameRound[] = [];
-    for (let round = 1; round <= numberOfRoundsToRestore; round++) {
-        const data = getRunningGameRoundFromLocalStorage(round);
-        if (data) {
-            gameRounds.push(data);
-        }
-    }
-    return gameRounds;
-};
-
-/**
- * Sets points and validity of player inputs for player who is rejoining the game in evaluation phase.
- */
-export const setPointsAndValidityOfPlayerInputs = (
-    scoringOptions: GameConfigScoringOptions, gameRoundEvaluation: GameRoundEvaluation, minNumberOfInvalids: number, round: GameRound
-) => {
-    // First evaluate validity
-    round.forEach((playerInputs, playerId) => {
-        const evaluations = gameRoundEvaluation.get(playerId) as PlayerInputEvaluation[];
-        playerInputs.forEach((input, categoryIndex) => {
-            // Only evaluate validity for originally valid inputs (not empty text inputs).
-            if (input.valid) {
-                input.valid = getNumberOfInvalids(evaluations[categoryIndex]) < minNumberOfInvalids;
-            }
-        });
-    });
-    // Second calculate points
-    calculatePointsForRound(scoringOptions, round);
 };

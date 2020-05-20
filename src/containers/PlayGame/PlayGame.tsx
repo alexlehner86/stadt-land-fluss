@@ -37,19 +37,24 @@ import {
 import { AppAction, resetAppState, setDataOfFinishedGame, SetDataOfFinishedGamePayload } from '../../store/app.actions';
 import { AppState } from '../../store/app.reducer';
 import {
+    applyMarkedAsCreativeFlags,
+    compressGameRoundEvaluation,
+    compressMarkedAsCreativeFlags,
+    decompressGameRoundEvaluation,
+    restoreGameRoundsOfRunningGameFromLocalStorage,
+    setPointsAndValidity,
+    shouldUserRespondToRequestGameDataMessage,
+} from '../../utils/data-restoration.utils';
+import {
+    applyValidFlagAndStarFlagToPoints,
     calculatePointsForCategory,
     calculatePointsForRound,
-    compressGameRoundEvaluation,
     createGameRoundEvaluation,
-    decompressGameRoundEvaluation,
     getEmptyRoundInputs,
     getMinNumberOfInvalids,
     getNumberOfInvalids,
     getPlayersInAlphabeticalOrder,
     markEmptyPlayerInputsAsInvalid,
-    restoreGameRoundsOfRunningGameFromLocalStorage,
-    setPointsAndValidityOfPlayerInputs,
-    shouldUserRespondToRequestGameDataMessage,
 } from '../../utils/game.utils';
 import { convertCollectionToMap, convertMapToCollection } from '../../utils/general.utils';
 import {
@@ -100,8 +105,8 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     private pubNubClient: any;
 
     public render() {
-        // This check serves as a route guard. If gameId and playerInfo aren't present in state,
-        // then user wasn't redirected here from NewGame or JoinGame component.
+        // This check serves as a route guard. If gameId and playerInfo aren't present in application state,
+        // then the user wasn't redirected here from the NewGame or JoinGame component.
         if (this.props.gameId === null || this.props.playerInfo === null) { return null; }
 
         const { gameId, playerInfo } = this.props;
@@ -298,7 +303,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                 }
                 break;
             case PubNubMessageType.dataForCurrentGame:
-                this.processDataForCurrentGame(message.payload);
+                this.restoreDataForCurrentGame(message.payload);
                 break;
             default:
         }
@@ -369,15 +374,6 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     }
 
     /**
-     * Is called by PhaseEvaluateRound component in order to communicate the "marked as very creative" status of a player input
-     * via a PubNub message. This message is then processed by all players in the game (including the user who sent it).
-     */
-    private updateIsPlayerInputVeryCreativeStatus = (newStatus: IsPlayerInputVeryCreativeStatus) => {
-        const message = new PubNubIsPlayerInputVeryCreativeMessage(newStatus);
-        this.sendMessage(message.toPubNubMessage());
-    }
-
-    /**
      * This method is called when the PubNub message 'evaluationOfPlayerInput' is received.
      * It processes the new evaluation and changes data in currentRoundEvaluation and gameRounds accordingly.
      */
@@ -393,6 +389,15 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         (finishedRound.get(evaluatedPlayerId) as PlayerInput[])[categoryIndex].valid = isInputValid;
         calculatePointsForCategory((this.state.gameConfig as GameConfig).scoringOptions, finishedRound, categoryIndex);
         this.setState({ currentRoundEvaluation, gameRounds });
+    }
+
+    /**
+     * Is called by PhaseEvaluateRound component in order to communicate the "marked as very creative" status of a player input
+     * via a PubNub message. This message is then processed by all players in the game (including the user who sent it).
+     */
+    private updateIsPlayerInputVeryCreativeStatus = (newStatus: IsPlayerInputVeryCreativeStatus) => {
+        const message = new PubNubIsPlayerInputVeryCreativeMessage(newStatus);
+        this.sendMessage(message.toPubNubMessage());
     }
     
     /**
@@ -427,8 +432,10 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     }
 
     private processEvaluationsAndStartNextRoundOrFinishGame = () => {
-        const { allPlayers, currentRound, gameRounds } = this.state;
+        const { allPlayers, currentRound } = this.state;
         const gameConfig = this.state.gameConfig as GameConfig;
+        const gameRounds = cloneDeep(this.state.gameRounds);
+        applyValidFlagAndStarFlagToPoints(gameConfig.scoringOptions, gameRounds[currentRound - 1]);
         if (currentRound === gameConfig.numberOfRounds) {
             // Finish game and show results.
             removeAllDataOfRunningGameFromLocalStorage();
@@ -484,13 +491,17 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     }
 
     private sendDataForCurrentGame = (requestingPlayerId: string) => {
-        const sortedPlayers = getPlayersInAlphabeticalOrder(this.state.allPlayers);
-        const compressedGameRoundEvaluation = this.state.currentPhase === GamePhase.evaluateRound
-            ? compressGameRoundEvaluation(this.state.currentRoundEvaluation, sortedPlayers) : [];
+        const { allPlayers, currentPhase, currentRound, currentRoundEvaluation, gameRounds } = this.state;
+        const sortedPlayers = getPlayersInAlphabeticalOrder(allPlayers);
+        const compressedGameRoundEvaluation = currentPhase === GamePhase.evaluateRound
+            ? compressGameRoundEvaluation(currentRoundEvaluation, sortedPlayers) : [];
+        const compressedMarkedAsCreativeFlags = currentPhase === GamePhase.evaluateRound
+            ? compressMarkedAsCreativeFlags(gameRounds[currentRound - 1], sortedPlayers) : [];
         const message = new PubNubDataForCurrentGameMessage({
             compressedGameRoundEvaluation,
-            currentPhase: this.state.currentPhase,
-            currentRound: this.state.currentRound,
+            compressedMarkedAsCreativeFlags,
+            currentPhase,
+            currentRound,
             playersThatFinishedEvaluation: convertMapToCollection<boolean>(this.state.playersThatFinishedEvaluation),
             requestingPlayerId,
             sortedPlayers
@@ -501,7 +512,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     /**
      * This method is called when the PubNub message 'dataForCurrentGame' is received.
      */
-    private processDataForCurrentGame = (payload: PubNubDataForCurrentGameMessagePayload) => {
+    private restoreDataForCurrentGame = (payload: PubNubDataForCurrentGameMessagePayload) => {
         // Only process the information and update state if the message was meant for this user.
         if (this.props.playerInfo.id !== payload.requestingPlayerId) { return; }
 
@@ -514,12 +525,13 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             const allPlayers = new Map<string, PlayerInfo>();
             payload.sortedPlayers.forEach(player => allPlayers.set(player.id, player));
             let currentRoundEvaluation: GameRoundEvaluation;
-            // If we are in evaluation phase, then we received the current evaluations and need to apply them to the player inputs.
+            // If we are in evaluation phase, then we received the current evaluations and the
+            // "marked as very creative" data, which we need to apply to the player inputs.
             if (payload.currentPhase === GamePhase.evaluateRound) {
+                const round = gameRounds[payload.currentRound - 1];
                 currentRoundEvaluation = decompressGameRoundEvaluation(payload.compressedGameRoundEvaluation, payload.sortedPlayers);
-                setPointsAndValidityOfPlayerInputs(
-                    gameConfig.scoringOptions, currentRoundEvaluation, getMinNumberOfInvalids(allPlayers.size), gameRounds[payload.currentRound - 1]
-                );
+                setPointsAndValidity(gameConfig.scoringOptions, currentRoundEvaluation, getMinNumberOfInvalids(allPlayers.size), round);
+                applyMarkedAsCreativeFlags(payload.compressedMarkedAsCreativeFlags, payload.sortedPlayers, round);
             } else {
                 currentRoundEvaluation = createGameRoundEvaluation(allPlayers, gameConfig.categories);
             }

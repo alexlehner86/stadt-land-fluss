@@ -17,6 +17,7 @@ import StarIcon from '@material-ui/icons/Star';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
 import ThumbDownRoundedIcon from '@material-ui/icons/ThumbDownRounded';
 import React, { useState } from 'react';
+import { EXTRA_POINTS } from '../../constants/game.constant';
 import {
     EvaluationOfPlayerInput,
     GameConfig,
@@ -186,6 +187,11 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
             </Tooltip>
         );
     }
+    const createPointsChip = (evaluatedPlayerInput: PlayerInput): JSX.Element => {
+        const points = gameConfig.scoringOptions.creativeAnswersExtraPoints && evaluatedPlayerInput.star
+            ? evaluatedPlayerInput.points + EXTRA_POINTS : evaluatedPlayerInput.points;
+        return <Chip label={`+${points}`} color="primary" />;
+    }
     /**
      * Creates a text input showing the player's input for a category. If the player input isn't an empty string,
      * then on the right side of the textfield a search link and clickable evaluation button are displayed.
@@ -213,7 +219,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                             <div className="slf-evaluation-textfield-end-adornment">
                                 {hasPlayerTypedText ? createSearchLink(categoryIndex, indexInSortedPlayers) : null}
                                 {isInputValid ? createMarkAsCreativeAnswerToggle(categoryIndex, indexInSortedPlayers) : null}
-                                {isInputValid ? <Chip label={`+${evaluatedPlayerInput.points}`} color="primary" /> : null}
+                                {isInputValid ? createPointsChip(evaluatedPlayerInput) : null}
                             </div>
                         </InputAdornment>
                     }}
