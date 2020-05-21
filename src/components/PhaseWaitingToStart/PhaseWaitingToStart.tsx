@@ -29,9 +29,9 @@ const PhaseWaitingToStart: React.FunctionComponent<PhaseWaitingToStartProps> = p
         <React.Fragment>
             <Divider />
             <h3>Spiel-Übersicht:</h3>
-            <p>ID: {props.gameId}</p>
-            <p>Runden: {gameConfig.numberOfRounds}</p>
-            <p>Kategorien: {gameConfig.categories.join(', ')}</p>
+            <p><span className="bold-text">ID:</span> {props.gameId}</p>
+            <p><span className="bold-text">Runden:</span> {gameConfig.numberOfRounds}</p>
+            <p><span className="bold-text">Kategorien:</span> {gameConfig.categories.join(', ')}</p>
             <ScoringOptionsList rules={gameConfig.scoringOptions} />
         </React.Fragment>
     );

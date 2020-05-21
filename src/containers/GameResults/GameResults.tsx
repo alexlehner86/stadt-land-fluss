@@ -52,9 +52,9 @@ class GameResults extends Component<GameResultsProps, GameResultsState> {
                 </div>
                 <div className="material-card-style">
                     <SectionHeader showDivider={true} text="Spiele-Settings"></SectionHeader>
-                    <p>Runden: {gameConfig.numberOfRounds}</p>
-                    <p>Buchstaben: {gameConfig.letters.join(', ')}</p>
-                    <p>Kategorien: {gameConfig.categories.join(', ')}</p>
+                    <p><span className="bold-text">Runden:</span> {gameConfig.numberOfRounds}</p>
+                    <p><span className="bold-text">Buchstaben:</span> {gameConfig.letters.join(', ')}</p>
+                    <p><span className="bold-text">Kategorien:</span> {gameConfig.categories.join(', ')}</p>
                     <ScoringOptionsList rules={gameConfig.scoringOptions} />
                 </div>
                 <ToDashboardButton onReturnToDashboard={this.returnToDashboard} />

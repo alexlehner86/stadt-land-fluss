@@ -18,10 +18,16 @@ const StyledTableCell = withStyles((theme: Theme) =>
             backgroundColor: theme.palette.primary.main,
             color: theme.palette.primary.contrastText,
             maxWidth: '8rem',
+            '&:not(:last-child)': {
+                borderRight: '1px solid rgba(255, 255, 255, 0.5)',
+            },
         },
         body: {
             fontSize: 14,
             maxWidth: '8rem',
+            '&:not(:last-child)': {
+                borderRight: '1px solid rgba(224, 224, 224, 1)',
+            },
         },
     }),
 )(TableCell);
@@ -36,27 +42,26 @@ const StyledTableRow = withStyles((theme: Theme) =>
     }),
 )(TableRow);
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        tableContainer: {
-            borderRadius: 0,
-        },
-        table: {
-            maxWidth: '80vw',
-        },
-        firstColumn: {
-            fontWeight: 'bold',
-        },
-        invalidInput: {
-            color: 'crimson',
-            textDecoration: 'line-through',
-        },
-        creativeAnswerStarIcon: {
-            fontSize: '1rem',
-            verticalAlign: 'text-top',
-        }
-    })
-);
+const useStyles = makeStyles({
+    tableContainer: {
+        borderRadius: 0,
+    },
+    table: {
+        maxWidth: '80vw',
+    },
+    firstColumn: {
+        fontWeight: 'bold',
+    },
+    invalidInput: {
+        color: 'crimson',
+        textDecoration: 'line-through',
+    },
+    creativeAnswerStarIcon: {
+        paddingRight: '0.2rem',
+        fontSize: '1rem',
+        verticalAlign: 'text-top',
+    }
+});
 
 interface GameRoundsTableProps {
     gameConfig: GameConfig;
@@ -69,14 +74,13 @@ const GameRoundsTable: React.FunctionComponent<GameRoundsTableProps> = props => 
 
     const veryCreativeAnswer = (playerInput: PlayerInput): JSX.Element => (
         <React.Fragment>
-            <span>{playerInput.text} (+{playerInput.points},&nbsp;</span>
             <Tooltip
                 title="Als besonders kreativ markiert"
                 placement="bottom"
             >
                 <StarIcon className={classes.creativeAnswerStarIcon} color="secondary" />
             </Tooltip>
-            <span>)</span>
+            <span>{playerInput.text} (+{playerInput.points})</span>
         </React.Fragment>
     );
     const createTableRowForCategory = (category: string, categoryIndex: number): JSX.Element => {

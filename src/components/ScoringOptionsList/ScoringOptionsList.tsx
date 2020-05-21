@@ -10,7 +10,7 @@ const ScoringOptionsList: React.FunctionComponent<ScoringOptionsListProps> = pro
     const { rules } = props;
     const createFurtherOptionsElement = (): JSX.Element => (
         <React.Fragment>
-            <p>Regeln für die Punktevergabe:</p>
+            <p className="bold-text">Regeln für die Punktevergabe:</p>
             <ul>
                 {rules.checkForDuplicates ? <li>{GAME_OPTION_LABEL.checkForDuplicates}</li> : null}
                 {rules.onlyPlayerWithValidAnswer ? <li>{GAME_OPTION_LABEL.onlyPlayerWithValidAnswer}</li> : null}

@@ -70,7 +70,7 @@ const GameRoundsOverviewDialog: React.FunctionComponent<GameRoundsOverviewDialog
                         {rounds.map((_, index) => (
                             <Tab
                                 key={`slf-game-rounds-overview-tab-${index}`}
-                                label={`Runde ${index + 1}`}
+                                label={`Runde ${index + 1}: ${gameConfig.letters[index]}`}
                                 {...a11yProps(index)}
                             />
                         ))}
