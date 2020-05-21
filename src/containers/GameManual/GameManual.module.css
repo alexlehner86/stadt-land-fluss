@@ -1,25 +1,25 @@
-.slf-game-manual {
+.slf_game_manual {
     line-height: 1.5;
     padding: 1rem 2rem;
 }
-.slf-game-manual p,
-.slf-game-manual ol,
-.slf-game-manual ul {
+.slf_game_manual p,
+.slf_game_manual ol,
+.slf_game_manual ul {
     font-size: 0.9rem;
 }
-.slf-game-manual p span {
+.slf_game_manual p span {
     font-style: italic;
 }
-.slf-game-manual p:not(:first-of-type) {
+.slf_game_manual p:not(:first-of-type) {
     margin-block-start: 0;
 }
-.slf-game-manual p:last-of-type {
+.slf_game_manual p:last-of-type {
     margin-block-end: 0.5rem;
 }
-.slf-game-manual h3 {
+.slf_game_manual h3 {
     font-size: 1rem;
     margin-block-end: 0.5rem;
 }
-.inline-material-icon {
+.inline_icon {
     vertical-align: text-top;
 }

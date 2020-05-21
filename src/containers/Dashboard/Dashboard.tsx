@@ -1,4 +1,4 @@
-import './Dashboard.css';
+import styles from './Dashboard.module.css';
 import Link from '@material-ui/core/Link';
 import DirectionsRunIcon from '@material-ui/icons/DirectionsRun';
 import React, { Component } from 'react';
@@ -15,16 +15,16 @@ interface DashboardPropsFromStore {
 class Dashboard extends Component<DashboardPropsFromStore> {
     public render() {
         const rejoinGameElement = (
-            <Link component={RouterLink} to="/play" className="rejoin-game-link">
+            <Link component={RouterLink} to="/play" className={styles.rejoin_game_link}>
                 <DirectionsRunIcon />
                 Zurück ins laufende Spiel
             </Link>
         );
         return (
             <div className="main-content-wrapper">
-                <div className="dashboard-container material-card-style">
+                <div className="material-card-style">
                     <SectionHeader showDivider={true} text="Dashboard"></SectionHeader>
-                    <div className="link-container">
+                    <div className={styles.link_container}>
                         {this.props.gameId ? rejoinGameElement : null}
                         <Link component={RouterLink} to="/newgame">Neues Spiel</Link>
                         <Link component={RouterLink} to="/joingame">Spiel beitreten</Link>
@@ -33,9 +33,9 @@ class Dashboard extends Component<DashboardPropsFromStore> {
                     <img
                         src={this.props.activeTheme.homepageImageUrl}
                         alt="Stadt, Land, Fluss"
-                        className="dashboard-slf-image"
+                        className={styles.slf_image}
                     />
-                    <div className="img-copyright">
+                    <div className={styles.img_copyright}>
                         <h3>Credits/Bilder</h3>
                         <a href="https://www.vecteezy.com/vector-art/830131-river-city-landscape-with-buildings-hills-and-trees" target="_blank" rel="noopener noreferrer">Homepage/Stadt-Land-Fluss by pikgura – www.vecteezy.com</a>
                         <a href="https://www.vecteezy.com/vector-art/276920-abstract-seamless-pattern-with-tropical-leaves" target="_blank" rel="noopener noreferrer">Theme Grün/Wald by NadiaGrapes – www.vecteezy.com</a>

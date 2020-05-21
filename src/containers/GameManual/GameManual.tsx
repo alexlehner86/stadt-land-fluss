@@ -1,4 +1,4 @@
-import './GameManual.css';
+import styles from './GameManual.module.css';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import BrushIcon from '@material-ui/icons/Brush';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
@@ -15,7 +15,7 @@ class GameManual extends Component<RouteComponentProps> {
     public render() {
         return (
             <div className="main-content-wrapper">
-                <div className="dashboard-container material-card-style slf-game-manual">
+                <div className={'material-card-style ' + styles.slf_game_manual}>
                     <SectionHeader showDivider={true} text="Spielanleitung"></SectionHeader>
                     <p>
                         Willkommen bei <span>Stadt-Land-Fluss (MALEX-Edition)</span>, einer modernen Version des{' '}
@@ -30,7 +30,7 @@ class GameManual extends Component<RouteComponentProps> {
                     <p>
                         Auf der Startseite kann man über <span>Neues Spiel</span> ein neues Spiel erstellen bzw. über <span>Spiel
                         beitreten</span> einem bereits erstellten Spiel beitreten. Die Website bietet fünf verschiedene Themes zur
-                        Auswahl. Das aktuelle Theme kann über den <BrushIcon fontSize="small" className="inline-material-icon" />-Button
+                        Auswahl. Das aktuelle Theme kann über den <BrushIcon fontSize="small" className={styles.inline_icon} />-Button
                         rechts im Header geändert werden. Die Theme-Auswahl des Nutzers sowie der zuletzt gewählte Spielername wird im{' '}
                         <a
                             href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage"
@@ -45,7 +45,7 @@ class GameManual extends Component<RouteComponentProps> {
                         Runden festlegen und mindestens drei Kategorien auswählen. Es stehen 40 Kategorien zur Auswahl, darunter
                         Klassiker wie <span>Stadt</span>, <span>Land</span> und <span>Fluss/Gewässer</span>, jedoch auch
                         neue Kategorien wie <span>Könnte ein Trump-Tweet sein</span>. Über
-                        den <AddCircleOutlineIcon fontSize="small" className="inline-material-icon" />-Button am Ende der Kategorien-Liste
+                        den <AddCircleOutlineIcon fontSize="small" className={styles.inline_icon} />-Button am Ende der Kategorien-Liste
                         lässt sich auch jede beliebige, weitere Kategorie hinzufügen und für das Spiel auswählen.
                     </p>
                     <p>
@@ -64,7 +64,7 @@ class GameManual extends Component<RouteComponentProps> {
                         für das erstellte Spiel sowie die bisher dem Spiel beigetretenen Mitspieler sichtbar sind. Zu Beginn ist nur der
                         Nutzer, der das Spiel erstellt hat, als Administrator in der Mitspieler-Liste sichtbar. Es müssen mindestens zwei
                         Spieler an einem Spiel teilnehmen, damit dieses starten kann. Unten auf der Seite wird dem Administrator ein Link
-                        zum Teilen mit Freunden angeboten. Ein Klick auf den <FileCopyIcon fontSize="small" className="inline-material-icon" />
+                        zum Teilen mit Freunden angeboten. Ein Klick auf den <FileCopyIcon fontSize="small" className={styles.inline_icon} />
                         -Button rechts vom Link kopiert diesen in die Zwischenablage. Über diesen Link gelangen andere Mitspieler direkt
                         zur <span>Spiel beitreten</span>-Seite, wo das Feld Spiel-ID bereits vorausgefüllt wird.
                     </p>
@@ -92,12 +92,12 @@ class GameManual extends Component<RouteComponentProps> {
                             Nachdem die Runde beendet ist, wird jedem Spieler eine Übersicht aller Begriffe aller Spieler pro
                             Kategorie angezeigt. Grundsätzlich zählt ein gültiger Begriff 10 Punkte, außer die gewählten Regeln besagen
                             etwas anderes. Falls ein Spieler in ein Feld nichts eingetragen hat, wird dieses automatisch als 0 Punkte
-                            gewertet. Über den <ThumbDownRoundedIcon fontSize="small" className="inline-material-icon" />-Button
+                            gewertet. Über den <ThumbDownRoundedIcon fontSize="small" className={styles.inline_icon} />-Button
                             können die Spieler konkrete Antworten ablehnen. Abhängig von der Spieleranzahl führt dies dazu, dass
                             der jeweilige Spieler keine Punkte für die Antwort erhält. Bei zwei bis drei Spielern reicht die Ablehnung
                             durch einen Mitspieler aus. Bei mehr als drei Spielern müssen mindesten zwei Spieler eine Antwort ablehnen.
                             Die Ablehnung einer Antwort kann durch erneutes Klicken auf den Button wieder zurückgezogen werden.
-                            Mit dem <StarIcon fontSize="small" className="inline-material-icon" />-Button können Begriffe von Mitspielern
+                            Mit dem <StarIcon fontSize="small" className={styles.inline_icon} />-Button können Begriffe von Mitspielern
                             als besonders kreativ oder lustig ausgezeichnet werden.
                         </li>
                         <li>
@@ -110,7 +110,7 @@ class GameManual extends Component<RouteComponentProps> {
                         Hinweis: Falls ein Mitspieler aus irgendeinem Grund (Browserabsturz, Akku leer etc.) aus dem Spiel fliegt, kann
                         sie oder er über den <span>Zurück ins laufende Spiel-Button</span> wieder ins Spiel zurückkehren. Dieser findet
                         sich auf der Startseite. Darüber hinaus hat der Administrator in einem laufenden Spiel die Möglichkeit, über
-                        den <SettingsIcon fontSize="small" className="inline-material-icon" />-Button (rechts oben, unterhalb des Headers)
+                        den <SettingsIcon fontSize="small" className={styles.inline_icon} />-Button (rechts oben, unterhalb des Headers)
                         andere Spieler aus dem Spiel zu werfen. Natürlich nur in Notfällen ;)
                     </p>
                     <h3>Spielende</h3>
