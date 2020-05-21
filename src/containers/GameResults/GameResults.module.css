@@ -1,9 +1,9 @@
-.slf-game-results-button-wrapper {
+.button_wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-.slf-game-results-button-wrapper button {
+.button_wrapper button {
     margin-top: 1rem;
 }

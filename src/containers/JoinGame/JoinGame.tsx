@@ -1,4 +1,3 @@
-import './JoinGame.css';
 import { Button, TextField } from '@material-ui/core';
 import DirectionsWalkIcon from '@material-ui/icons/DirectionsWalk';
 import React, { ChangeEvent, Component, Dispatch, FormEvent } from 'react';

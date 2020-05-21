@@ -1,4 +1,3 @@
-import './NewGame.css';
 import {
     Button,
     Checkbox,
@@ -47,6 +46,7 @@ import {
     setPlayerInfoInLocalStorage,
     setRunningGameInfoInLocalStorage,
 } from '../../utils/local-storage.utils';
+import styles from './NewGame.module.css';
 
 enum CategoryArray {
     available = 'available',
@@ -124,7 +124,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     required
                     inputProps={{ 'min': MIN_NUMBER_OF_ROUNDS, 'max': MAX_NUMBER_OF_ROUNDS }}
                 />
-                <ExpansionPanel className="more-options-expansion-panel">
+                <ExpansionPanel className="new-game-expansion-panel">
                     <ExpansionPanelSummary
                         expandIcon={<ExpandMoreIcon />}
                         aria-controls="panel1a-content"
@@ -169,7 +169,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                             />
                         </FormGroup>
                         <Divider />
-                        <p className="category-array-label">Folgende Buchstaben ausschließen:</p>
+                        <p className={styles.options_label}>Folgende Buchstaben ausschließen:</p>
                         <FormGroup row className="letters-to-exclude">
                             {STANDARD_ALPHABET.map((letter, letterIndex) => (
                                 <FormControlLabel
@@ -187,13 +187,13 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                         </FormGroup>
                     </ExpansionPanelDetails>
                 </ExpansionPanel>
-                <p className="category-array-label">Ausgewählte Kategorien (mind. {MIN_NUMBER_OF_CATEGORIES}):</p>
+                <p className={styles.options_label}>Ausgewählte Kategorien (mind. {MIN_NUMBER_OF_CATEGORIES}):</p>
                 <ChipsArray
                     chipsArray={this.state.selectedCategories}
                     chipType={ChipType.selected}
                     removeChip={(chipToRemove) => this.updateCategoryArrays(chipToRemove, CategoryArray.selected)}
                 />
-                <p className="category-array-label">Verfügbare Kategorien:</p>
+                <p className={styles.options_label}>Verfügbare Kategorien:</p>
                 <ChipsArray
                     chipsArray={this.state.availableCategories}
                     chipType={ChipType.available}

@@ -1,4 +1,3 @@
-import styles from './GameManual.module.css';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import BrushIcon from '@material-ui/icons/Brush';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
@@ -10,6 +9,7 @@ import { RouteComponentProps } from 'react-router';
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
 import ToDashboardButton from '../../components/ToDashboardButton/ToDashboardButton';
 import { GAME_OPTION_LABEL } from '../../constants/game.constant';
+import styles from './GameManual.module.css';
 
 class GameManual extends Component<RouteComponentProps> {
     public render() {

@@ -1,4 +1,3 @@
-import styles from './Dashboard.module.css';
 import Link from '@material-ui/core/Link';
 import DirectionsRunIcon from '@material-ui/icons/DirectionsRun';
 import React, { Component } from 'react';
@@ -7,6 +6,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
 import { AppTheme } from '../../constants/themes.constant';
 import { AppState } from '../../store/app.reducer';
+import styles from './Dashboard.module.css';
 
 interface DashboardPropsFromStore {
     activeTheme: AppTheme

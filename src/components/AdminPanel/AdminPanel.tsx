@@ -10,31 +10,29 @@ import {
     Menu,
     MenuItem,
 } from '@material-ui/core';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import CancelIcon from '@material-ui/icons/Cancel';
 import SettingsIcon from '@material-ui/icons/Settings';
 import React, { useState } from 'react';
 import { PlayerInfo } from '../../models/player.interface';
 import { getPlayersInAlphabeticalOrder } from '../../utils/game.utils';
 
-const useStyles = makeStyles(_ =>
-    createStyles({
-        adminPanel: {
-            position: 'absolute',
-            top: '1rem',
-            right: '1rem'
-        },
-        menuButton: {
-            background: 'radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,0.5) 35%, rgba(255,255,255,0) 60%);'
-        },
-        dialogContent: {
-            maxWidth: '23rem'
-        },
-        dialogContentText: {
-            color: 'black'
-        }
-    }),
-);
+const useStyles = makeStyles({
+    adminPanel: {
+        position: 'absolute',
+        top: '1rem',
+        right: '1rem'
+    },
+    menuButton: {
+        background: 'radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,0.5) 35%, rgba(255,255,255,0) 60%);'
+    },
+    dialogContent: {
+        maxWidth: '23rem'
+    },
+    dialogContentText: {
+        color: 'black'
+    }
+});
 
 export interface KickUserDialogProps {
     open: boolean;

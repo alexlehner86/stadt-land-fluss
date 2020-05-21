@@ -15,6 +15,7 @@
     color: black;
     border-radius: 5px;
     text-align: center;
+    opacity: 0.9;
 }
 
 .rejoin_game_link {

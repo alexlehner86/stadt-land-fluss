@@ -1,4 +1,3 @@
-import './GameResults.css';
 import { Divider } from '@material-ui/core';
 import React, { Component, Dispatch } from 'react';
 import { connect } from 'react-redux';
@@ -13,7 +12,8 @@ import { GameConfig, GameResultForPlayer, HallOfFameEntry } from '../../models/g
 import { PlayerInfo } from '../../models/player.interface';
 import { AppAction, resetAppState } from '../../store/app.actions';
 import { AppState } from '../../store/app.reducer';
-import { calculateGameResults, getPlayersInAlphabeticalOrder, createHallOfFameData } from '../../utils/game.utils';
+import { calculateGameResults, createHallOfFameData, getPlayersInAlphabeticalOrder } from '../../utils/game.utils';
+import styles from './GameResults.module.css';
 
 interface GameResultsDispatchProps {
     onResetAppState: () => void;
@@ -41,7 +41,7 @@ class GameResults extends Component<GameResultsProps, GameResultsState> {
                     <SectionHeader showDivider={true} text="Ergebnis"></SectionHeader>
                     <GameResultsList gameResults={this.state.gameResults} />
                     <Divider />
-                    <div className="slf-game-results-button-wrapper">
+                    <div className={styles.button_wrapper}>
                         <GameRoundsOverviewButton
                             gameConfig={gameConfig}
                             rounds={this.props.gameRounds}

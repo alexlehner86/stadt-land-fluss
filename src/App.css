@@ -10,41 +10,38 @@
     position: relative;
     flex: 1 1 0rem;
 }
-.app-main .dashboard-container .link-container a {
-    opacity: 0.9;
-}
 .app-main.green-theme {
     background-size: 15% !important;
 }
-.app-main.green-theme .dashboard-container .link-container a {
+.app-main.green-theme .MuiLink-root.MuiLink-underlineHover {
     background-color: darkgreen;
     color: white;
 }
 .app-main.blue-theme {
     background-size: 35% !important;
 }
-.app-main.blue-theme .dashboard-container .link-container a {
+.app-main.blue-theme .MuiLink-root.MuiLink-underlineHover {
     background-color: lightseagreen;
     color: black;
 }
 .app-main.orange-theme {
     background-size: 20% !important;
 }
-.app-main.orange-theme .dashboard-container .link-container a {
+.app-main.orange-theme .MuiLink-root.MuiLink-underlineHover {
     background-color: orange;
     color: black;
 }
 .app-main.pink-theme {
     background-size: 50% !important;
 }
-.app-main.pink-theme .dashboard-container .link-container a {
+.app-main.pink-theme .MuiLink-root.MuiLink-underlineHover {
     background-color: purple;
     color: white;
 }
 .app-main.black-theme {
     background-size: 30% !important;
 }
-.app-main.black-theme .dashboard-container .link-container a {
+.app-main.black-theme .MuiLink-root.MuiLink-underlineHover {
     background-color: black;
     color: white;
 }
@@ -66,19 +63,30 @@
     margin-bottom: 1rem;
 }
 
-.app-form {
-    margin-top: 1.5rem;
-}
-.app-form-input.MuiFormControl-root {
-    margin-bottom: 1rem;
-}
-
 .button-wrapper {
     display: flex;
     justify-content: center;
 }
 .button-wrapper.add-margin-top {
     margin-top: 1rem;
+}
+
+.bold-text {
+    font-weight: bold;
+}
+
+li:not(.MuiListItem-root) {
+    margin-bottom: 0.5rem;
+}
+
+/**************************************/
+/******* Material UI overrides *******/
+/************************************/
+.app-form {
+    margin-top: 1.5rem;
+}
+.app-form-input.MuiFormControl-root {
+    margin-bottom: 1rem;
 }
 
 .fixed-bottom-right-button.MuiIconButton-root {
@@ -95,10 +103,6 @@
     width: 2em;
 }
 
-.bold-text {
-    font-weight: bold;
-}
-
 .MuiSvgIcon-root.MuiChip-avatar.chip-icon-no-bg {
     background-color: rgba(0, 0, 0, 0) !important;
 }
@@ -108,9 +112,35 @@
     color: black;
 }
 
-li:not(.MuiListItem-root) {
+.new-game-expansion-panel.MuiExpansionPanel-root,
+.new-game-expansion-panel.MuiExpansionPanel-root.Mui-expanded {
+    margin: 1rem 0;
+    box-shadow: none;
+    border: 1px solid rgba(0, 0, 0, 0.23);
+    border-radius: 4px;
+}
+.new-game-expansion-panel.MuiExpansionPanel-root .MuiExpansionPanelSummary-content {
+    margin: 0.5rem 0;
+}
+.new-game-expansion-panel.MuiExpansionPanel-root .MuiExpansionPanelSummary-root {
+    min-height: auto;
+}
+.new-game-expansion-panel.MuiExpansionPanel-root .MuiExpansionPanelDetails-root {
+    flex-direction: column;
+}
+.new-game-expansion-panel.MuiExpansionPanel-root .MuiFormGroup-root label span {
+    font-size: 0.9rem;
+}
+.new-game-expansion-panel.MuiExpansionPanel-root .MuiFormGroup-root.game-options-list label {
     margin-bottom: 0.5rem;
 }
+.new-game-expansion-panel.MuiExpansionPanel-root .MuiFormGroup-root.game-options-list label:last-of-type {
+    margin-bottom: 1rem;
+}
+.new-game-expansion-panel.MuiExpansionPanel-root .MuiFormGroup-root.letters-to-exclude label span.MuiTypography-root {
+    min-width: 1rem;
+}
+/**************************************/
 
 @media only screen and (max-width: 800px) {
     .app-main.green-theme {
