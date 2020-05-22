@@ -1,17 +1,5 @@
-import {
-    Button,
-    Checkbox,
-    Divider,
-    ExpansionPanel,
-    ExpansionPanelDetails,
-    ExpansionPanelSummary,
-    FormControlLabel,
-    FormGroup,
-    Snackbar,
-    TextField,
-} from '@material-ui/core';
+import { Button, Snackbar, TextField } from '@material-ui/core';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { xor } from 'lodash';
 import React, { ChangeEvent, Component, Dispatch, FormEvent } from 'react';
 import { connect } from 'react-redux';
@@ -19,6 +7,7 @@ import { RouteComponentProps } from 'react-router';
 import { v4 as uuidv4 } from 'uuid';
 import AddCustomCategory from '../../components/AddCustomCategory/AddCustomCategory';
 import ChipsArray, { ChipType } from '../../components/ChipsArray/ChipsArray';
+import NewGameOptionsPanel from '../../components/NewGameOptionsPanel/NewGameOptionsPanel';
 import {
     RejoinRunningGameHint,
     RejoinRunningGameHintContext,
@@ -27,14 +16,16 @@ import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
 import ToDashboardButton from '../../components/ToDashboardButton/ToDashboardButton';
 import {
     AVAILABLE_CATEGORIES,
+    DEFAULT_DURATION_OF_COUNTDOWN,
     DEFAULT_NUMBER_OF_ROUNDS,
-    GAME_OPTION_LABEL,
+    GameOptionCheckboxName,
     MAX_NUMBER_OF_ROUNDS,
     MIN_NUMBER_OF_CATEGORIES,
     MIN_NUMBER_OF_ROUNDS,
     STANDARD_ALPHABET,
     STANDARD_CATEGORIES,
     STANDARD_EXCLUDED_LETTERS,
+    UseCountdownRadioButton,
 } from '../../constants/game.constant';
 import { PlayerInfo } from '../../models/player.interface';
 import { AppAction, setDataForNewGame, SetDataForNewGamePayload } from '../../store/app.actions';
@@ -52,11 +43,6 @@ enum CategoryArray {
     available = 'available',
     selected = 'selected'
 }
-enum CheckboxName {
-    checkForDuplicates = 'checkForDuplicates',
-    creativeAnswersExtraPoints = 'creativeAnswersExtraPoints',
-    onlyPlayerWithValidAnswer = 'onlyPlayerWithValidAnswer'
-}
 
 interface NewGamePropsFromStore {
     gameId: string | null;
@@ -69,15 +55,17 @@ interface NewGameDispatchProps {
 interface NewGameProps extends NewGamePropsFromStore, NewGameDispatchProps, RouteComponentProps { }
 interface NewGameState {
     availableCategories: string[];
-    [CheckboxName.checkForDuplicates]: boolean;
-    [CheckboxName.creativeAnswersExtraPoints]: boolean;
+    [GameOptionCheckboxName.checkForDuplicates]: boolean;
+    [GameOptionCheckboxName.creativeAnswersExtraPoints]: boolean;
+    durationOfCountdown: number;
     isSnackbarOpen: boolean;
     lettersToExclude: string[];
     nameInput: string;
     numberOfRoundsInput: number;
-    [CheckboxName.onlyPlayerWithValidAnswer]: boolean;
+    [GameOptionCheckboxName.onlyPlayerWithValidAnswer]: boolean;
     selectedCategories: string[];
     snackBarMessage: string;
+    useCountdown: boolean;
     validateInputs: boolean;
 }
 
@@ -86,6 +74,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
         availableCategories: AVAILABLE_CATEGORIES,
         checkForDuplicates: true,
         creativeAnswersExtraPoints: false,
+        durationOfCountdown: DEFAULT_DURATION_OF_COUNTDOWN,
         isSnackbarOpen: false,
         lettersToExclude: [...STANDARD_EXCLUDED_LETTERS],
         nameInput: this.props.playerInfo ? this.props.playerInfo.name : '',
@@ -93,6 +82,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
         onlyPlayerWithValidAnswer: true,
         selectedCategories: STANDARD_CATEGORIES,
         snackBarMessage: '',
+        useCountdown: false,
         validateInputs: false
     };
 
@@ -124,69 +114,17 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     required
                     inputProps={{ 'min': MIN_NUMBER_OF_ROUNDS, 'max': MAX_NUMBER_OF_ROUNDS }}
                 />
-                <ExpansionPanel className="new-game-expansion-panel">
-                    <ExpansionPanelSummary
-                        expandIcon={<ExpandMoreIcon />}
-                        aria-controls="panel1a-content"
-                        id="panel1a-header"
-                    >
-                        Weitere Optionen
-                    </ExpansionPanelSummary>
-                    <ExpansionPanelDetails>
-                        <FormGroup className="game-options-list">
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={this.state.checkForDuplicates}
-                                        name={CheckboxName.checkForDuplicates}
-                                        color="primary"
-                                        onChange={this.handleGameOptionChange}
-                                    />
-                                }
-                                label={GAME_OPTION_LABEL.checkForDuplicates}
-                            />
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={this.state.onlyPlayerWithValidAnswer}
-                                        name={CheckboxName.onlyPlayerWithValidAnswer}
-                                        color="primary"
-                                        onChange={this.handleGameOptionChange}
-                                    />
-                                }
-                                label={GAME_OPTION_LABEL.onlyPlayerWithValidAnswer}
-                            />
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={this.state.creativeAnswersExtraPoints}
-                                        name={CheckboxName.creativeAnswersExtraPoints}
-                                        color="primary"
-                                        onChange={this.handleGameOptionChange}
-                                    />
-                                }
-                                label={GAME_OPTION_LABEL.creativeAnswersExtraPoints}
-                            />
-                        </FormGroup>
-                        <Divider />
-                        <p className={styles.options_label}>Folgende Buchstaben ausschließen:</p>
-                        <FormGroup row className="letters-to-exclude">
-                            {STANDARD_ALPHABET.map((letter, letterIndex) => (
-                                <FormControlLabel
-                                    key={`slf-letters-to-exclude-${letterIndex}`}
-                                    control={
-                                        <Checkbox
-                                            checked={this.state.lettersToExclude.includes(letter)}
-                                            color="primary"
-                                            onChange={(event) => this.handleLetterToExcludeChange(event, letter)}
-                                        />
-                                    }
-                                    label={letter}
-                                />
-                            ))}
-                        </FormGroup>
-                    </ExpansionPanelDetails>
-                </ExpansionPanel>
+                <NewGameOptionsPanel
+                    checkForDuplicates={this.state.checkForDuplicates}
+                    creativeAnswersExtraPoints={this.state.creativeAnswersExtraPoints}
+                    durationOfCountdown={this.state.durationOfCountdown}
+                    lettersToExclude={this.state.lettersToExclude}
+                    onlyPlayerWithValidAnswer={this.state.onlyPlayerWithValidAnswer}
+                    useCountdown={this.state.useCountdown}
+                    handleGameOptionChange={this.handleGameOptionChange}
+                    handleLetterToExcludeChange={this.handleLetterToExcludeChange}
+                    handleUseCountdownChange={this.handleUseCountdownChange}
+                />
                 <p className={styles.options_label}>Ausgewählte Kategorien (mind. {MIN_NUMBER_OF_CATEGORIES}):</p>
                 <ChipsArray
                     chipsArray={this.state.selectedCategories}
@@ -258,6 +196,10 @@ class NewGame extends Component<NewGameProps, NewGameState> {
         this.setState({ lettersToExclude: newLettersToExclude });
     }
 
+    private handleUseCountdownChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        this.setState({ useCountdown: (event.target as HTMLInputElement).value === UseCountdownRadioButton.countdown });
+    };
+
     private updateCategoryArrays = (chipToRemove: string, removeFromArray: CategoryArray) => {
         let newSelectedCategories: string[];
         let newAvailableCategories: string[];
@@ -301,13 +243,13 @@ class NewGame extends Component<NewGameProps, NewGameState> {
         return !!this.state.nameInput.trim();
     }
 
-    private showSnackBar = (message: string) =>  this.setState({ isSnackbarOpen: true, snackBarMessage: message});
-    private handleSnackBarClose = () =>  this.setState({ isSnackbarOpen: false });
+    private showSnackBar = (message: string) => this.setState({ isSnackbarOpen: true, snackBarMessage: message });
+    private handleSnackBarClose = () => this.setState({ isSnackbarOpen: false });
 
     private startNewGame = () => {
         const playerInfo = this.props.playerInfo as PlayerInfo;
         const idCreationTimestamp = this.props.playerIdCreationTimestamp
-        const { nameInput, numberOfRoundsInput, selectedCategories } = this.state;
+        const { nameInput, numberOfRoundsInput, selectedCategories, useCountdown } = this.state;
         const gameId = uuidv4(); // ⇨ e.g. '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d'
         removeAllDataOfRunningGameFromLocalStorage();
         setPlayerInfoInLocalStorage({ id: playerInfo.id, idCreationTimestamp, name: nameInput.trim() });
@@ -321,7 +263,8 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     checkForDuplicates: this.state.checkForDuplicates,
                     creativeAnswersExtraPoints: this.state.creativeAnswersExtraPoints,
                     onlyPlayerWithValidAnswer: this.state.onlyPlayerWithValidAnswer
-                }
+                },
+                useCountdown
             },
             gameId,
             isRejoiningGame: false,

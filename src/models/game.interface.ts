@@ -9,6 +9,12 @@ export interface GameConfig {
     letters: string[];
     numberOfRounds: number;
     scoringOptions: GameConfigScoringOptions;
+    /**
+     * Whether to use a countdown that determines how much time each player has
+     * to fill out the text fields in one round of the game. If useCountdown is
+     * set to false, then the first player to click "Finish round" ends the round.
+     */
+    useCountdown: boolean;
 }
 
 export interface StoredRunningGameInfo {
