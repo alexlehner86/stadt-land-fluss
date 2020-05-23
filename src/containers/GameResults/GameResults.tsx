@@ -8,7 +8,7 @@ import HallOfFameButton from '../../components/HallOfFameButton/HallOfFameButton
 import ScoringOptionsList from '../../components/ScoringOptionsList/ScoringOptionsList';
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
 import ToDashboardButton from '../../components/ToDashboardButton/ToDashboardButton';
-import { GameConfig, GameResultForPlayer, HallOfFameEntry } from '../../models/game.interface';
+import { GameConfig, GameResultForPlayer, HallOfFameEntry, GameRound } from '../../models/game.interface';
 import { PlayerInfo } from '../../models/player.interface';
 import { AppAction, resetAppState } from '../../store/app.actions';
 import { AppState } from '../../store/app.reducer';
@@ -20,65 +20,67 @@ interface GameResultsDispatchProps {
 }
 interface GameResultsProps extends AppState, GameResultsDispatchProps, RouterProps { }
 interface GameResultsState {
+    gameConfig: GameConfig | null;
     gameResults: GameResultForPlayer[];
+    gameRounds: GameRound[];
     hallOfFameData: HallOfFameEntry[];
     sortedPlayers: PlayerInfo[];
 }
 
 class GameResults extends Component<GameResultsProps, GameResultsState> {
     public state: GameResultsState = {
+        gameConfig: null,
         gameResults: [],
+        gameRounds: [],
         hallOfFameData: [],
         sortedPlayers: []
     };
 
     public render() {
-        if (this.props.gameRounds === null) { return null; }
-        const gameConfig = this.props.gameConfig as GameConfig;
+        const { gameConfig, gameResults, gameRounds, hallOfFameData, sortedPlayers } = this.state;
+        if (gameConfig === null) { return null; }
         return (
             <div className="main-content-wrapper">
                 <div className="material-card-style">
                     <SectionHeader showDivider={true} text="Ergebnis"></SectionHeader>
-                    <GameResultsList gameResults={this.state.gameResults} />
+                    <GameResultsList gameResults={gameResults} />
                     <Divider />
                     <div className={styles.button_wrapper}>
                         <GameRoundsOverviewButton
                             gameConfig={gameConfig}
-                            rounds={this.props.gameRounds}
-                            sortedPlayers={this.state.sortedPlayers}
+                            rounds={gameRounds}
+                            sortedPlayers={sortedPlayers}
                         />
-                        <HallOfFameButton hallOfFameData={this.state.hallOfFameData} />
+                        <HallOfFameButton hallOfFameData={hallOfFameData} />
                     </div>
                 </div>
                 <div className="material-card-style">
-                    <SectionHeader showDivider={true} text="Spiele-Settings"></SectionHeader>
+                    <SectionHeader showDivider={true} text="Spieleinstellungen"></SectionHeader>
                     <p><span className="bold-text">Runden:</span> {gameConfig.numberOfRounds}</p>
                     <p><span className="bold-text">Buchstaben:</span> {gameConfig.letters.join(', ')}</p>
                     <p><span className="bold-text">Kategorien:</span> {gameConfig.categories.join(', ')}</p>
                     <ScoringOptionsList rules={gameConfig.scoringOptions} />
                 </div>
-                <ToDashboardButton onReturnToDashboard={this.returnToDashboard} />
+                <ToDashboardButton onReturnToDashboard={() => this.props.history.push('/')} />
             </div>
         );
     }
 
     public componentDidMount() {
         const { allPlayers, gameConfig, gameRounds} = this.props;
-        // If there are no allPlayers or gameRounds present in application state, then reroute user to dashboard.
-        if (allPlayers === null || gameRounds === null) {
+        // If there is no data present in application state, then reroute user to dashboard.
+        if (allPlayers === null || gameConfig === null || gameRounds === null) {
             this.props.history.push('/');
-            return;
+        } else {
+            this.setState({
+                gameConfig,
+                gameResults: calculateGameResults(allPlayers, gameRounds),
+                gameRounds,
+                hallOfFameData: createHallOfFameData(allPlayers, gameConfig, gameRounds),
+                sortedPlayers: getPlayersInAlphabeticalOrder(allPlayers)
+            });
+            this.props.onResetAppState();
         }
-        this.setState({
-            gameResults: calculateGameResults(allPlayers, gameRounds),
-            hallOfFameData: createHallOfFameData(allPlayers, gameConfig as GameConfig, gameRounds),
-            sortedPlayers: getPlayersInAlphabeticalOrder(allPlayers)
-        });
-    }
-
-    private returnToDashboard = () => {
-        this.props.history.push('/');
-        this.props.onResetAppState();
     }
 }
 

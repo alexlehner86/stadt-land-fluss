@@ -18,7 +18,6 @@ import {
     AVAILABLE_CATEGORIES,
     DEFAULT_DURATION_OF_COUNTDOWN,
     DEFAULT_NUMBER_OF_ROUNDS,
-    GameOptionCheckboxName,
     MAX_NUMBER_OF_ROUNDS,
     MIN_NUMBER_OF_CATEGORIES,
     MIN_NUMBER_OF_ROUNDS,
@@ -27,6 +26,7 @@ import {
     STANDARD_EXCLUDED_LETTERS,
     UseCountdownRadioButton,
 } from '../../constants/game.constant';
+import { GameConfigScoringOptions } from '../../models/game.interface';
 import { PlayerInfo } from '../../models/player.interface';
 import { AppAction, setDataForNewGame, SetDataForNewGamePayload } from '../../store/app.actions';
 import { AppState } from '../../store/app.reducer';
@@ -55,14 +55,12 @@ interface NewGameDispatchProps {
 interface NewGameProps extends NewGamePropsFromStore, NewGameDispatchProps, RouteComponentProps { }
 interface NewGameState {
     availableCategories: string[];
-    [GameOptionCheckboxName.checkForDuplicates]: boolean;
-    [GameOptionCheckboxName.creativeAnswersExtraPoints]: boolean;
     durationOfCountdown: number;
     isSnackbarOpen: boolean;
     lettersToExclude: string[];
     nameInput: string;
     numberOfRoundsInput: number;
-    [GameOptionCheckboxName.onlyPlayerWithValidAnswer]: boolean;
+    scoringOptions: GameConfigScoringOptions;
     selectedCategories: string[];
     snackBarMessage: string;
     useCountdown: boolean;
@@ -72,15 +70,17 @@ interface NewGameState {
 class NewGame extends Component<NewGameProps, NewGameState> {
     public state: NewGameState = {
         availableCategories: AVAILABLE_CATEGORIES,
-        checkForDuplicates: true,
-        creativeAnswersExtraPoints: false,
         durationOfCountdown: DEFAULT_DURATION_OF_COUNTDOWN,
         isSnackbarOpen: false,
         lettersToExclude: [...STANDARD_EXCLUDED_LETTERS],
         nameInput: this.props.playerInfo ? this.props.playerInfo.name : '',
         numberOfRoundsInput: DEFAULT_NUMBER_OF_ROUNDS,
-        onlyPlayerWithValidAnswer: true,
         selectedCategories: STANDARD_CATEGORIES,
+        scoringOptions: {
+            checkForDuplicates: true,
+            creativeAnswersExtraPoints: false,
+            onlyPlayerWithValidAnswer: true,
+        },
         snackBarMessage: '',
         useCountdown: false,
         validateInputs: false
@@ -94,7 +94,6 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     name="nameInput"
                     label="Spielername (max. 20 Zeichen)"
                     value={this.state.nameInput}
-                    onChange={this.handleNameInputChange}
                     className="app-form-input"
                     variant="outlined"
                     fullWidth
@@ -102,25 +101,25 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     autoFocus
                     error={this.state.validateInputs && !this.state.nameInput}
                     inputProps={{ 'maxLength': '20' }}
+                    onChange={this.handleNameInputChange}
                 />
                 <TextField
                     name="numberOfRoundsInput"
                     label={numberOfRoundsInputLabel}
                     type="number"
                     value={this.state.numberOfRoundsInput}
-                    onChange={this.handleNumberOfRoundsInputChange}
                     variant="outlined"
                     fullWidth
                     required
                     inputProps={{ 'min': MIN_NUMBER_OF_ROUNDS, 'max': MAX_NUMBER_OF_ROUNDS }}
+                    onChange={this.handleNumberOfRoundsInputChange}
                 />
                 <NewGameOptionsPanel
-                    checkForDuplicates={this.state.checkForDuplicates}
-                    creativeAnswersExtraPoints={this.state.creativeAnswersExtraPoints}
                     durationOfCountdown={this.state.durationOfCountdown}
                     lettersToExclude={this.state.lettersToExclude}
-                    onlyPlayerWithValidAnswer={this.state.onlyPlayerWithValidAnswer}
+                    scoringOptions={this.state.scoringOptions}
                     useCountdown={this.state.useCountdown}
+                    handleCountdownInputChange={this.handleCountdownInputChange}
                     handleGameOptionChange={this.handleGameOptionChange}
                     handleLetterToExcludeChange={this.handleLetterToExcludeChange}
                     handleUseCountdownChange={this.handleUseCountdownChange}
@@ -162,8 +161,8 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                     open={this.state.isSnackbarOpen}
                     autoHideDuration={3000}
-                    onClose={this.handleSnackBarClose}
                     message={this.state.snackBarMessage}
+                    onClose={this.handleSnackBarClose}
                 />
             </div>
         );
@@ -186,17 +185,26 @@ class NewGame extends Component<NewGameProps, NewGameState> {
         }
     }
 
-    private handleGameOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        this.setState({ ...this.state, [event.target.name]: event.target.checked });
+    private handleGameOptionChange = (event: ChangeEvent<HTMLInputElement>) => {
+        this.setState({
+            scoringOptions: {
+                ...this.state.scoringOptions,
+                [event.target.name]: event.target.checked
+            }
+        });
     }
 
-    private handleLetterToExcludeChange = (event: React.ChangeEvent<HTMLInputElement>, letter: string) => {
+    private handleCountdownInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+        this.setState({ durationOfCountdown: +event.target.value });
+    }
+
+    private handleLetterToExcludeChange = (event: ChangeEvent<HTMLInputElement>, letter: string) => {
         const { lettersToExclude } = this.state;
         const newLettersToExclude = event.target.checked ? [...lettersToExclude, letter] : lettersToExclude.filter(l => l !== letter);
         this.setState({ lettersToExclude: newLettersToExclude });
     }
 
-    private handleUseCountdownChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    private handleUseCountdownChange = (event: ChangeEvent<HTMLInputElement>) => {
         this.setState({ useCountdown: (event.target as HTMLInputElement).value === UseCountdownRadioButton.countdown });
     };
 
@@ -249,7 +257,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
     private startNewGame = () => {
         const playerInfo = this.props.playerInfo as PlayerInfo;
         const idCreationTimestamp = this.props.playerIdCreationTimestamp
-        const { nameInput, numberOfRoundsInput, selectedCategories, useCountdown } = this.state;
+        const { durationOfCountdown, nameInput, numberOfRoundsInput, scoringOptions, selectedCategories, useCountdown } = this.state;
         const gameId = uuidv4(); // ⇨ e.g. '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d'
         removeAllDataOfRunningGameFromLocalStorage();
         setPlayerInfoInLocalStorage({ id: playerInfo.id, idCreationTimestamp, name: nameInput.trim() });
@@ -257,13 +265,10 @@ class NewGame extends Component<NewGameProps, NewGameState> {
         this.props.onSetGameData({
             gameConfig: {
                 categories: selectedCategories,
+                durationOfCountdown,
                 letters: getRandomnLetters(numberOfRoundsInput, xor(STANDARD_ALPHABET, this.state.lettersToExclude)),
                 numberOfRounds: numberOfRoundsInput,
-                scoringOptions: {
-                    checkForDuplicates: this.state.checkForDuplicates,
-                    creativeAnswersExtraPoints: this.state.creativeAnswersExtraPoints,
-                    onlyPlayerWithValidAnswer: this.state.onlyPlayerWithValidAnswer
-                },
+                scoringOptions,
                 useCountdown
             },
             gameId,

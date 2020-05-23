@@ -28,10 +28,10 @@ class GameManual extends Component<RouteComponentProps> {
                     </p>
                     <h3>Allgemeines</h3>
                     <p>
-                        Auf der Startseite kann man über <span>Neues Spiel</span> ein neues Spiel erstellen bzw. über <span>Spiel
+                        Im Dashboard (Startseite) kann man über <span>Neues Spiel</span> ein neues Spiel erstellen bzw. über <span>Spiel
                         beitreten</span> einem bereits erstellten Spiel beitreten. Die Website bietet fünf verschiedene Themes zur
                         Auswahl. Das aktuelle Theme kann über den <BrushIcon fontSize="small" className={styles.inline_icon} />-Button
-                        rechts im Header geändert werden. Die Theme-Auswahl des Nutzers sowie der zuletzt gewählte Spielername wird im{' '}
+                        (rechts oben im zentralen Bild) geändert werden. Die Theme-Auswahl sowie der zuletzt gewählte Spielername wird im{' '}
                         <a
                             href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage"
                             target="_blank"
@@ -50,8 +50,10 @@ class GameManual extends Component<RouteComponentProps> {
                     </p>
                     <p>
                         Im Bereich <span>Weitere Optionen</span> können optional weitere Einstellungen vorgenommen werden.
-                        Der Nutzer kann bestimmen, welche Buchstaben ausgeschlossen werden sollen. Standardmäßig sind hier
-                        Q, X und Y ausgewählt. Weiters stehen drei zusätzliche <span>Regeln für die Punktevergabe</span> zur
+                        Normalerweise wird eine Spielrunde von jenem Spieler beendet, der als erstes alle Kategorien beantwortet
+                        hat. Alternativ kann über die Option <span>Countdown</span> eine fixe Rundendauer gewählt werden.
+                        Der Nutzer kann auch bestimmen, welche Buchstaben ausgeschlossen werden sollen. Standardmäßig sind
+                        hier Q, X und Y ausgewählt. Weiters stehen drei zusätzliche <span>Regeln für die Punktevergabe</span> zur
                         Auswahl, von denen die ersten beiden vorausgewählt sind:
                     </p>
                     <ul>
@@ -60,7 +62,7 @@ class GameManual extends Component<RouteComponentProps> {
                         <li>{GAME_OPTION_LABEL.creativeAnswersExtraPoints}</li>
                     </ul>
                     <p>
-                        Nach einem Klick auf <span>Spiel erstellen</span> gelangt der Nutzer zur Spiel-Übersicht, wo alle Settings
+                        Nach einem Klick auf <span>Spiel erstellen</span> gelangt der Nutzer zur Spiel-Übersicht, wo alle Einstellungen
                         für das erstellte Spiel sowie die bisher dem Spiel beigetretenen Mitspieler sichtbar sind. Zu Beginn ist nur der
                         Nutzer, der das Spiel erstellt hat, als Administrator in der Mitspieler-Liste sichtbar. Es müssen mindestens zwei
                         Spieler an einem Spiel teilnehmen, damit dieses starten kann. Unten auf der Seite wird dem Administrator ein Link

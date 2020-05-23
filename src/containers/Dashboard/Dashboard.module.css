@@ -27,9 +27,21 @@
     margin-right: 0.5rem;
 }
 
-.slf_image {
+.image_wrapper {
+    position: relative;
     margin-left: -1rem;
-    width: calc(100% + 2rem);
+    margin-right: -1rem;
+}
+
+.theme_picker_button {
+    position: absolute !important;
+    top: 1rem;
+    right: 1rem;
+    border: 2px solid rgba(255,255,255,0.5) !important;
+}
+
+.slf_image {
+    width: 100%;
     object-fit: contain;
 }
 

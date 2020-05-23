@@ -8,30 +8,30 @@ import {
     FormControlLabel,
     FormGroup,
     FormLabel,
+    Input,
     Radio,
     RadioGroup,
-    Input,
 } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import React from 'react';
+import React, { ChangeEvent } from 'react';
 import {
     GAME_OPTION_LABEL,
-    GameOptionCheckboxName,
+    MIN_DURATION_OF_COUNTDOWN,
     STANDARD_ALPHABET,
     UseCountdownRadioButton,
 } from '../../constants/game.constant';
+import { GameConfigScoringOptions, GameOption } from '../../models/game.interface';
 import styles from './NewGameOptionsPanel.module.css';
 
 interface NewGameOptionsPanelProps {
-    [GameOptionCheckboxName.checkForDuplicates]: boolean;
-    [GameOptionCheckboxName.creativeAnswersExtraPoints]: boolean;
     durationOfCountdown: number;
     lettersToExclude: string[];
-    [GameOptionCheckboxName.onlyPlayerWithValidAnswer]: boolean;
+    scoringOptions: GameConfigScoringOptions;
     useCountdown: boolean;
-    handleGameOptionChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    handleLetterToExcludeChange: (event: React.ChangeEvent<HTMLInputElement>, letter: string) => void;
-    handleUseCountdownChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    handleCountdownInputChange: (event: ChangeEvent<HTMLInputElement>) => void;
+    handleGameOptionChange: (event: ChangeEvent<HTMLInputElement>) => void;
+    handleLetterToExcludeChange: (event: ChangeEvent<HTMLInputElement>, letter: string) => void;
+    handleUseCountdownChange: (event: ChangeEvent<HTMLInputElement>) => void;
 }
 
 const NewGameOptionsPanel: React.FunctionComponent<NewGameOptionsPanelProps> = props => {
@@ -49,8 +49,8 @@ const NewGameOptionsPanel: React.FunctionComponent<NewGameOptionsPanelProps> = p
                     <FormControlLabel
                         control={
                             <Checkbox
-                                checked={props.checkForDuplicates}
-                                name={GameOptionCheckboxName.checkForDuplicates}
+                                checked={props.scoringOptions.checkForDuplicates}
+                                name={GameOption.checkForDuplicates}
                                 color="primary"
                                 onChange={props.handleGameOptionChange}
                             />
@@ -60,8 +60,8 @@ const NewGameOptionsPanel: React.FunctionComponent<NewGameOptionsPanelProps> = p
                     <FormControlLabel
                         control={
                             <Checkbox
-                                checked={props.onlyPlayerWithValidAnswer}
-                                name={GameOptionCheckboxName.onlyPlayerWithValidAnswer}
+                                checked={props.scoringOptions.onlyPlayerWithValidAnswer}
+                                name={GameOption.onlyPlayerWithValidAnswer}
                                 color="primary"
                                 onChange={props.handleGameOptionChange}
                             />
@@ -71,8 +71,8 @@ const NewGameOptionsPanel: React.FunctionComponent<NewGameOptionsPanelProps> = p
                     <FormControlLabel
                         control={
                             <Checkbox
-                                checked={props.creativeAnswersExtraPoints}
-                                name={GameOptionCheckboxName.creativeAnswersExtraPoints}
+                                checked={props.scoringOptions.creativeAnswersExtraPoints}
+                                name={GameOption.creativeAnswersExtraPoints}
                                 color="primary"
                                 onChange={props.handleGameOptionChange}
                             />
@@ -108,7 +108,8 @@ const NewGameOptionsPanel: React.FunctionComponent<NewGameOptionsPanelProps> = p
                             value={props.durationOfCountdown}
                             className={styles.countdown_input}
                             disabled={!props.useCountdown}
-                            inputProps={{ 'aria-label': 'Dauer des Countdowns' }}
+                            inputProps={{ 'aria-label': 'Dauer des Countdowns', 'min': MIN_DURATION_OF_COUNTDOWN }}
+                            onChange={props.handleCountdownInputChange}
                         />
                     </RadioGroup>
                 </FormControl>

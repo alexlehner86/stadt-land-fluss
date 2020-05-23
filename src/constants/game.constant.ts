@@ -4,12 +4,8 @@ export const MAX_NUMBER_OF_ROUNDS = 15;
 export const MIN_NUMBER_OF_CATEGORIES = 3;
 /** Duration of countdown in seconds */
 export const DEFAULT_DURATION_OF_COUNTDOWN = 60;
+export const MIN_DURATION_OF_COUNTDOWN = 30;
 
-export enum GameOptionCheckboxName {
-    checkForDuplicates = 'checkForDuplicates',
-    creativeAnswersExtraPoints = 'creativeAnswersExtraPoints',
-    onlyPlayerWithValidAnswer = 'onlyPlayerWithValidAnswer',
-}
 export enum UseCountdownRadioButton {
     countdown = 'countdown',
     player = 'player',

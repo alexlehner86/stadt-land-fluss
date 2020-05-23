@@ -1,7 +1,7 @@
-import './RejoinRunningGameHint.css';
 import { Link } from '@material-ui/core';
 import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
+import styles from './RejoinRunningGameHint.module.css';
 
 export enum RejoinRunningGameHintContext {
     newgame = 'newgame',
@@ -18,11 +18,11 @@ export const RejoinRunningGameHint: React.FunctionComponent<RejoinRunningGameHin
 
     return (
         <div className="material-card-style">
-            <p className="rejoin-running-game-hint-text">
+            <p className={styles.hint_text}>
                 <span className="rejoin-running-game-hint-highlighted">Achtung: </span>
                 {hintText}
             </p>
-            <Link component={RouterLink} to="/play" className="bold-text">⇒ Zurück ins laufende Spiel</Link>
+            <Link component={RouterLink} to="/play" className={styles.link}>⇒ Zurück ins laufende Spiel</Link>
         </div>
     );
 }

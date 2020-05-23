@@ -1,18 +1,32 @@
+import { IconButton, Menu, MenuItem } from '@material-ui/core';
 import Link from '@material-ui/core/Link';
+import BrushIcon from '@material-ui/icons/Brush';
 import DirectionsRunIcon from '@material-ui/icons/DirectionsRun';
-import React, { Component } from 'react';
+import React, { Component, Dispatch } from 'react';
 import { connect } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
-import { AppTheme } from '../../constants/themes.constant';
+import { AppTheme, AppThemes } from '../../constants/themes.constant';
+import { AppAction, setAppTheme } from '../../store/app.actions';
 import { AppState } from '../../store/app.reducer';
+import { setAppThemeIdInLocalStorage } from '../../utils/local-storage.utils';
 import styles from './Dashboard.module.css';
 
 interface DashboardPropsFromStore {
     activeTheme: AppTheme
     gameId: string | null;
 }
-class Dashboard extends Component<DashboardPropsFromStore> {
+interface DashboardDispatchProps {
+    onSetAppTheme: (payload: AppTheme) => void;
+}
+interface DashboardProps extends DashboardPropsFromStore, DashboardDispatchProps { }
+interface DashboardState {
+    anchorEl: EventTarget | null;
+}
+
+class Dashboard extends Component<DashboardProps, DashboardState> {
+    public state = { anchorEl: null };
+
     public render() {
         const rejoinGameElement = (
             <Link component={RouterLink} to="/play" className={styles.rejoin_game_link}>
@@ -30,11 +44,38 @@ class Dashboard extends Component<DashboardPropsFromStore> {
                         <Link component={RouterLink} to="/joingame">Spiel beitreten</Link>
                         <Link component={RouterLink} to="/manual">Spielanleitung</Link>
                     </div>
-                    <img
-                        src={this.props.activeTheme.homepageImageUrl}
-                        alt="Stadt, Land, Fluss"
-                        className={styles.slf_image}
-                    />
+                    <div className={styles.image_wrapper}>
+                        <img
+                            src={this.props.activeTheme.homepageImageUrl}
+                            alt="Stadt, Land, Fluss"
+                            className={styles.slf_image}
+                        />
+                        <IconButton
+                            className={styles.theme_picker_button}
+                            color="primary"
+                            title="Theme ändern"
+                            aria-label="Theme ändern"
+                            aria-controls="theme-picker-menu"
+                            aria-haspopup="true"
+                            onClick={this.handleThemePickerClick}
+                        >
+                            <BrushIcon fontSize="small" />
+                        </IconButton>
+                        <Menu
+                            id="theme-picker-menu"
+                            anchorEl={this.state.anchorEl}
+                            keepMounted
+                            open={Boolean(this.state.anchorEl)}
+                            onClose={this.handleThemePickerMenuClose}
+                        >
+                            {AppThemes.map((item, index) => (
+                                <MenuItem
+                                    key={'theme-picker-menu-item-' + index}
+                                    onClick={() => this.handleThemePickerMenuItemClick(item)}
+                                >{item.displayName}</MenuItem>
+                            ))}
+                        </Menu>
+                    </div>
                     <div className={styles.img_copyright}>
                         <h3>Credits/Bilder</h3>
                         <a href="https://www.vecteezy.com/vector-art/830131-river-city-landscape-with-buildings-hills-and-trees" target="_blank" rel="noopener noreferrer">Homepage/Stadt-Land-Fluss by pikgura – www.vecteezy.com</a>
@@ -48,6 +89,20 @@ class Dashboard extends Component<DashboardPropsFromStore> {
             </div>
         );
     }
+
+    private handleThemePickerClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        this.setState({ anchorEl: event.currentTarget });
+    };
+
+    private handleThemePickerMenuClose = () => {
+        this.setState({ anchorEl: null });
+    };
+
+    private handleThemePickerMenuItemClick = (selectedTheme: AppTheme) => {
+        this.setState({ anchorEl: null });
+        this.props.onSetAppTheme(selectedTheme);
+        setAppThemeIdInLocalStorage(selectedTheme.id);
+    };
 }
 
 const mapStateToProps = (state: AppState): DashboardPropsFromStore => {
@@ -56,4 +111,9 @@ const mapStateToProps = (state: AppState): DashboardPropsFromStore => {
         gameId: state.gameId
     };
 }
-export default connect(mapStateToProps)(Dashboard);
+const mapDispatchToProps = (dispatch: Dispatch<AppAction>): DashboardDispatchProps => {
+    return {
+        onSetAppTheme: (payload: AppTheme) => dispatch(setAppTheme(payload)),
+    }
+};
+export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);

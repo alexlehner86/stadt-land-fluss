@@ -1,11 +1,18 @@
+export enum GameOption {
+    checkForDuplicates = 'checkForDuplicates',
+    creativeAnswersExtraPoints = 'creativeAnswersExtraPoints',
+    onlyPlayerWithValidAnswer = 'onlyPlayerWithValidAnswer',
+}
+
 export interface GameConfigScoringOptions {
-    checkForDuplicates: boolean;
-    creativeAnswersExtraPoints: boolean;
-    onlyPlayerWithValidAnswer: boolean;
+    [GameOption.checkForDuplicates]: boolean;
+    [GameOption.creativeAnswersExtraPoints]: boolean;
+    [GameOption.onlyPlayerWithValidAnswer]: boolean;
 }
 
 export interface GameConfig {
     categories: string[];
+    durationOfCountdown: number;
     letters: string[];
     numberOfRounds: number;
     scoringOptions: GameConfigScoringOptions;

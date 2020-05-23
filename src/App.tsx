@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Header from './components/Header/Header';
 import {
     MAX_GAME_ID_VALIDITY_DURATION_IN_SECONDS,
-    MAX_PLAYER_ID_VALIDITY_DURATION_IN_SECONDS as MAX_PLAYER_ID_VALIDITY_IN_SECONDS,
+    MAX_PLAYER_ID_VALIDITY_DURATION_IN_SECONDS,
 } from './constants/app.constant';
 import { AppTheme, AppThemes } from './constants/themes.constant';
 import Dashboard from './containers/Dashboard/Dashboard';
@@ -18,17 +18,16 @@ import NewGame from './containers/NewGame/NewGame';
 import PlayGame from './containers/PlayGame/PlayGame';
 import { StoredRunningGameInfo } from './models/game.interface';
 import { StoredPlayerInfo } from './models/player.interface';
-import { AppAction, setStoredPlayerInfo, setStoredRunningGameInfo, setAppTheme } from './store/app.actions';
+import { AppAction, setAppTheme, setStoredPlayerInfo, setStoredRunningGameInfo } from './store/app.actions';
+import { AppState } from './store/app.reducer';
 import { convertDateToUnixTimestamp } from './utils/general.utils';
 import {
     getAppThemeIdFromLocalStorage,
     getPlayerInfoFromLocalStorage,
     getRunningGameInfoFromLocalStorage,
     removeAllDataOfRunningGameFromLocalStorage,
-    setAppThemeIdInLocalStorage,
     setPlayerInfoInLocalStorage,
 } from './utils/local-storage.utils';
-import { AppState } from './store/app.reducer';
 
 const backspaceDisabler = require('backspace-disabler');
 
@@ -36,22 +35,19 @@ interface AppPropsFromStore {
     activeTheme: AppTheme;
 }
 interface AppDispatchProps {
-    onSetAppTheme: (payload: AppTheme) => void,
-    onSetStoredPlayerInfo: (payload: StoredPlayerInfo) => void,
-    onSetStoredRunningGameInfo: (payload: StoredRunningGameInfo) => void
+    onSetAppTheme: (payload: AppTheme) => void;
+    onSetStoredPlayerInfo: (payload: StoredPlayerInfo) => void;
+    onSetStoredRunningGameInfo: (payload: StoredRunningGameInfo) => void;
 }
 interface AppProps extends AppPropsFromStore, AppDispatchProps { }
-class App extends Component<AppProps> {
 
+class App extends Component<AppProps> {
     public render() {
         return (
             <ThemeProvider theme={this.props.activeTheme.muiTheme}>
                 <div className="app-container">
                     <HashRouter basename={process.env.PUBLIC_URL}>
-                        <Header
-                            theme={this.props.activeTheme}
-                            switchTheme={this.switchThemeHandler}
-                        />
+                        <Header theme={this.props.activeTheme} />
                         <main
                             className={'app-main ' + this.props.activeTheme.className}
                             style={this.props.activeTheme.style}
@@ -84,7 +80,7 @@ class App extends Component<AppProps> {
         let storedPlayerInfo = getPlayerInfoFromLocalStorage();
         const nowTimestamp = convertDateToUnixTimestamp(new Date());
         // If no stored player info was found or player's id is past validity, create a new uuid and store in local storage.
-        if (!storedPlayerInfo || nowTimestamp - storedPlayerInfo.idCreationTimestamp > MAX_PLAYER_ID_VALIDITY_IN_SECONDS) {
+        if (!storedPlayerInfo || nowTimestamp - storedPlayerInfo.idCreationTimestamp > MAX_PLAYER_ID_VALIDITY_DURATION_IN_SECONDS) {
             storedPlayerInfo = { id: uuidv4(), idCreationTimestamp: nowTimestamp, name: storedPlayerInfo ? storedPlayerInfo.name : '' };
             setPlayerInfoInLocalStorage(storedPlayerInfo);
         }
@@ -98,11 +94,6 @@ class App extends Component<AppProps> {
                 removeAllDataOfRunningGameFromLocalStorage();
             }
         }
-    }
-
-    private switchThemeHandler = (newTheme: AppTheme) => {
-        this.props.onSetAppTheme(newTheme);
-        setAppThemeIdInLocalStorage(newTheme.id);
     }
 }
 

@@ -109,53 +109,8 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         // then the user wasn't redirected here from the NewGame or JoinGame component.
         if (this.props.gameId === null || this.props.playerInfo === null) { return null; }
 
-        const { gameId, playerInfo } = this.props;
-        const { showLetterAnimation, showLoadingScreen } = this.state;
         if (!this.pubNubClient) {
-            this.pubNubClient = new Pubnub({ ...PUBNUB_CONFIG, uuid: playerInfo.id });
-        }
-
-        let currentPhaseElement: JSX.Element | null = null;
-        switch (this.state.currentPhase) {
-            case GamePhase.waitingToStart:
-                currentPhaseElement = (
-                    <PhaseWaitingToStart
-                        allPlayers={this.state.allPlayers}
-                        gameConfig={this.state.gameConfig}
-                        gameId={gameId}
-                        playerInfo={playerInfo}
-                        sendMessage={this.sendMessage}
-                    />
-                );
-                break;
-            case GamePhase.fillOutTextfields:
-                currentPhaseElement = (
-                    <PhaseFillOutTextfields
-                        currentRound={this.state.currentRound}
-                        gameConfig={this.state.gameConfig as GameConfig}
-                        gameRoundInputs={this.state.currentRoundInputs}
-                        updateCurrentRoundInputs={this.updateCurrentRoundInputs}
-                        sendRoundFinishedMessage={this.sendRoundFinishedMessage}
-                    />
-                );
-                break;
-            case GamePhase.evaluateRound:
-                currentPhaseElement = (
-                    <PhaseEvaluateRound
-                        allPlayers={this.state.allPlayers}
-                        currentRound={this.state.currentRound}
-                        currentRoundEvaluation={this.state.currentRoundEvaluation}
-                        gameConfig={this.state.gameConfig as GameConfig}
-                        gameRounds={this.state.gameRounds}
-                        playerInfo={playerInfo}
-                        playersThatFinishedEvaluation={this.state.playersThatFinishedEvaluation}
-                        sendEvaluationFinishedMessage={this.sendEvaluationFinishedMessage}
-                        updateEvaluationOfPlayerInput={this.updateEvaluationOfPlayerInput}
-                        updateIsPlayerInputVeryCreativeStatus={this.updateIsPlayerInputVeryCreativeStatus}
-                    />
-                );
-                break;
-            default:
+            this.pubNubClient = new Pubnub({ ...PUBNUB_CONFIG, uuid: this.props.playerInfo.id });
         }
         const letterAnimationElement = (
             <LetterAnimation
@@ -164,6 +119,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             />
         );
         const adminPanel = <AdminPanel allPlayers={this.state.allPlayers} kickPlayer={this.sendKickPlayerMessage} />;
+        const { showLetterAnimation, showLoadingScreen } = this.state;
 
         return (
             <PubNubProvider client={this.pubNubClient}>
@@ -183,10 +139,10 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                 {showLoadingScreen ? <LoadingScreen /> : null}
                 {!showLoadingScreen && !showLetterAnimation ? (
                     <div className="main-content-wrapper">
-                        {currentPhaseElement}
+                        {this.createCurrentPhaseElement()}
                     </div>
                 ) : null}
-                {playerInfo.isAdmin && this.state.allPlayers.size > 1 ? adminPanel : null}
+                {this.props.playerInfo.isAdmin && this.state.allPlayers.size > 1 ? adminPanel : null}
             </PubNubProvider>
         );
     }
@@ -226,6 +182,49 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             (status: any, response: any) => console.log('PubNub Publish:', status, response)
         );
     };
+
+    private createCurrentPhaseElement = (): JSX.Element | null => {
+        switch (this.state.currentPhase) {
+            case GamePhase.waitingToStart:
+                return (
+                    <PhaseWaitingToStart
+                        allPlayers={this.state.allPlayers}
+                        gameConfig={this.state.gameConfig}
+                        gameId={this.props.gameId as string}
+                        playerInfo={this.props.playerInfo}
+                        sendMessage={this.sendMessage}
+                    />
+                );
+            case GamePhase.fillOutTextfields:
+                return (
+                    <PhaseFillOutTextfields
+                        currentRound={this.state.currentRound}
+                        gameConfig={this.state.gameConfig as GameConfig}
+                        gameRoundInputs={this.state.currentRoundInputs}
+                        updateCurrentRoundInputs={this.updateCurrentRoundInputs}
+                        finishRoundOnCountdownComplete={this.finishRoundOnCountdownComplete}
+                        finishRoundOnUserAction={this.finishRoundOnUserAction}
+                    />
+                );
+            case GamePhase.evaluateRound:
+                return (
+                    <PhaseEvaluateRound
+                        allPlayers={this.state.allPlayers}
+                        currentRound={this.state.currentRound}
+                        currentRoundEvaluation={this.state.currentRoundEvaluation}
+                        gameConfig={this.state.gameConfig as GameConfig}
+                        gameRounds={this.state.gameRounds}
+                        playerInfo={this.props.playerInfo}
+                        playersThatFinishedEvaluation={this.state.playersThatFinishedEvaluation}
+                        sendEvaluationFinishedMessage={this.sendEvaluationFinishedMessage}
+                        updateEvaluationOfPlayerInput={this.updateEvaluationOfPlayerInput}
+                        updateIsPlayerInputVeryCreativeStatus={this.updateIsPlayerInputVeryCreativeStatus}
+                    />
+                );
+            default:
+                return null;
+        }
+    }
 
     private callbackWhenAnimationDone = () => {
         this.setState({ showLetterAnimation: false });
@@ -327,7 +326,21 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         this.setState({ currentRoundInputs: newCurrentRoundInputs });
     }
 
-    private sendRoundFinishedMessage = () => {
+    /**
+     * Gets called when the countdown reaches zero (isUserAction = false).
+     */
+    private finishRoundOnCountdownComplete = () => {
+        this.setState({ showLoadingScreen: true });
+        // We only want the game admin to send the "roundFinished" message once.
+        if (this.props.playerInfo.isAdmin) {
+            this.sendMessage({ type: PubNubMessageType.roundFinished });
+        }
+    }
+
+    /**
+     * Gets called when the user ends the current round.
+     */
+    private finishRoundOnUserAction = () => {
         this.setState({ showLoadingScreen: true });
         this.sendMessage({ type: PubNubMessageType.roundFinished });
     }
@@ -399,7 +412,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         const message = new PubNubIsPlayerInputVeryCreativeMessage(newStatus);
         this.sendMessage(message.toPubNubMessage());
     }
-    
+
     /**
      * This method is called when the PubNub message 'isPlayerInputVeryCreative' is received.
      * It processes the new status and changes data in gameRounds accordingly.

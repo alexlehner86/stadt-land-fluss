@@ -28,10 +28,14 @@ const PhaseWaitingToStart: React.FunctionComponent<PhaseWaitingToStartProps> = p
     const createGameSettingsElement = (): JSX.Element => (
         <React.Fragment>
             <Divider />
-            <h3>Spiel-Übersicht:</h3>
+            <h3>Spieleinstellungen:</h3>
             <p><span className="bold-text">ID:</span> {props.gameId}</p>
             <p><span className="bold-text">Runden:</span> {gameConfig.numberOfRounds}</p>
             <p><span className="bold-text">Kategorien:</span> {gameConfig.categories.join(', ')}</p>
+            <p>
+                <span className="bold-text">Beenden der Runde durch:</span>
+                <span> {gameConfig.useCountdown ? `Countdown (${gameConfig.durationOfCountdown} Sekunden)` : 'Spieler'}</span>
+            </p>
             <ScoringOptionsList rules={gameConfig.scoringOptions} />
         </React.Fragment>
     );

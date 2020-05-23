@@ -3,6 +3,7 @@ import EmailIcon from '@material-ui/icons/Email';
 import React, { ChangeEvent } from 'react';
 import { GameConfig, PlayerInput } from '../../models/game.interface';
 import GameRoundChip from '../GameRoundChip/GameRoundChip';
+import RoundCountdown from '../RoundCountdown/RoundCountdown';
 import { SectionHeader } from '../SectionHeader/SectionHeader';
 
 interface PhaseFillOutTextfieldsProps {
@@ -10,7 +11,8 @@ interface PhaseFillOutTextfieldsProps {
     gameConfig: GameConfig;
     gameRoundInputs: PlayerInput[];
     updateCurrentRoundInputs: (newCurrentRoundInputs: PlayerInput[]) => void;
-    sendRoundFinishedMessage: () => void;
+    finishRoundOnCountdownComplete: () => void;
+    finishRoundOnUserAction: () => void;
 }
 
 const PhaseFillOutTextfields: React.FunctionComponent<PhaseFillOutTextfieldsProps> = props => {
@@ -40,6 +42,24 @@ const PhaseFillOutTextfields: React.FunctionComponent<PhaseFillOutTextfieldsProp
             />
         </div>
     );
+    const endRoundButton = (
+        <IconButton
+            type="button"
+            className="fixed-bottom-right-button"
+            color="secondary"
+            title="Abschicken"
+            aria-label="Abschicken"
+            onClick={props.finishRoundOnUserAction}
+        >
+            <EmailIcon />
+        </IconButton>
+    );
+    const countdownElement = (
+        <RoundCountdown
+            duration={props.gameConfig.durationOfCountdown}
+            onComplete={props.finishRoundOnCountdownComplete}
+        />
+    );
 
     return (
         <React.Fragment>
@@ -50,16 +70,7 @@ const PhaseFillOutTextfields: React.FunctionComponent<PhaseFillOutTextfieldsProp
             />
             <form className="app-form" noValidate autoComplete="off">
                 {gameConfig.categories.map(createTextfieldElement)}
-                <IconButton
-                    type="button"
-                    className="fixed-bottom-right-button"
-                    color="secondary"
-                    title="Abschicken"
-                    aria-label="Abschicken"
-                    onClick={() => props.sendRoundFinishedMessage()}
-                >
-                    <EmailIcon />
-                </IconButton>
+                {gameConfig.useCountdown ? countdownElement : endRoundButton }
             </form>
         </React.Fragment>
     );

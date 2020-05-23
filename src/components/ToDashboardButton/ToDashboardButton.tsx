@@ -1,7 +1,7 @@
-import './ToDashboardButton.css';
 import { Button } from '@material-ui/core';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import React from 'react';
+import styles from './ToDashboardButton.module.css';
 
 interface ToDashboardButtonProps {
     onReturnToDashboard: () => any;
@@ -9,7 +9,7 @@ interface ToDashboardButtonProps {
 
 const ToDashboardButton: React.FunctionComponent<ToDashboardButtonProps> = props => {
     return (
-        <div className="button-wrapper to-dashboard-button">
+        <div className={styles.button_wrapper}>
             <Button
                 type="button"
                 color="default"

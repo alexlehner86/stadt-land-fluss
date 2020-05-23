@@ -1,6 +1,6 @@
 {
     "name": "stadt-land-fluss",
-    "version": "1.5.0",
+    "version": "1.5.1",
     "homepage": "https://alexlehner86.github.io/stadt-land-fluss",
     "private": true,
     "dependencies": {
@@ -19,6 +19,7 @@
         "pubnub-react": "^2.0.0",
         "random-item": "^3.0.0",
         "react": "^16.13.1",
+        "react-countdown": "^2.2.1",
         "react-dom": "^16.13.1",
         "react-redux": "^7.2.0",
         "react-router": "^5.1.2",

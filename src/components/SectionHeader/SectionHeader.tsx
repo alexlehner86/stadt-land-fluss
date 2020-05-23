@@ -1,6 +1,6 @@
-import './SectionHeader.css';
 import { Divider } from '@material-ui/core';
 import React from 'react';
+import styles from './SectionHeader.module.css';
 
 interface SectionHeaderProps {
     showDivider: boolean;
@@ -9,7 +9,7 @@ interface SectionHeaderProps {
 
 export const SectionHeader: React.FunctionComponent<SectionHeaderProps> = props => (
     <React.Fragment>
-        <h2 className="section-header">{props.text}</h2>
+        <h2 className={styles.section_header}>{props.text}</h2>
         {props.showDivider ? <Divider /> : null}
     </React.Fragment>
 );
