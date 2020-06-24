@@ -27,7 +27,7 @@ export const getRandomnLetters = (numberOfLetters: number, possibleLetters: stri
 };
 
 export const getPlayersInAlphabeticalOrder = (players: Map<string, PlayerInfo>): PlayerInfo[] => {
-    let playerInfoArray = Array.from(players).map(data => data[1]);
+    const playerInfoArray = Array.from(players).map(data => data[1]);
     return playerInfoArray.sort((a, b) => {
         if (a.name.toLowerCase() < b.name.toLowerCase()) { return -1; }
         if (a.name.toLowerCase() > b.name.toLowerCase()) { return 1; }
@@ -154,7 +154,7 @@ export const getRejectingPlayers = (evaluations: PlayerInputEvaluation, players:
             }
         }
     });
-    return getPlayersInAlphabeticalOrder(rejectingPlayers);;
+    return getPlayersInAlphabeticalOrder(rejectingPlayers);
 };
 
 /**

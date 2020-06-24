@@ -24,3 +24,6 @@ yarn-error.log*
 
 # credentials
 /src/config/pubnub.config.json
+
+# VSCode Settings
+.vscode

@@ -29,6 +29,7 @@ import {
     setPlayerInfoInLocalStorage,
 } from './utils/local-storage.utils';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const backspaceDisabler = require('backspace-disabler');
 
 interface AppPropsFromStore {
@@ -101,12 +102,12 @@ const mapStateToProps = (state: AppState): AppPropsFromStore => {
     return {
         activeTheme: state.activeTheme
     };
-}
+};
 const mapDispatchToProps = (dispatch: Dispatch<AppAction>): AppDispatchProps => {
     return {
         onSetAppTheme: (payload: AppTheme) => dispatch(setAppTheme(payload)),
         onSetStoredPlayerInfo: (payload: StoredPlayerInfo) => dispatch(setStoredPlayerInfo(payload)),
         onSetStoredRunningGameInfo: (payload: StoredRunningGameInfo) => dispatch(setStoredRunningGameInfo(payload))
-    }
+    };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(App);

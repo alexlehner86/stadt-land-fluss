@@ -15,7 +15,7 @@ export const STANDARD_ALPHABET = [
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
     'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
 ];
-export const STANDARD_EXCLUDED_LETTERS = ['Q', 'X', 'Y']
+export const STANDARD_EXCLUDED_LETTERS = ['Q', 'X', 'Y'];
 
 export const STANDARD_CATEGORIES = ['Stadt', 'Land', 'Fluss/Gewässer'];
 export const AVAILABLE_CATEGORIES = [
@@ -85,4 +85,4 @@ export const GAME_OPTION_LABEL = {
     creativeAnswersExtraPoints: `Von Mitspielern als besonders kreativ oder lustig ausgezeichnete Begriffe bringen ${EXTRA_POINTS} Extrapunkte.`,
     onlyPlayerWithValidAnswer: `Wenn ein Spieler als einziger einen zulässigen Begriff in einer Kategorie
         einträgt, so zählt dieser Begriff ${ONLY_ANSWER_POINTS} statt ${STANDARD_POINTS} Punkte.`
-}
+};

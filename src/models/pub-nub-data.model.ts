@@ -32,7 +32,7 @@ export class PubNubCurrentRoundInputsMessage {
         return {
             type: PubNubMessageType.currentRoundInputs,
             payload: this.payload
-        }
+        };
     }
 }
 
@@ -43,7 +43,7 @@ export class PubNubEvaluationOfPlayerInputMessage {
         return {
             type: PubNubMessageType.evaluationOfPlayerInput,
             payload: this.payload
-        }
+        };
     }
 }
 
@@ -54,7 +54,7 @@ export class PubNubIsPlayerInputVeryCreativeMessage {
         return {
             type: PubNubMessageType.isPlayerInputVeryCreative,
             payload: this.payload
-        }
+        };
     }
 }
 
@@ -65,7 +65,7 @@ export class PubNubKickPlayerMessage {
         return {
             type: PubNubMessageType.kickPlayer,
             payload: this.payload
-        }
+        };
     }
 }
 
@@ -85,6 +85,6 @@ export class PubNubDataForCurrentGameMessage {
         return {
             type: PubNubMessageType.dataForCurrentGame,
             payload: this.payload
-        }
+        };
     }
 }

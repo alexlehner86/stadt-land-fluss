@@ -86,6 +86,6 @@ export const appReducer = (state: AppState = initialState, action: AppAction): A
                 gameRounds: null,
             };
         default:
-            return state
+            return state;
     }
 };

@@ -50,20 +50,20 @@ export type AppAction = SetAppThemeAction | SetStoredPlayerInfoAction | SetStore
  * Action Creators
  */
 export const setAppTheme = (payload: AppTheme): SetAppThemeAction => {
-    return { type: SET_APP_THEME, payload }
+    return { type: SET_APP_THEME, payload };
 };
 export const setStoredPlayerInfo = (payload: StoredPlayerInfo): SetStoredPlayerInfoAction => {
-    return { type: SET_STORED_PLAYER_INFO, payload }
+    return { type: SET_STORED_PLAYER_INFO, payload };
 };
 export const setStoredRunningGameInfo = (payload: StoredRunningGameInfo): SetStoredRunningGameInfoAction => {
-    return { type: SET_STORED_RUNNING_GAME_INFO, payload }
+    return { type: SET_STORED_RUNNING_GAME_INFO, payload };
 };
 export const setDataForNewGame = (payload: SetDataForNewGamePayload): SetDataForNewGameAction => {
-    return { type: SET_DATA_FOR_NEW_GAME, payload }
+    return { type: SET_DATA_FOR_NEW_GAME, payload };
 };
 export const setDataOfFinishedGame = (payload: SetDataOfFinishedGamePayload): SetDataOfFinishedGameAction => {
-    return { type: SET_DATA_OF_FINISHED_GAME, payload }
+    return { type: SET_DATA_OF_FINISHED_GAME, payload };
 };
 export const resetAppState = (): ResetAppStateAction => {
-    return { type: RESET_APP_STATE }
+    return { type: RESET_APP_STATE };
 };

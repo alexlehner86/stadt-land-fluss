@@ -35,13 +35,13 @@ export const setRunningGameConfigInLocalStorage = (data: GameConfig) => localSto
 export const getRunningGameRoundFromLocalStorage = (round: number): GameRound | null => {
     const storedData = localStorage.getItem(RUNNING_GAME_ROUND_LS_KEY_PREFIX + round);
     return storedData ? convertCollectionToMap<PlayerInput[]>(JSON.parse(storedData)) : null;
-}
+};
 export const setRunningGameRoundInLocalStorage = (round: number, data: GameRound) => {
     localStorage.setItem(
         RUNNING_GAME_ROUND_LS_KEY_PREFIX + round,
         JSON.stringify(convertMapToCollection<PlayerInput[]>(data))
     );
-}
+};
 
 export const removeAllDataOfRunningGameFromLocalStorage = () => {
     localStorage.removeItem(RUNNING_GAME_INFO_LS_KEY);

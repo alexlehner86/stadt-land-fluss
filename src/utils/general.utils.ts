@@ -1,4 +1,4 @@
-import { Collection } from "../models/collection.interface";
+import { Collection } from '../models/collection.interface';
 
 export const copyToClipboard = (text: string) => {
     const element = document.createElement('textarea');

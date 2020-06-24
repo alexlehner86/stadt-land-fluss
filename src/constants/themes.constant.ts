@@ -98,4 +98,4 @@ export const AppThemes: AppTheme[] = [
                 url('${process.env.PUBLIC_URL}/assets/halloween-pattern.jpg')`
         }
     },
-]
+];
