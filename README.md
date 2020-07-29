@@ -2,6 +2,15 @@ This project is an online version of the popular European game "Stadt-Land-Fluss
 
 ## Release Notes
 
+### v1.5.2
+
+- Add fullscreen button.
+
+### v1.5.1
+
+- Add countdown option: Each round ends after the set number of seconds.
+- Refactoring.
+
 ### v1.5.0
 
 - Add feature to mark answers as very creative
