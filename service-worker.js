@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/stadt-land-fluss/precache-manifest.78bf5926beb2b35cee366f92005871b7.js"
+  "/stadt-land-fluss/precache-manifest.3b85781d2409de999c1a34ffe2b1e1f0.js"
 );
 
 self.addEventListener('message', (event) => {
