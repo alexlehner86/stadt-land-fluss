@@ -1,21 +1,19 @@
 import './App.css';
+
 import { ThemeProvider } from '@material-ui/core';
-import React, { Component, Dispatch } from 'react';
+import React, { Component, Dispatch, lazy, Suspense } from 'react';
 import { connect } from 'react-redux';
 import { HashRouter, Route, Switch } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
+
 import Header from './components/Header/Header';
+import LoadingScreen from './components/LoadingScreen/LoadingScreen';
 import {
     MAX_GAME_ID_VALIDITY_DURATION_IN_SECONDS,
     MAX_PLAYER_ID_VALIDITY_DURATION_IN_SECONDS,
 } from './constants/app.constant';
 import { AppTheme, AppThemes } from './constants/themes.constant';
 import Dashboard from './containers/Dashboard/Dashboard';
-import GameManual from './containers/GameManual/GameManual';
-import GameResults from './containers/GameResults/GameResults';
-import JoinGame from './containers/JoinGame/JoinGame';
-import NewGame from './containers/NewGame/NewGame';
-import PlayGame from './containers/PlayGame/PlayGame';
 import { StoredRunningGameInfo } from './models/game.interface';
 import { StoredPlayerInfo } from './models/player.interface';
 import { AppAction, setAppTheme, setStoredPlayerInfo, setStoredRunningGameInfo } from './store/app.actions';
@@ -28,6 +26,19 @@ import {
     removeAllDataOfRunningGameFromLocalStorage,
     setPlayerInfoInLocalStorage,
 } from './utils/local-storage.utils';
+
+// Preload all routes available from the dashboard in the background.
+const gameManualPromise = import('./containers/GameManual/GameManual');
+const joinGamePromise = import('./containers/JoinGame/JoinGame');
+const newGamePromise = import('./containers/NewGame/NewGame');
+const playGamePromise = import('./containers/PlayGame/PlayGame');
+
+// Use lazy loading of routes to speed up time to FCP (first contentful paint)
+const GameManual = lazy(() => gameManualPromise);
+const GameResults = lazy(() => import('./containers/GameResults/GameResults'));
+const JoinGame = lazy(() => joinGamePromise);
+const NewGame = lazy(() => newGamePromise);
+const PlayGame = lazy(() => playGamePromise);
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const backspaceDisabler = require('backspace-disabler');
@@ -53,14 +64,16 @@ class App extends Component<AppProps> {
                             className={'app-main ' + this.props.activeTheme.className}
                             style={this.props.activeTheme.style}
                         >
-                            <Switch>
-                                <Route path="/manual" exact component={GameManual} />
-                                <Route path="/newgame" exact component={NewGame} />
-                                <Route path="/joingame" exact component={JoinGame} />
-                                <Route path="/play" exact component={PlayGame} />
-                                <Route path="/results" exact component={GameResults} />
-                                <Route path="/" component={Dashboard} />
-                            </Switch>
+                            <Suspense fallback={<LoadingScreen />}>
+                                <Switch>
+                                    <Route path="/manual" exact component={GameManual} />
+                                    <Route path="/newgame" exact component={NewGame} />
+                                    <Route path="/joingame" exact component={JoinGame} />
+                                    <Route path="/play" exact component={PlayGame} />
+                                    <Route path="/results" exact component={GameResults} />
+                                    <Route path="/" component={Dashboard} />
+                                </Switch>
+                            </Suspense>
                         </main>
                     </HashRouter>
                 </div>
