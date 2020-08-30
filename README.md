@@ -2,6 +2,12 @@ This project is an online version of the popular European game "Stadt-Land-Fluss
 
 ## Release Notes
 
+### v1.5.3
+
+- Turn application into a PWA (Progressive Web App).
+- Use lazy loading of routes.
+- Minor UI fixes.
+
 ### v1.5.2
 
 - Add fullscreen button.

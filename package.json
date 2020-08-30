@@ -14,7 +14,7 @@
         "@types/react": "^16.9.25",
         "@types/react-dom": "^16.9.5",
         "backspace-disabler": "^1.1.3",
-        "lodash": "^4.17.15",
+        "lodash": "^4.17.20",
         "pubnub": "^4.27.4",
         "pubnub-react": "^2.0.0",
         "random-item": "^3.0.0",
