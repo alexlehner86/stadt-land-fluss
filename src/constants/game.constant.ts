@@ -19,6 +19,7 @@ export const STANDARD_EXCLUDED_LETTERS = ['Q', 'X', 'Y'];
 
 export const STANDARD_CATEGORIES = ['Stadt', 'Land', 'Fluss/Gewässer'];
 export const AVAILABLE_CATEGORIES = [
+    'Arbeitsunfall',
     'Band/Musiker',
     'Berg/Gebirge',
     'Beruf',
@@ -40,6 +41,8 @@ export const AVAILABLE_CATEGORIES = [
     'Laster',
     'Marke',
     'Mordwaffe',
+    'Name rückwärts geschrieben',
+    'Ort, um eine Leiche zu verstecken',
     'Pflanze',
     'Pizzasorte',
     'Porno-Künstlername',
