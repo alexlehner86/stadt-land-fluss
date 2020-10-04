@@ -112,6 +112,17 @@ li:not(.MuiListItem-root) {
     color: black;
 }
 
+.MuiChip-root.slf-chip-array-item {
+    height: auto;
+    min-height: 2rem;
+    margin: 0.25rem;
+}
+.MuiChip-root.slf-chip-array-item .MuiChip-label {
+    white-space: normal;
+    padding: 0.25rem 0.75rem;
+    text-align: center;
+}
+
 .new-game-expansion-panel.MuiExpansionPanel-root,
 .new-game-expansion-panel.MuiExpansionPanel-root.Mui-expanded {
     margin: 1rem 0;

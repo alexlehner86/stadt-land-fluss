@@ -16,12 +16,6 @@ const useStyles = makeStyles((theme: Theme) =>
             justifyContent: 'center',
             flexWrap: 'wrap',
             padding: theme.spacing(0.5),
-        },
-        chip: {
-            margin: theme.spacing(0.5),
-        },
-        chipIcon: {
-            backgroundColor: 'inherit'
         }
     }),
 );
@@ -42,7 +36,7 @@ const ChipsArray: React.FunctionComponent<ChipsArrayProps> = props => {
                     color={props.chipType === 'selected' ? 'primary' : undefined}
                     icon={props.chipType === 'selected' ? <DoneIcon className="chip-icon-no-bg" /> : <ChevronRightIcon />}
                     label={chip}
-                    className={classes.chip}
+                    className="slf-chip-array-item"
                     onClick={() => props.removeChip(chip)}
                 />
             ))}
