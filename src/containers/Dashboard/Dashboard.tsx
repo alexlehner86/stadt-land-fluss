@@ -22,10 +22,14 @@ interface DashboardDispatchProps {
 interface DashboardProps extends DashboardPropsFromStore, DashboardDispatchProps { }
 interface DashboardState {
     anchorEl: EventTarget | null;
+    showCredits: boolean;
 }
 
 class Dashboard extends Component<DashboardProps, DashboardState> {
-    public state = { anchorEl: null };
+    public state = {
+        anchorEl: null,
+        showCredits: false
+    };
 
     public render() {
         const rejoinGameElement = (
@@ -33,6 +37,16 @@ class Dashboard extends Component<DashboardProps, DashboardState> {
                 <DirectionsRunIcon />
                 Zurück ins laufende Spiel
             </Link>
+        );
+        const creditsElement = (
+            <React.Fragment>
+                <a href="https://www.vecteezy.com/vector-art/830131-river-city-landscape-with-buildings-hills-and-trees" target="_blank" rel="noopener noreferrer">Homepage/Stadt-Land-Fluss by pikgura – www.vecteezy.com</a>
+                <a href="https://www.vecteezy.com/vector-art/276920-abstract-seamless-pattern-with-tropical-leaves" target="_blank" rel="noopener noreferrer">Theme Grün/Wald by NadiaGrapes – www.vecteezy.com</a>
+                <a href="https://www.freepik.com/free-photos-vectors/background" target="_blank" rel="noopener noreferrer">Theme Blau/Meer by macrovector – www.freepik.com</a>
+                <a href="https://www.vecteezy.com/vector-art/460735-seashell-sand-seamless-pattern" target="_blank" rel="noopener noreferrer">Theme Orange/Strand by Macrovector – www.vecteezy.com</a>
+                <a href="https://www.vecteezy.com/vector-art/454258-music-seamless" target="_blank" rel="noopener noreferrer">Theme Pink/Musik by Macrovector – www.vecteezy.com</a>
+                <a href="https://www.vecteezy.com/vector-art/662038-cat-and-bat-pattern" target="_blank" rel="noopener noreferrer">Theme Schwarz/Goth by angyee – www.vecteezy.com</a>
+            </React.Fragment>
         );
         return (
             <div className="main-content-wrapper">
@@ -77,13 +91,8 @@ class Dashboard extends Component<DashboardProps, DashboardState> {
                         </Menu>
                     </div>
                     <div className={styles.img_copyright}>
-                        <h3>Credits/Bilder</h3>
-                        <a href="https://www.vecteezy.com/vector-art/830131-river-city-landscape-with-buildings-hills-and-trees" target="_blank" rel="noopener noreferrer">Homepage/Stadt-Land-Fluss by pikgura – www.vecteezy.com</a>
-                        <a href="https://www.vecteezy.com/vector-art/276920-abstract-seamless-pattern-with-tropical-leaves" target="_blank" rel="noopener noreferrer">Theme Grün/Wald by NadiaGrapes – www.vecteezy.com</a>
-                        <a href="https://www.freepik.com/free-photos-vectors/background" target="_blank" rel="noopener noreferrer">Theme Blau/Meer by macrovector – www.freepik.com</a>
-                        <a href="https://www.vecteezy.com/vector-art/460735-seashell-sand-seamless-pattern" target="_blank" rel="noopener noreferrer">Theme Orange/Strand by Macrovector – www.vecteezy.com</a>
-                        <a href="https://www.vecteezy.com/vector-art/454258-music-seamless" target="_blank" rel="noopener noreferrer">Theme Pink/Musik by Macrovector – www.vecteezy.com</a>
-                        <a href="https://www.vecteezy.com/vector-art/662038-cat-and-bat-pattern" target="_blank" rel="noopener noreferrer">Theme Schwarz/Goth by angyee – www.vecteezy.com</a>
+                        <button onClick={this.handleCreditsClick}>Credits/Bilder</button>
+                        {this.state.showCredits ? creditsElement : null}
                     </div>
                 </div>
             </div>
@@ -103,6 +112,10 @@ class Dashboard extends Component<DashboardProps, DashboardState> {
         this.props.onSetAppTheme(selectedTheme);
         setAppThemeIdInLocalStorage(selectedTheme.id);
     };
+
+    private handleCreditsClick = () => {
+        this.setState({ showCredits: !this.state.showCredits });
+    }
 }
 
 const mapStateToProps = (state: AppState): DashboardPropsFromStore => {

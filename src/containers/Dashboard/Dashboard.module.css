@@ -48,11 +48,25 @@
 .img_copyright {
     display: flex;
     flex-direction: column;
-    color: gray;
+    align-items: center;
     font-size: 0.6rem;
     text-align: center;
 }
+.img_copyright button {
+    margin-top: 0.5rem;
+    padding: 0.25rem;
+    border: none;
+    background: none;
+    cursor: pointer;
+    width: min-content;
+    color: #353434;
+}
+.img_copyright button:focus,
+.img_copyright button:hover {
+    background: rgb(235, 233, 233);
+}
 .img_copyright a {
+    margin-top: 0.5em;
     color: gray;
 }
 .img_copyright a:hover {
