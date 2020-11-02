@@ -2,6 +2,15 @@ This project is an online version of the popular European game "Stadt-Land-Fluss
 
 ## Release Notes
 
+### v1.5.5
+
+- Add random categories selection feature.
+
+### v1.5.4
+
+- Fix mobile layout bugs.
+- Add new categories.
+
 ### v1.5.3
 
 - Turn application into a PWA (Progressive Web App).

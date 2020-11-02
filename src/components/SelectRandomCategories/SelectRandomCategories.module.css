@@ -1,11 +1,11 @@
 .random_categories_button {
-    position: absolute;
+    position: absolute !important;
     top: 0;
     right: 0;
 }
 
 .dialog_title {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.5rem !important;
 }
 
 @media only screen and (min-width: 480px) {
