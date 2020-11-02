@@ -5,6 +5,7 @@ import React, { ChangeEvent, Component, Dispatch, FormEvent } from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { v4 as uuidv4 } from 'uuid';
+
 import AddCustomCategory from '../../components/AddCustomCategory/AddCustomCategory';
 import ChipsArray, { ChipType } from '../../components/ChipsArray/ChipsArray';
 import NewGameOptionsPanel from '../../components/NewGameOptionsPanel/NewGameOptionsPanel';
@@ -13,6 +14,7 @@ import {
     RejoinRunningGameHintContext,
 } from '../../components/RejoinRunningGameHint/RejoinRunningGameHint';
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
+import SelectRandomCategories from '../../components/SelectRandomCategories/SelectRandomCategories';
 import ToDashboardButton from '../../components/ToDashboardButton/ToDashboardButton';
 import {
     AVAILABLE_CATEGORIES,
@@ -30,7 +32,7 @@ import { GameConfigScoringOptions } from '../../models/game.interface';
 import { PlayerInfo } from '../../models/player.interface';
 import { AppAction, setDataForNewGame, SetDataForNewGamePayload } from '../../store/app.actions';
 import { AppState } from '../../store/app.reducer';
-import { getRandomnLetters } from '../../utils/game.utils';
+import { getRandomCategories, getRandomLetters } from '../../utils/game.utils';
 import { convertDateToUnixTimestamp } from '../../utils/general.utils';
 import {
     removeAllDataOfRunningGameFromLocalStorage,
@@ -88,6 +90,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
 
     public render() {
         const numberOfRoundsInputLabel = `Anzahl Runden (${MIN_NUMBER_OF_ROUNDS}-${MAX_NUMBER_OF_ROUNDS})`;
+        const maxNumberOfCategories = this.state.availableCategories.length + this.state.selectedCategories.length;
         const newGameForm = (
             <form onSubmit={this.handleSubmit} className="app-form" noValidate autoComplete="off">
                 <TextField
@@ -124,7 +127,13 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     handleLetterToExcludeChange={this.handleLetterToExcludeChange}
                     handleUseCountdownChange={this.handleUseCountdownChange}
                 />
-                <p className={styles.options_label}>Ausgewählte Kategorien (mind. {MIN_NUMBER_OF_CATEGORIES}):</p>
+                <p className={styles.options_label}>
+                    <span>Ausgewählte Kategorien (mind. {MIN_NUMBER_OF_CATEGORIES}):</span>
+                    <SelectRandomCategories
+                        maxNumberOfCategories={maxNumberOfCategories}
+                        selectCategoriesRandomly={this.selectCategoriesRandomly}
+                    />
+                </p>
                 <ChipsArray
                     chipsArray={this.state.selectedCategories}
                     chipType={ChipType.selected}
@@ -208,6 +217,15 @@ class NewGame extends Component<NewGameProps, NewGameState> {
         this.setState({ useCountdown: (event.target as HTMLInputElement).value === UseCountdownRadioButton.countdown });
     };
 
+    private selectCategoriesRandomly = (numberOfCategories: number, retainSelection: boolean) => {
+        const categoryPool = [...this.state.availableCategories, ...this.state.selectedCategories];
+        const selectedCategories = getRandomCategories(
+            numberOfCategories, categoryPool, retainSelection ? this.state.selectedCategories : []
+        );
+        const availableCategories = categoryPool.filter(c => !selectedCategories.includes(c)).sort();
+        this.setState({ availableCategories, selectedCategories });
+    }
+
     private updateCategoryArrays = (chipToRemove: string, removeFromArray: CategoryArray) => {
         let newSelectedCategories: string[];
         let newAvailableCategories: string[];
@@ -266,7 +284,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
             gameConfig: {
                 categories: selectedCategories,
                 durationOfCountdown,
-                letters: getRandomnLetters(numberOfRoundsInput, xor(STANDARD_ALPHABET, this.state.lettersToExclude)),
+                letters: getRandomLetters(numberOfRoundsInput, xor(STANDARD_ALPHABET, this.state.lettersToExclude)),
                 numberOfRounds: numberOfRoundsInput,
                 scoringOptions,
                 useCountdown

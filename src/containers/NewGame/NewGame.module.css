@@ -1,5 +1,7 @@
 .options_label {
+    position: relative;
     font-weight: bold;
     margin-block-start: 1rem;
     margin-block-end: 0.3rem;
+    padding-right: 2rem;
 }

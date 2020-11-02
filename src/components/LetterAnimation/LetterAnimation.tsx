@@ -6,7 +6,7 @@ import {
     STANDARD_ALPHABET,
 } from '../../constants/game.constant';
 import { AppTheme, AppThemes } from '../../constants/themes.constant';
-import { getRandomnLetters } from '../../utils/game.utils';
+import { getRandomLetters } from '../../utils/game.utils';
 
 // Thanks to Georgi Nikoloff for the great animation source code: https://codepen.io/gbnikolov/pen/jEqQdG
 // I rewrote the code in Typescript, refactored it a bit and adapted it to the needs of this application.
@@ -146,7 +146,7 @@ interface LetterAnimationProps {
 }
 export const LetterAnimation: React.FunctionComponent<LetterAnimationProps> = props => {
     const lettersToUse = [...STANDARD_ALPHABET].filter(letter => letter !== props.letterToUnveil);
-    const lettersForAnimation = [...getRandomnLetters(LETTER_ANIMATION_LETTER_COUNT - 1, lettersToUse), props.letterToUnveil];
+    const lettersForAnimation = [...getRandomLetters(LETTER_ANIMATION_LETTER_COUNT - 1, lettersToUse), props.letterToUnveil];
     useEffect(() => {
         const particleAlphabet = new ParticleAlphabet(lettersForAnimation, props.callbackWhenAnimationDone);
         particleAlphabet.init();

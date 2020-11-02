@@ -1,13 +1,4 @@
-import {
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    IconButton,
-    TextField,
-    Tooltip,
-} from '@material-ui/core';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, IconButton, TextField } from '@material-ui/core';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import React, { FormEvent, useState } from 'react';
 
@@ -72,7 +63,7 @@ const CustomCategoryDialog: React.FunctionComponent<CustomCategoryDialogProps> =
 }
 
 interface AddCustomCategoryProps {
-    addCustomCategory: (newCategory: string) => any;
+    addCustomCategory: (newCategory: string) => void;
 }
 const AddCustomCategory: React.FunctionComponent<AddCustomCategoryProps> = props => {
     const [open, setOpen] = useState(false);
@@ -86,19 +77,15 @@ const AddCustomCategory: React.FunctionComponent<AddCustomCategoryProps> = props
 
     return (
         <React.Fragment>
-            <Tooltip
+            <IconButton
+                className={styles.less_padding}
                 title="Kategorie hinzufügen"
-                placement="right"
+                aria-label="Kategorie hinzufügen"
+                onClick={() => setOpen(true)}
             >
-                <IconButton
-                    className={styles.less_padding}
-                    aria-label="Kategorie hinzufügen"
-                    onClick={() => setOpen(true)}
-                >
-                    <AddCircleOutlineIcon />
-                </IconButton>
-            </Tooltip>
-            <CustomCategoryDialog open={open} onClose={newCategory => handleClose(newCategory)} />
+                <AddCircleOutlineIcon />
+            </IconButton>
+            <CustomCategoryDialog open={open} onClose={handleClose} />
         </React.Fragment>
     );
 }

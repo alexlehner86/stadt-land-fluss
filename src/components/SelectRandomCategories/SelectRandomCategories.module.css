@@ -1,0 +1,16 @@
+.random_categories_button {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.dialog_title {
+    margin-bottom: 1.5rem;
+}
+
+@media only screen and (min-width: 480px) {
+    .dialog_min_width {
+        min-width: 20rem;
+        max-width: 25rem;
+    }
+}

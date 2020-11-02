@@ -33,6 +33,7 @@ export const AVAILABLE_CATEGORIES = [
     'Film/Serie',
     'Getränk',
     'Grund für eine Verspätung',
+    'Haushaltsgerät',
     'Hobby',
     'In Zeiten des Corona-Lockdowns verboten',
     'Könnte ein Trump-Tweet sein',

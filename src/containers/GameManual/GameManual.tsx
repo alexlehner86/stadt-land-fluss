@@ -42,7 +42,7 @@ class GameManual extends Component<RouteComponentProps> {
                     <h3>Neues Spiel</h3>
                     <p>
                         Um ein neues Spiel zu erstellen, muss der Nutzer einen Spielernamen eingeben, die Anzahl der zu spielenden
-                        Runden festlegen und mindestens drei Kategorien auswählen. Es stehen 40 Kategorien zur Auswahl, darunter
+                        Runden festlegen und mindestens drei Kategorien auswählen. Es stehen 45 Kategorien zur Auswahl, darunter
                         Klassiker wie <span>Stadt</span>, <span>Land</span> und <span>Fluss/Gewässer</span>, jedoch auch
                         neue Kategorien wie <span>Könnte ein Trump-Tweet sein</span>. Über
                         den <AddCircleOutlineIcon fontSize="small" className={styles.inline_icon} />-Button am Ende der Kategorien-Liste

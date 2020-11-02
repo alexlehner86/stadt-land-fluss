@@ -9,21 +9,37 @@ import { GameResultForPlayer, GameRound, GameRoundEvaluation, PlayerInputEvaluat
 import { createAndFillArray } from './general.utils';
 
 /**
-* Returns an array of unique letters. The number of letters is defined by the parameter numberOfLetters.
-* If the second argument is not provided, then the standard alphabet (excluding Q, X and Y) is used.
+* Returns an array of randomly selected, unique letters.
 */
-export const getRandomnLetters = (numberOfLetters: number, possibleLetters: string[]): string[] => {
+export const getRandomLetters = (numberOfLetters: number, possibleLetters: string[]): string[] => {
     if (numberOfLetters > possibleLetters.length) {
         throw new Error('Cannot create more randomn unique letters than the number of possibleLetters provided!');
     }
     const randomnLetters: string[] = [];
-    let lettersToRandomnlySelectFrom = [...possibleLetters];
+    let lettersToSelectFrom = [...possibleLetters];
     for (let i = 0; i < numberOfLetters; i++) {
-        const randomnLetter = randomnItem(lettersToRandomnlySelectFrom);
+        const randomnLetter = randomnItem(lettersToSelectFrom);
         randomnLetters.push(randomnLetter);
-        lettersToRandomnlySelectFrom = lettersToRandomnlySelectFrom.filter(letter => letter !== randomnLetter);
+        lettersToSelectFrom = lettersToSelectFrom.filter(letter => letter !== randomnLetter);
     }
     return randomnLetters;
+};
+
+/**
+* Returns an array of randomly selected categories.
+*/
+export const getRandomCategories = (
+    numberOfCategories: number, categoryPool: string[], preselectedCategories: string[]
+): string[] => {
+    const randomCategories: string[] = [...preselectedCategories];
+    const numberOfRandomSelections = numberOfCategories - preselectedCategories.length;
+    let categoriesToSelectFrom = categoryPool.filter(category => !preselectedCategories.includes(category))
+    for (let i = 0; i < numberOfRandomSelections; i++) {
+        const randomCategory = randomnItem(categoriesToSelectFrom);
+        randomCategories.push(randomCategory);
+        categoriesToSelectFrom = categoriesToSelectFrom.filter(c => c !== randomCategory);
+    }
+    return randomCategories;
 };
 
 export const getPlayersInAlphabeticalOrder = (players: Map<string, PlayerInfo>): PlayerInfo[] => {
