@@ -58,6 +58,7 @@ interface NewGameProps extends NewGamePropsFromStore, NewGameDispatchProps, Rout
 interface NewGameState {
     availableCategories: string[];
     durationOfCountdown: number;
+    isNumberOfRoundsInputValid: boolean;
     isSnackbarOpen: boolean;
     lettersToExclude: string[];
     nameInput: string;
@@ -73,6 +74,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
     public state: NewGameState = {
         availableCategories: AVAILABLE_CATEGORIES,
         durationOfCountdown: DEFAULT_DURATION_OF_COUNTDOWN,
+        isNumberOfRoundsInputValid: true,
         isSnackbarOpen: false,
         lettersToExclude: [...STANDARD_EXCLUDED_LETTERS],
         nameInput: this.props.playerInfo ? this.props.playerInfo.name : '',
@@ -114,6 +116,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     variant="outlined"
                     fullWidth
                     required
+                    error={this.state.validateInputs && !this.state.isNumberOfRoundsInputValid}
                     inputProps={{ 'min': MIN_NUMBER_OF_ROUNDS, 'max': MAX_NUMBER_OF_ROUNDS }}
                     onChange={this.handleNumberOfRoundsInputChange}
                 />
@@ -188,10 +191,9 @@ class NewGame extends Component<NewGameProps, NewGameState> {
     }
 
     private handleNumberOfRoundsInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-        let value = +event.target.value;
-        if (value >= MIN_NUMBER_OF_ROUNDS && value <= MAX_NUMBER_OF_ROUNDS) {
-            this.setState({ numberOfRoundsInput: value });
-        }
+        const value = +event.target.value;
+        const isNumberOfRoundsInputValid = value >= MIN_NUMBER_OF_ROUNDS && value <= MAX_NUMBER_OF_ROUNDS;
+        this.setState({ isNumberOfRoundsInputValid, numberOfRoundsInput: value });
     }
 
     private handleGameOptionChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -258,12 +260,17 @@ class NewGame extends Component<NewGameProps, NewGameState> {
     }
 
     private isReadyToStartGame = (): boolean => {
-        if (this.state.selectedCategories.length < MIN_NUMBER_OF_CATEGORIES) {
+        const { isNumberOfRoundsInputValid, lettersToExclude, numberOfRoundsInput, selectedCategories } = this.state;
+        if (!isNumberOfRoundsInputValid) {
+            this.showSnackBar(`Die Anzahl an Runden muss zwischen ${MIN_NUMBER_OF_ROUNDS} und ${MAX_NUMBER_OF_ROUNDS} liegen!`);
+            return false;
+        }
+        if (selectedCategories.length < MIN_NUMBER_OF_CATEGORIES) {
             this.showSnackBar(`Du musst mindestens ${MIN_NUMBER_OF_CATEGORIES} Kategorien auswählen!`);
             return false;
         }
-        if (STANDARD_ALPHABET.length - this.state.lettersToExclude.length < this.state.numberOfRoundsInput) {
-            this.showSnackBar(`Du hast zu viele Buchstaben ausgeschlossen!`);
+        if (STANDARD_ALPHABET.length - lettersToExclude.length < numberOfRoundsInput) {
+            this.showSnackBar('Du hast zu viele Buchstaben ausgeschlossen!');
             return false;
         }
         return !!this.state.nameInput.trim();

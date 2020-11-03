@@ -30,15 +30,16 @@ export interface SelectRandomCategoriesDialogProps {
 const SelectRandomCategoriesDialog: React.FunctionComponent<SelectRandomCategoriesDialogProps> = props => {
     const checkboxLabelClasses = useStyles();
     const { onClose, open } = props;
+    const [isNumberOfCategoriesInputValid, setIsNumberOfCategoriesInputValid] = useState(true);
     const [numberOfCategoriesInput, setNumberOfCategoriesInput] = useState(MIN_NUMBER_OF_CATEGORIES);
+    const [validateInputs, setValidateInputs] = useState(false);
     const [retainSelection, setRetainSelection] = useState(false);
     const numberOfRoundsInputLabel = `Anzahl Kategorien (${MIN_NUMBER_OF_CATEGORIES}-${props.maxNumberOfCategories})`;
 
     const handleNumberOfCategoriesInputChange = (event: ChangeEvent<HTMLInputElement>) => {
         let value = +event.target.value;
-        if (value >= MIN_NUMBER_OF_CATEGORIES && value <= props.maxNumberOfCategories) {
-            setNumberOfCategoriesInput(value);
-        }
+        setNumberOfCategoriesInput(value);
+        setIsNumberOfCategoriesInputValid(value >= MIN_NUMBER_OF_CATEGORIES && value <= props.maxNumberOfCategories);
     }
 
     const handleRetainSelectionOptionChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -52,7 +53,12 @@ const SelectRandomCategoriesDialog: React.FunctionComponent<SelectRandomCategori
     const handleSubmit = (event: FormEvent) => {
         event.preventDefault();
         event.stopPropagation();
-        onClose(numberOfCategoriesInput, retainSelection);
+        if (isNumberOfCategoriesInputValid) {
+            setValidateInputs(false);
+            onClose(numberOfCategoriesInput, retainSelection);
+        } else {
+            setValidateInputs(true);
+        }
     };
 
     return (
@@ -70,6 +76,7 @@ const SelectRandomCategoriesDialog: React.FunctionComponent<SelectRandomCategori
                         variant="outlined"
                         fullWidth
                         required
+                        error={validateInputs && !isNumberOfCategoriesInputValid}
                         inputProps={{ 'min': MIN_NUMBER_OF_CATEGORIES, 'max': props.maxNumberOfCategories }}
                         onChange={handleNumberOfCategoriesInputChange}
                     />
