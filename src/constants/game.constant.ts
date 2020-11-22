@@ -6,11 +6,6 @@ export const MIN_NUMBER_OF_CATEGORIES = 3;
 export const DEFAULT_DURATION_OF_COUNTDOWN = 60;
 export const MIN_DURATION_OF_COUNTDOWN = 30;
 
-export enum UseCountdownRadioButton {
-    countdown = 'countdown',
-    player = 'player',
-}
-
 export const STANDARD_ALPHABET = [
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
     'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'

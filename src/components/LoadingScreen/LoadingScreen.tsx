@@ -19,16 +19,33 @@ const useStyles = makeStyles({
         left: '50%',
         transform: 'translate(-50%, -50%)',
         width: loadingSpinnerSize + 'px'
+    },
+    waitingForPlayers: {
+        position: 'absolute',
+        bottom: '1rem',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        maxWidth: '36rem',
+        margin: '0 !important'
     }
 });
 
-const LoadingScreen: React.FunctionComponent = () => {
+interface LoadingScreenProps {
+    waitingForPlayers?: string[];
+}
+
+const LoadingScreen: React.FunctionComponent<LoadingScreenProps> = props => {
     const classes = useStyles();
     return (
         <div className={classes.loadingScreen}>
             <div className={classes.loadingSpinner}>
                 <CircularProgress color="secondary" size={loadingSpinnerSize} />
             </div>
+            {props.waitingForPlayers ? (
+                <div className={'material-card-style ' + classes.waitingForPlayers}>
+                    Warte auf Spieler: <span className="bold-text">{props.waitingForPlayers.join(', ')}</span>
+                </div>
+            ) : null}
         </div>
     );
 };

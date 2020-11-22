@@ -68,7 +68,9 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
     const sortedPlayers = getPlayersInAlphabeticalOrder(allPlayers);
     const notFinishedPlayers: string[] = [];
     sortedPlayers.forEach(player => {
-        if (!playersThatFinishedEvaluation.has(player.id)) { notFinishedPlayers.push(player.name); }
+        if (!playersThatFinishedEvaluation.has(player.id)) {
+            notFinishedPlayers.push(player.name);
+        }
     });
 
     const showSnackBar = (message: string) => {

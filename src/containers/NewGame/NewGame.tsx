@@ -37,9 +37,8 @@ import {
     STANDARD_ALPHABET,
     STANDARD_CATEGORIES,
     STANDARD_EXCLUDED_LETTERS,
-    UseCountdownRadioButton,
 } from '../../constants/game.constant';
-import { GameConfigScoringOptions } from '../../models/game.interface';
+import { EndRoundMode, GameConfigScoringOptions } from '../../models/game.interface';
 import { PlayerInfo } from '../../models/player.interface';
 import { AppAction, setDataForNewGame, SetDataForNewGamePayload } from '../../store/app.actions';
 import { AppState } from '../../store/app.reducer';
@@ -69,6 +68,7 @@ interface NewGameProps extends NewGamePropsFromStore, NewGameDispatchProps, Rout
 interface NewGameState {
     availableCategories: string[];
     durationOfCountdown: number;
+    endRoundMode: EndRoundMode;
     isNumberOfRoundsInputValid: boolean;
     isSnackbarOpen: boolean;
     lettersToExclude: string[];
@@ -77,7 +77,6 @@ interface NewGameState {
     scoringOptions: GameConfigScoringOptions;
     selectedCategories: string[];
     snackBarMessage: string;
-    useCountdown: boolean;
     validateInputs: boolean;
 }
 
@@ -85,6 +84,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
     public state: NewGameState = {
         availableCategories: AVAILABLE_CATEGORIES,
         durationOfCountdown: DEFAULT_DURATION_OF_COUNTDOWN,
+        endRoundMode: EndRoundMode.allPlayersSubmit,
         isNumberOfRoundsInputValid: true,
         isSnackbarOpen: false,
         lettersToExclude: [...STANDARD_EXCLUDED_LETTERS],
@@ -97,7 +97,6 @@ class NewGame extends Component<NewGameProps, NewGameState> {
             onlyPlayerWithValidAnswer: true,
         },
         snackBarMessage: '',
-        useCountdown: false,
         validateInputs: false
     };
 
@@ -143,17 +142,22 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                         className={styles.radio_group}
                         aria-label="Beenden der Runde"
                         name="usecountdown"
-                        value={this.state.useCountdown ? UseCountdownRadioButton.countdown : UseCountdownRadioButton.player}
+                        value={this.state.endRoundMode}
                         onChange={this.handleUseCountdownChange}
                     >
                         <FormControlLabel
-                            value={UseCountdownRadioButton.player}
+                            value={EndRoundMode.allPlayersSubmit}
                             control={<Radio color="primary" />}
-                            label="Spieler"
+                            label="Alle Spielenden gemeinsam"
+                        />
+                        <FormControlLabel
+                            value={EndRoundMode.firstPlayerSubmits}
+                            control={<Radio color="primary" />}
+                            label="Schnellster Spieler"
                         />
                         <div className={styles.countdown_wrapper}>
                             <FormControlLabel
-                                value={UseCountdownRadioButton.countdown}
+                                value={EndRoundMode.countdownEnds}
                                 control={<Radio color="primary" />}
                                 label="Countdown (Sekunden)"
                             />
@@ -161,7 +165,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                                 type="number"
                                 value={this.state.durationOfCountdown}
                                 className={styles.countdown_input}
-                                disabled={!this.state.useCountdown}
+                                disabled={this.state.endRoundMode !== EndRoundMode.countdownEnds}
                                 inputProps={{ 'aria-label': 'Dauer des Countdowns', 'min': MIN_DURATION_OF_COUNTDOWN }}
                                 onChange={this.handleCountdownInputChange}
                             />
@@ -260,7 +264,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
     }
 
     private handleUseCountdownChange = (event: ChangeEvent<HTMLInputElement>) => {
-        this.setState({ useCountdown: (event.target as HTMLInputElement).value === UseCountdownRadioButton.countdown });
+        this.setState({ endRoundMode: event.target.value as EndRoundMode });
     };
 
     private selectCategoriesRandomly = (numberOfCategories: number, retainSelection: boolean) => {
@@ -326,7 +330,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
     private startNewGame = () => {
         const playerInfo = this.props.playerInfo as PlayerInfo;
         const idCreationTimestamp = this.props.playerIdCreationTimestamp;
-        const { durationOfCountdown, nameInput, numberOfRoundsInput, scoringOptions, selectedCategories, useCountdown } = this.state;
+        const { durationOfCountdown, endRoundMode, nameInput, numberOfRoundsInput, scoringOptions, selectedCategories } = this.state;
         const gameId = uuidv4(); // ⇨ e.g. '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d'
         removeAllDataOfRunningGameFromLocalStorage();
         setPlayerInfoInLocalStorage({ id: playerInfo.id, idCreationTimestamp, name: nameInput.trim() });
@@ -335,10 +339,10 @@ class NewGame extends Component<NewGameProps, NewGameState> {
             gameConfig: {
                 categories: selectedCategories,
                 durationOfCountdown,
+                endRoundMode,
                 letters: getRandomLetters(numberOfRoundsInput, xor(STANDARD_ALPHABET, this.state.lettersToExclude)),
                 numberOfRounds: numberOfRoundsInput,
                 scoringOptions,
-                useCountdown
             },
             gameId,
             isRejoiningGame: false,

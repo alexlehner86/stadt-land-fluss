@@ -3,7 +3,7 @@ import { Button, Divider } from '@material-ui/core';
 import PlayCircleFilled from '@material-ui/icons/PlayCircleFilled';
 import React from 'react';
 import { MIN_NUMBER_OF_PLAYERS } from '../../constants/game.constant';
-import { GameConfig } from '../../models/game.interface';
+import { EndRoundMode, GameConfig } from '../../models/game.interface';
 import { PlayerInfo } from '../../models/player.interface';
 import { PubNubMessage, PubNubMessageType } from '../../models/pub-nub-data.model';
 import { JoinGameLink } from '../JoinGameLink/JoinGameLink';
@@ -25,6 +25,18 @@ const PhaseWaitingToStart: React.FunctionComponent<PhaseWaitingToStartProps> = p
     const waitForGameStartElement = (
         <p className="wait-for-start-animation">Warte auf Spielbeginn <span>.</span><span>.</span><span>.</span></p>
     );
+    const getEndRoundDescription = (gameConfig: GameConfig): string => {
+        switch (gameConfig.endRoundMode) {
+            case EndRoundMode.allPlayersSubmit:
+                return 'Wenn alle Spielenden ihre Antworten abgeschickt haben';
+            case EndRoundMode.countdownEnds:
+                return `Countdown (${gameConfig.durationOfCountdown} Sekunden)`;
+            case EndRoundMode.firstPlayerSubmits:
+                return 'Schnellster Spieler';
+            default:
+                return '';
+        }
+    };
     const createGameSettingsElement = (): JSX.Element => (
         <React.Fragment>
             <Divider />
@@ -34,7 +46,7 @@ const PhaseWaitingToStart: React.FunctionComponent<PhaseWaitingToStartProps> = p
             <p><span className="bold-text">Kategorien:</span> {gameConfig.categories.join(', ')}</p>
             <p>
                 <span className="bold-text">Beenden der Runde durch:</span>
-                <span> {gameConfig.useCountdown ? `Countdown (${gameConfig.durationOfCountdown} Sekunden)` : 'Spieler'}</span>
+                <span> {getEndRoundDescription(gameConfig)}</span>
             </p>
             <ScoringOptionsList rules={gameConfig.scoringOptions} />
         </React.Fragment>

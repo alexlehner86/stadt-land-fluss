@@ -10,18 +10,29 @@ export interface GameConfigScoringOptions {
     [GameOption.onlyPlayerWithValidAnswer]: boolean;
 }
 
+export enum EndRoundMode {
+    /**
+     * All players have to click "Finish round" to end the round.
+     */
+    allPlayersSubmit = 'allPlayers',
+    /**
+     * Use a countdown that determines how much time each player has
+     * to fill out the text fields in one round of the game.
+     */
+    countdownEnds = 'countdownEnds',
+    /**
+     * The first player to click "Finish round" ends the round.
+     */
+    firstPlayerSubmits = 'firstPlayer',
+}
+
 export interface GameConfig {
     categories: string[];
     durationOfCountdown: number;
+    endRoundMode: EndRoundMode;
     letters: string[];
     numberOfRounds: number;
     scoringOptions: GameConfigScoringOptions;
-    /**
-     * Whether to use a countdown that determines how much time each player has
-     * to fill out the text fields in one round of the game. If useCountdown is
-     * set to false, then the first player to click "Finish round" ends the round.
-     */
-    useCountdown: boolean;
 }
 
 export interface StoredRunningGameInfo {

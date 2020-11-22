@@ -2,6 +2,10 @@ This project is an online version of the popular European game "Stadt-Land-Fluss
 
 ## Release Notes
 
+### v1.5.8
+
+- Add game option: End round after all players submitted answers
+
 ### v1.5.7
 
 - Update dependencies

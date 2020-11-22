@@ -14,6 +14,7 @@ import PubNubEventHandler from '../../components/PubNubEventHandler/PubNubEventH
 import { PUBNUB_CONFIG } from '../../config/pubnub.config';
 import { GamePhase } from '../../constants/game.constant';
 import {
+    EndRoundMode,
     EvaluationOfPlayerInput,
     GameConfig,
     GameRound,
@@ -85,6 +86,7 @@ export interface PlayGameState {
     gameConfig: GameConfig | null;
     gameRounds: GameRound[];
     playersThatFinishedEvaluation: Map<string, boolean>;
+    playersThatFinishedRound: Map<string, boolean>;
     showLetterAnimation: boolean;
     showLoadingScreen: boolean;
 }
@@ -97,8 +99,9 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         currentRoundEvaluation: new Map<string, PlayerInputEvaluation[]>(),
         currentRoundInputs: [],
         gameConfig: null,
-        gameRounds: [],
+        gameRounds: [new Map<string, PlayerInput[]>()],
         playersThatFinishedEvaluation: new Map<string, boolean>(),
+        playersThatFinishedRound: new Map<string, boolean>(),
         showLetterAnimation: false,
         showLoadingScreen: true
     };
@@ -118,8 +121,13 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                 callbackWhenAnimationDone={this.callbackWhenAnimationDone}
             />
         );
-        const adminPanel = <AdminPanel allPlayers={this.state.allPlayers} kickPlayer={this.sendKickPlayerMessage} />;
-        const { showLetterAnimation, showLoadingScreen } = this.state;
+        const { allPlayers, currentPhase, gameConfig, showLetterAnimation, showLoadingScreen } = this.state;
+        const adminPanel = <AdminPanel allPlayers={allPlayers} kickPlayer={this.sendKickPlayerMessage} />;
+        const showWaitingForPlayers = currentPhase === GamePhase.fillOutTextfields
+            && (gameConfig && gameConfig.endRoundMode === EndRoundMode.allPlayersSubmit)
+            && this.state.playersThatFinishedRound.size !== allPlayers.size;
+        const loadingScreenElement = !showWaitingForPlayers ? <LoadingScreen />
+            : <LoadingScreen waitingForPlayers={this.getWaitingForPlayers()} />;
 
         return (
             <PubNubProvider client={this.pubNubClient}>
@@ -136,7 +144,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                     processPubNubMessage={this.processPubNubMessage}
                 />
                 {showLetterAnimation ? letterAnimationElement : null}
-                {showLoadingScreen ? <LoadingScreen /> : null}
+                {showLoadingScreen ? loadingScreenElement : null}
                 {!showLoadingScreen && !showLetterAnimation ? (
                     <div className="main-content-wrapper">
                         {this.createCurrentPhaseElement()}
@@ -237,6 +245,19 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     }
 
     /**
+     * Returns the names of the players that haven't submitted their answers yet.
+     */
+    private getWaitingForPlayers = (): string[] => {
+        const waitingForPlayers: string[] = [];
+        getPlayersInAlphabeticalOrder(this.state.allPlayers).forEach(player => {
+            if (!this.state.playersThatFinishedRound.has(player.id)) {
+                waitingForPlayers.push(player.name);
+            }
+        });
+        return waitingForPlayers;
+    }
+
+    /**
      * Called by PubNubEventHandler when it receives a PubNub presence event with action 'state-change'.
      * It processes information about players that had already joined the game before this user joined
      * (hereNow result) or about a player that joins the game after this user joined.
@@ -267,13 +288,24 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
      * PubNubEventHandler calls this method when it receives a PubNub message with attribute 'type'.
      */
     private processPubNubMessage = (event: Pubnub.MessageEvent) => {
+        const gameConfig = this.state.gameConfig as GameConfig;
         const message = event.message as PubNubMessage;
         switch (message.type) {
             case PubNubMessageType.startGame:
                 this.startGame();
                 break;
             case PubNubMessageType.roundFinished:
-                this.stopRoundAndSendInputs();
+                if (gameConfig.endRoundMode === EndRoundMode.allPlayersSubmit) {
+                    const playersThatFinishedRound = cloneDeep(this.state.playersThatFinishedRound);
+                    playersThatFinishedRound.set(event.publisher, true);
+                    this.setState({ playersThatFinishedRound });
+                    if (event.publisher === this.props.playerInfo.id) {
+                        this.stopRoundAndSendInputs();
+                    }
+                } else {
+                    // In game modes "countdown" and "fastet player", the round ends for all players right away.
+                    this.stopRoundAndSendInputs();
+                }
                 break;
             case PubNubMessageType.currentRoundInputs:
                 this.addPlayerInputForFinishedRound(event.publisher, message.payload);
@@ -341,7 +373,9 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
      * Gets called when the user ends the current round.
      */
     private finishRoundOnUserAction = () => {
-        this.setState({ showLoadingScreen: true });
+        const playersThatFinishedRound = cloneDeep(this.state.playersThatFinishedRound);
+        playersThatFinishedRound.set(this.props.playerInfo.id, true);
+        this.setState({ playersThatFinishedRound, showLoadingScreen: true });
         this.sendMessage({ type: PubNubMessageType.roundFinished });
     }
 
@@ -349,10 +383,6 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
      * This method is called when the PubNub message 'roundFinished' is received.
      */
     private stopRoundAndSendInputs = () => {
-        // Prepare new GameRound object for addPlayerInputForFinishedRound method
-        // as well as new currentRoundEvaluation object for evaluation phase.
-        const gameRounds: GameRound[] = [...this.state.gameRounds, new Map<string, PlayerInput[]>()];
-        this.setState({ gameRounds, showLoadingScreen: true });
         // Send this player's text inputs of current round to other players (and herself/himself).
         const message = new PubNubCurrentRoundInputsMessage(markEmptyPlayerInputsAsInvalid(this.state.currentRoundInputs));
         this.sendMessage(message.toPubNubMessage());
@@ -462,8 +492,9 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                 currentRoundEvaluation: createGameRoundEvaluation(allPlayers, gameConfig.categories),
                 currentRoundInputs: getEmptyRoundInputs(gameConfig.categories.length),
                 currentRound: currentRound + 1,
-                gameRounds,
+                gameRounds: [...gameRounds, new Map<string, PlayerInput[]>()],
                 playersThatFinishedEvaluation: new Map<string, boolean>(),
+                playersThatFinishedRound: new Map<string, boolean>(),
                 showLetterAnimation: true
             });
         }

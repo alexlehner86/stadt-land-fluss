@@ -39,3 +39,6 @@
     width: 3rem;
     font-size: 0.9rem !important;
 }
+.countdown_input:after {
+    content: none;
+}

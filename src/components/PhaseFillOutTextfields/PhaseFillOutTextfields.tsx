@@ -1,7 +1,8 @@
 import { IconButton, InputAdornment, TextField } from '@material-ui/core';
 import EmailIcon from '@material-ui/icons/Email';
 import React, { ChangeEvent } from 'react';
-import { GameConfig, PlayerInput } from '../../models/game.interface';
+
+import { EndRoundMode, GameConfig, PlayerInput } from '../../models/game.interface';
 import GameRoundChip from '../GameRoundChip/GameRoundChip';
 import RoundCountdown from '../RoundCountdown/RoundCountdown';
 import { SectionHeader } from '../SectionHeader/SectionHeader';
@@ -70,7 +71,7 @@ const PhaseFillOutTextfields: React.FunctionComponent<PhaseFillOutTextfieldsProp
             />
             <form className="app-form" noValidate autoComplete="off">
                 {gameConfig.categories.map(createTextfieldElement)}
-                {gameConfig.useCountdown ? countdownElement : endRoundButton }
+                {gameConfig.endRoundMode === EndRoundMode.countdownEnds ? countdownElement : endRoundButton }
             </form>
         </React.Fragment>
     );
