@@ -2,6 +2,11 @@ This project is an online version of the popular European game "Stadt-Land-Fluss
 
 ## Release Notes
 
+### v1.5.7
+
+- Update dependencies
+- Improve service worker
+
 ### v1.5.5
 
 - Add random categories selection feature.
@@ -90,6 +95,11 @@ Run `npm install` to install the necessary dependencies. You need to create a [P
 }
 
 Now you can run the app with `npm start`.
+
+### Webpack Config Override
+After updating core dependencies, the `react-scripts build` is not building service-worker.js correctly. Therefore it is necessary to open `node_modules/react-scripts/config/webpack.config.js` and change the code for Service Worker creation:
+- Replace the line `new WorkboxWebpackPlugin.InjectManifest({` with `new WorkboxWebpackPlugin.GenerateSW({`
+- Delete the line above: `fs.existsSync(swSrc) &&`
 
 ## Available Scripts
 
