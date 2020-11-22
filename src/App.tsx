@@ -1,6 +1,7 @@
 import './App.css';
 
 import { ThemeProvider } from '@material-ui/core';
+import { SnackbarProvider } from 'notistack';
 import React, { Component, CSSProperties, Dispatch, lazy, Suspense } from 'react';
 import { connect } from 'react-redux';
 import { HashRouter, Route, Switch } from 'react-router-dom';
@@ -8,14 +9,17 @@ import { v4 as uuidv4 } from 'uuid';
 
 import Header from './components/Header/Header';
 import LoadingScreen from './components/LoadingScreen/LoadingScreen';
+import NewVersionSnackbar from './components/NewVersionSnackbar/NewVersionSnackbar';
 import {
     MAX_GAME_ID_VALIDITY_DURATION_IN_SECONDS,
     MAX_PLAYER_ID_VALIDITY_DURATION_IN_SECONDS,
+    SERVICE_WORKER_SKIP_WAITING,
 } from './constants/app.constant';
 import { AppTheme, AppThemes } from './constants/themes.constant';
 import Dashboard from './containers/Dashboard/Dashboard';
 import { StoredRunningGameInfo } from './models/game.interface';
 import { StoredPlayerInfo } from './models/player.interface';
+import * as serviceWorker from './serviceWorker';
 import { AppAction, setAppTheme, setStoredPlayerInfo, setStoredRunningGameInfo } from './store/app.actions';
 import { AppState } from './store/app.reducer';
 import { convertDateToUnixTimestamp } from './utils/general.utils';
@@ -53,37 +57,64 @@ interface AppDispatchProps {
 }
 interface AppProps extends AppPropsFromStore, AppDispatchProps { }
 
-class App extends Component<AppProps> {
+interface AppComponentState {
+    waitingWorker: ServiceWorker | null,
+    newVersionAvailable: boolean
+}
+
+class App extends Component<AppProps, AppComponentState> {
+    public state: AppComponentState = {
+        waitingWorker: null,
+        newVersionAvailable: false
+    };
+
     public render() {
+        const mainContent = (
+            <main
+                className={'app-main ' + this.props.activeTheme.className}
+                style={this.props.activeTheme.style as CSSProperties}
+            >
+                <Suspense fallback={<LoadingScreen />}>
+                    <Switch>
+                        <Route path="/manual" exact component={GameManual} />
+                        <Route path="/newgame" exact component={NewGame} />
+                        <Route path="/joingame" exact component={JoinGame} />
+                        <Route path="/play" exact component={PlayGame} />
+                        <Route path="/results" exact component={GameResults} />
+                        <Route path="/" component={Dashboard} />
+                    </Switch>
+                </Suspense>
+            </main>
+        );
+        const newVersionSnackbar = (
+            <NewVersionSnackbar updateServiceWorker={this.updateServiceWorker}></NewVersionSnackbar>
+        );
         return (
             <ThemeProvider theme={this.props.activeTheme.muiTheme}>
-                <div className="app-container">
-                    <HashRouter basename={process.env.PUBLIC_URL}>
-                        <Header theme={this.props.activeTheme} />
-                        <main
-                            className={'app-main ' + this.props.activeTheme.className}
-                            style={this.props.activeTheme.style as CSSProperties}
-                        >
-                            <Suspense fallback={<LoadingScreen />}>
-                                <Switch>
-                                    <Route path="/manual" exact component={GameManual} />
-                                    <Route path="/newgame" exact component={NewGame} />
-                                    <Route path="/joingame" exact component={JoinGame} />
-                                    <Route path="/play" exact component={PlayGame} />
-                                    <Route path="/results" exact component={GameResults} />
-                                    <Route path="/" component={Dashboard} />
-                                </Switch>
-                            </Suspense>
-                        </main>
-                    </HashRouter>
-                </div>
+                <SnackbarProvider maxSnack={3}>
+                    <div className="app-container">
+                        <HashRouter basename={process.env.PUBLIC_URL}>
+                            <Header theme={this.props.activeTheme} />
+                            {mainContent}
+                        </HashRouter>
+                    </div>
+                    {this.state.newVersionAvailable ? newVersionSnackbar : null}
+                </SnackbarProvider>
             </ThemeProvider>
         );
     }
 
     public componentDidMount() {
+        serviceWorker.register({ onUpdate: this.onServiceWorkerUpdate });
         // Prevent browser back on backspace (e.g. in Firefox).
         backspaceDisabler.disable();
+        this.restoreAppTheme();
+        const nowTimestamp = convertDateToUnixTimestamp(new Date());
+        this.restorePlayerInfo(nowTimestamp);
+        this.restoreRunningGameInfo(nowTimestamp);
+    }
+
+    private restoreAppTheme = (): void => {
         const appThemeId = getAppThemeIdFromLocalStorage();
         if (appThemeId) {
             const appTheme = AppThemes.find(theme => theme.id === appThemeId);
@@ -91,14 +122,19 @@ class App extends Component<AppProps> {
                 this.props.onSetAppTheme(appTheme);
             }
         }
+    }
+
+    private restorePlayerInfo = (nowTimestamp: number): void => {
         let storedPlayerInfo = getPlayerInfoFromLocalStorage();
-        const nowTimestamp = convertDateToUnixTimestamp(new Date());
         // If no stored player info was found or player's id is past validity, create a new uuid and store in local storage.
         if (!storedPlayerInfo || nowTimestamp - storedPlayerInfo.idCreationTimestamp > MAX_PLAYER_ID_VALIDITY_DURATION_IN_SECONDS) {
             storedPlayerInfo = { id: uuidv4(), idCreationTimestamp: nowTimestamp, name: storedPlayerInfo ? storedPlayerInfo.name : '' };
             setPlayerInfoInLocalStorage(storedPlayerInfo);
         }
         this.props.onSetStoredPlayerInfo(storedPlayerInfo);
+    }
+
+    private restoreRunningGameInfo = (nowTimestamp: number): void => {
         const runningGameInfo = getRunningGameInfoFromLocalStorage();
         if (runningGameInfo) {
             // A running game is only valid for the time specified in the max validity constant.
@@ -108,6 +144,23 @@ class App extends Component<AppProps> {
                 removeAllDataOfRunningGameFromLocalStorage();
             }
         }
+    }
+
+    private onServiceWorkerUpdate = (registration: ServiceWorkerRegistration) => {
+        // Only alert user to new version, if they're not in the middle of playing a game.
+        if (!window.location.href.includes('/play')) {
+            this.setState({
+                waitingWorker: registration && registration.waiting,
+                newVersionAvailable: true
+            });
+        }
+    }
+
+    private updateServiceWorker = (): void => {
+        const { waitingWorker } = this.state;
+        waitingWorker && waitingWorker.postMessage({ type: SERVICE_WORKER_SKIP_WAITING });
+        this.setState({ newVersionAvailable: false });
+        window.location.reload();
     }
 }
 
