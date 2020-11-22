@@ -26,7 +26,7 @@ const GameResultsList: React.FunctionComponent<GameResultsListProps> = props => 
     const mostPoints = Math.max(...props.gameResults.map(result => result.points));
     const getResultIcon = (isWinner: boolean): JSX.Element => {
         return isWinner ? <InsertEmoticonIcon color="primary" fontSize="large" /> : <FaceIcon fontSize="large" />;
-    }
+    };
     return (
         <List>
             {props.gameResults.map((result, index) => (
@@ -43,6 +43,6 @@ const GameResultsList: React.FunctionComponent<GameResultsListProps> = props => 
             ))}
         </List>
     );
-}
+};
 
 export default GameResultsList;

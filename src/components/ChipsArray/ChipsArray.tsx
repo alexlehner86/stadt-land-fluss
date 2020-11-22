@@ -43,6 +43,6 @@ const ChipsArray: React.FunctionComponent<ChipsArrayProps> = props => {
             {props.children}
         </div>
     );
-}
+};
 
 export default ChipsArray;

@@ -11,7 +11,7 @@ interface JoinGameLinkProps {
 export const JoinGameLink: React.FunctionComponent<JoinGameLinkProps> = props => {
     const [open, setOpen] = useState(false);
     const handleClick = () => {
-        copyToClipboard(joinGameLink)
+        copyToClipboard(joinGameLink);
         setOpen(true);
     };
     const handleClose = () => {
@@ -52,4 +52,4 @@ export const JoinGameLink: React.FunctionComponent<JoinGameLinkProps> = props =>
             />
         </React.Fragment>
     );
-}
+};

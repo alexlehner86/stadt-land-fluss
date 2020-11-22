@@ -31,6 +31,6 @@ const LoadingScreen: React.FunctionComponent = () => {
             </div>
         </div>
     );
-}
+};
 
 export default LoadingScreen;

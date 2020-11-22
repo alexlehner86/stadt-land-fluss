@@ -37,6 +37,6 @@ const PlayerList: React.FunctionComponent<PlayerListProps> = props => {
             ))}
         </div>
     );
-}
+};
 
 export default PlayerList;

@@ -87,6 +87,6 @@ const NewGameOptionsPanel: React.FunctionComponent<NewGameOptionsPanelProps> = p
             </ExpansionPanelDetails>
         </ExpansionPanel>
     );
-}
+};
 
 export default NewGameOptionsPanel;

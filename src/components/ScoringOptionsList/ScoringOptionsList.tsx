@@ -22,6 +22,6 @@ const ScoringOptionsList: React.FunctionComponent<ScoringOptionsListProps> = pro
         return createFurtherOptionsElement();
     }
     return null;
-}
+};
 
 export default ScoringOptionsList;

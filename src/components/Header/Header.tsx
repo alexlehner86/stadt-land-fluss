@@ -24,7 +24,7 @@ export class Header extends Component<HeaderProps, HeaderState> {
     public state = { isFullscreenActive: false };
 
     public render() {
-        const fullscreenButtonTitle = this.state.isFullscreenActive ? "Vollbildmodus beenden" : "Vollbildmodus starten";
+        const fullscreenButtonTitle = this.state.isFullscreenActive ? 'Vollbildmodus beenden' : 'Vollbildmodus starten';
         return (
             <header className={'app-header ' + this.props.theme.className}>
                 <h1>Stadt-Land-Fluss</h1>
@@ -106,5 +106,5 @@ const mapStateToProps = (state: AppState): HeaderPropsFromStore => {
     return {
         playerName: state.playerInfo ? state.playerInfo.name : ''
     };
-}
+};
 export default withRouter(connect(mapStateToProps)(Header));

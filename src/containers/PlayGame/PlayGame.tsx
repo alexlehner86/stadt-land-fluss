@@ -288,7 +288,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                 this.countPlayerAsEvaluationFinished(event.publisher);
                 break;
             case PubNubMessageType.kickPlayer:
-                this.removePlayerFromGame(message.payload)
+                this.removePlayerFromGame(message.payload);
                 break;
             case PubNubMessageType.requestGameData:
                 if (shouldUserRespondToRequestGameDataMessage(this.props.playerInfo, this.state.allPlayers, event.publisher)) {
@@ -573,11 +573,11 @@ const mapStateToProps = (state: AppState): PlayGamePropsFromStore => {
         isRejoiningGame: state.isRejoiningGame,
         playerInfo: state.playerInfo as PlayerInfo
     };
-}
+};
 const mapDispatchToProps = (dispatch: Dispatch<AppAction>): PlayGameDispatchProps => {
     return {
         onSetDataOfFinishedGame: (payload: SetDataOfFinishedGamePayload) => dispatch(setDataOfFinishedGame(payload)),
         onResetAppState: () => dispatch(resetAppState())
-    }
+    };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(PlayGame);

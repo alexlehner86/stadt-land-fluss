@@ -72,6 +72,6 @@ const PhaseWaitingToStart: React.FunctionComponent<PhaseWaitingToStartProps> = p
             {playerInfo.isAdmin ? createInvitePlayersElement() : null}
         </React.Fragment>
     );
-}
+};
 
 export default PhaseWaitingToStart;

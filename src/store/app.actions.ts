@@ -41,10 +41,8 @@ export interface SetDataOfFinishedGameAction extends Action {
     payload: SetDataOfFinishedGamePayload
 }
 
-export interface ResetAppStateAction extends Action {}
-
 export type AppAction = SetAppThemeAction | SetStoredPlayerInfoAction | SetStoredRunningGameInfoAction
-    | SetDataForNewGameAction | SetDataOfFinishedGameAction | ResetAppStateAction;
+    | SetDataForNewGameAction | SetDataOfFinishedGameAction | Action;
 
 /*
  * Action Creators
@@ -64,6 +62,6 @@ export const setDataForNewGame = (payload: SetDataForNewGamePayload): SetDataFor
 export const setDataOfFinishedGame = (payload: SetDataOfFinishedGamePayload): SetDataOfFinishedGameAction => {
     return { type: SET_DATA_OF_FINISHED_GAME, payload };
 };
-export const resetAppState = (): ResetAppStateAction => {
+export const resetAppState = (): Action => {
     return { type: RESET_APP_STATE };
 };

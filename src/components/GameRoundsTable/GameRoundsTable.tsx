@@ -124,6 +124,6 @@ const GameRoundsTable: React.FunctionComponent<GameRoundsTableProps> = props => 
             </Table>
         </TableContainer>
     );
-}
+};
 
 export default GameRoundsTable;

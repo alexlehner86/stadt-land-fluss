@@ -88,6 +88,6 @@ const mapStateToProps = (state: AppState): AppState => state;
 const mapDispatchToProps = (dispatch: Dispatch<AppAction>): GameResultsDispatchProps => {
     return {
         onResetAppState: () => dispatch(resetAppState())
-    }
+    };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(GameResults);

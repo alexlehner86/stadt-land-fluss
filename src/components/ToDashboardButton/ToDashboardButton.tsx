@@ -20,6 +20,6 @@ const ToDashboardButton: React.FunctionComponent<ToDashboardButtonProps> = props
             >Dashboard</Button>
         </div>
     );
-}
+};
 
 export default ToDashboardButton;

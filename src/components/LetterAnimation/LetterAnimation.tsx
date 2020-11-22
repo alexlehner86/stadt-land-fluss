@@ -25,7 +25,7 @@ class Particle {
         ctx.fillStyle = 'white';
         ctx.fillRect(0, 0, this.radius, this.radius);
         ctx.restore();
-    };
+    }
 }
 
 class ParticleAlphabet {
@@ -91,7 +91,7 @@ class ParticleAlphabet {
     }
 
     private makeParticles(num: number) {
-        for (var i = 0; i <= num; i++) {
+        for (let i = 0; i <= num; i++) {
             const x = this.width / 2 + Math.random() * 400 - 200;
             const y = this.height / 2 + Math.random() * 400 - 200;
             this.particles.push(new Particle(x, y));
@@ -154,4 +154,4 @@ export const LetterAnimation: React.FunctionComponent<LetterAnimationProps> = pr
     return (
         <canvas id="letter-animation-canvas"></canvas>
     );
-}
+};

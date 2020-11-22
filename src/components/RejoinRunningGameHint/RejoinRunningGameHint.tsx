@@ -6,7 +6,7 @@ import styles from './RejoinRunningGameHint.module.css';
 export enum RejoinRunningGameHintContext {
     newgame = 'newgame',
     joingame = 'joingame'
-};
+}
 
 interface RejoinRunningGameHintProps {
     context: RejoinRunningGameHintContext;
@@ -25,4 +25,4 @@ export const RejoinRunningGameHint: React.FunctionComponent<RejoinRunningGameHin
             <Link component={RouterLink} to="/play" className={styles.link}>⇒ Zurück ins laufende Spiel</Link>
         </div>
     );
-}
+};

@@ -33,7 +33,7 @@ export const getRandomCategories = (
 ): string[] => {
     const randomCategories: string[] = [...preselectedCategories];
     const numberOfRandomSelections = numberOfCategories - preselectedCategories.length;
-    let categoriesToSelectFrom = categoryPool.filter(category => !preselectedCategories.includes(category))
+    let categoriesToSelectFrom = categoryPool.filter(category => !preselectedCategories.includes(category));
     for (let i = 0; i < numberOfRandomSelections; i++) {
         const randomCategory = randomnItem(categoriesToSelectFrom);
         randomCategories.push(randomCategory);

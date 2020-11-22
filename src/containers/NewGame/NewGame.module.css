@@ -11,7 +11,7 @@
     width: 100%;
     border: 1px solid rgba(0, 0, 0, 0.23);
     border-radius: 4px;
-    padding: 0.5rem;
+    padding: 0.5rem 0.75rem;
 }
 
 .end_round_legend {

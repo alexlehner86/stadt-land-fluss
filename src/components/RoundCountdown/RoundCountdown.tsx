@@ -38,6 +38,6 @@ const RoundCountdown: React.FunctionComponent<RoundCountdownProps> = props => {
             onComplete={props.onComplete}
         />
     );
-}
+};
 
 export default React.memo(RoundCountdown);

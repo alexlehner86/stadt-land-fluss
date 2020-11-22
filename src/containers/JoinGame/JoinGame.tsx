@@ -119,7 +119,7 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
 
     private joinGame = () => {
         const playerInfo = this.props.playerInfo as PlayerInfo;
-        const idCreationTimestamp = this.props.playerIdCreationTimestamp
+        const idCreationTimestamp = this.props.playerIdCreationTimestamp;
         const { idInput, nameInput } = this.state;
         removeAllDataOfRunningGameFromLocalStorage();
         setPlayerInfoInLocalStorage({ id: playerInfo.id, idCreationTimestamp, name: nameInput.trim() });
@@ -148,10 +148,10 @@ const mapStateToProps = (state: AppState): JoinGamePropsFromStore => {
         playerIdCreationTimestamp: state.playerIdCreationTimestamp,
         playerInfo: state.playerInfo
     };
-}
+};
 const mapDispatchToProps = (dispatch: Dispatch<AppAction>): JoinGameDispatchProps => {
     return {
         onSetGameData: (payload: SetDataForNewGamePayload) => dispatch(setDataForNewGame(payload))
-    }
+    };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(JoinGame);

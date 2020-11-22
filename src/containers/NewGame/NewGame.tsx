@@ -325,7 +325,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
 
     private startNewGame = () => {
         const playerInfo = this.props.playerInfo as PlayerInfo;
-        const idCreationTimestamp = this.props.playerIdCreationTimestamp
+        const idCreationTimestamp = this.props.playerIdCreationTimestamp;
         const { durationOfCountdown, nameInput, numberOfRoundsInput, scoringOptions, selectedCategories, useCountdown } = this.state;
         const gameId = uuidv4(); // ⇨ e.g. '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d'
         removeAllDataOfRunningGameFromLocalStorage();
@@ -362,10 +362,10 @@ const mapStateToProps = (state: AppState): NewGamePropsFromStore => {
         playerIdCreationTimestamp: state.playerIdCreationTimestamp,
         playerInfo: state.playerInfo
     };
-}
+};
 const mapDispatchToProps = (dispatch: Dispatch<AppAction>): NewGameDispatchProps => {
     return {
         onSetGameData: (payload: SetDataForNewGamePayload) => dispatch(setDataForNewGame(payload))
-    }
+    };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(NewGame);

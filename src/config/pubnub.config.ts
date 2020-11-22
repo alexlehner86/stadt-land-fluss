@@ -1,6 +1,6 @@
 import PubNub from 'pubnub';
 
-const PUBNUB_KEYS = require('./pubnub.config.json');
+import PUBNUB_KEYS from './pubnub.config.json';
 
 export const PUBNUB_CONFIG: PubNub.PubnubConfig = {
     publishKey: PUBNUB_KEYS.publishKey,

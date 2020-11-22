@@ -26,7 +26,7 @@ const TabPanel: React.FunctionComponent<TabPanelProps> = props => {
             {value === index && children}
         </div>
     );
-}
+};
 
 const a11yProps = (index: any) => ({
     id: `scrollable-auto-tab-${index}`,
@@ -53,7 +53,7 @@ const GameRoundsOverviewDialog: React.FunctionComponent<GameRoundsOverviewDialog
     const classes = useStyles();
     const { gameConfig, open, rounds, sortedPlayers, onClose } = props;
     const [tabValue, setTabValue] = React.useState(0);
-    const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => setTabValue(newValue);
+    const handleChange = (event: React.ChangeEvent<any>, newValue: number) => setTabValue(newValue);
 
     return (
         <Dialog onClose={onClose} open={open} maxWidth="lg">
@@ -91,7 +91,7 @@ const GameRoundsOverviewDialog: React.FunctionComponent<GameRoundsOverviewDialog
             </DialogActions>
         </Dialog>
     );
-}
+};
 
 interface GameRoundsOverviewButtonProps {
     gameConfig: GameConfig;
@@ -125,6 +125,6 @@ const GameRoundsOverviewButton: React.FunctionComponent<GameRoundsOverviewButton
             />
         </React.Fragment>
     );
-}
+};
 
 export default GameRoundsOverviewButton;

@@ -74,7 +74,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
     const showSnackBar = (message: string) => {
         setSnackBarMessage(message);
         setIsSnackbarOpen(true);
-    }
+    };
     const handleSnackBarClose = () =>  setIsSnackbarOpen(false);
     /**
       * Toggles the user's evaluation of a player's input for a category,
@@ -88,7 +88,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
         } else {
             props.updateEvaluationOfPlayerInput({ categoryIndex, evaluatedPlayerId, markedAsValid: !currentEvaluation });
         }
-    }
+    };
     /**
      * Displays a button that allows the user to reject a player's input for a category.
      * A badge attached to the button shows the total number of rejections. If the player
@@ -138,7 +138,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                 {hasPlayerTypedText ? evaluationButtonForTypedText : autoRejectIconForMissingText}
             </div>
         );
-    }
+    };
     /**
      * Creates a search link for a specific category and player input.
      */
@@ -146,7 +146,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
         const category = gameConfig.categories[categoryIndex];
         const evaluatedPlayer = sortedPlayers[indexInSortedPlayers];
         const playerInput = (finishedRound.get(evaluatedPlayer.id) as PlayerInput[])[categoryIndex].text;
-        const searchLink = `https://www.ecosia.org/search?q=${encodeURIComponent(category)}+${encodeURIComponent(playerInput)}`
+        const searchLink = `https://www.ecosia.org/search?q=${encodeURIComponent(category)}+${encodeURIComponent(playerInput)}`;
         return (
             <a
                 className="slf-evaluation-search-link"
@@ -163,7 +163,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                 </Tooltip>
             </a>
         );
-    }
+    };
     /**
       * Toggles the "marked as very creative" status of a player's input for a category,
       * but only if the user hasn't accepted the round evaluation yet and isn't trying to mark their own answer as "very creative".
@@ -180,7 +180,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                 props.updateIsPlayerInputVeryCreativeStatus({ categoryIndex, evaluatedPlayerId, markedAsCreative: !isMarkedAsCreative });
             }
         }
-    }
+    };
     /**
      * Creates a "mark as creative answer" toggle button for a specific category and player input.
      */
@@ -202,12 +202,12 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                 </IconButton>
             </Tooltip>
         );
-    }
+    };
     const createPointsChip = (evaluatedPlayerInput: PlayerInput): JSX.Element => {
         const points = gameConfig.scoringOptions.creativeAnswersExtraPoints && evaluatedPlayerInput.star
             ? evaluatedPlayerInput.points + EXTRA_POINTS : evaluatedPlayerInput.points;
         return <Chip label={`+${points}`} color="primary" />;
-    }
+    };
     /**
      * Creates a text input showing the player's input for a category. If the player input isn't an empty string,
      * then on the right side of the textfield a search link and clickable evaluation button are displayed.
@@ -244,7 +244,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                 {createEvaluationButton(categoryIndex, indexInSortedPlayers)}
             </div>
         );
-    }
+    };
     /**
      * Creates a section for each category of the current game. It displays the category in the header,
      * followed by one textfield for each player showing their input for the finished round.
@@ -264,7 +264,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
             setHasFinishedEvaluation(true);
             props.sendEvaluationFinishedMessage();
         }
-    }
+    };
 
     return (
         <React.Fragment>
@@ -298,6 +298,6 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
             />
         </React.Fragment>
     );
-}
+};
 
 export default PhaseEvaluateRound;

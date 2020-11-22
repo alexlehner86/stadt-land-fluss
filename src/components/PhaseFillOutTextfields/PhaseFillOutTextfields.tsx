@@ -74,6 +74,6 @@ const PhaseFillOutTextfields: React.FunctionComponent<PhaseFillOutTextfieldsProp
             </form>
         </React.Fragment>
     );
-}
+};
 
 export default PhaseFillOutTextfields;

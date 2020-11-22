@@ -116,7 +116,7 @@ const PubNubEventHandler: React.FunctionComponent<PubNubEventHandlerProps> = pro
         return () => {
             pubNubClient.removeListener(pubNubListeners);
             pubNubClient.unsubscribeAll();
-        }
+        };
     });
     return null;
 };

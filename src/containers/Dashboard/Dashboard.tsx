@@ -123,10 +123,10 @@ const mapStateToProps = (state: AppState): DashboardPropsFromStore => {
         activeTheme: state.activeTheme,
         gameId: state.gameId
     };
-}
+};
 const mapDispatchToProps = (dispatch: Dispatch<AppAction>): DashboardDispatchProps => {
     return {
         onSetAppTheme: (payload: AppTheme) => dispatch(setAppTheme(payload)),
-    }
+    };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);

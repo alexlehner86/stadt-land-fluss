@@ -37,14 +37,14 @@ const SelectRandomCategoriesDialog: React.FunctionComponent<SelectRandomCategori
     const numberOfRoundsInputLabel = `Anzahl Kategorien (${MIN_NUMBER_OF_CATEGORIES}-${props.maxNumberOfCategories})`;
 
     const handleNumberOfCategoriesInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-        let value = +event.target.value;
+        const value = +event.target.value;
         setNumberOfCategoriesInput(value);
         setIsNumberOfCategoriesInputValid(value >= MIN_NUMBER_OF_CATEGORIES && value <= props.maxNumberOfCategories);
-    }
+    };
 
     const handleRetainSelectionOptionChange = (event: ChangeEvent<HTMLInputElement>) => {
         setRetainSelection(event.target.checked);
-    }
+    };
 
     const handleClose = () => {
         onClose(null);
@@ -106,7 +106,7 @@ const SelectRandomCategoriesDialog: React.FunctionComponent<SelectRandomCategori
             </form>
         </Dialog>
     );
-}
+};
 
 interface SelectRandomCategoriesProps {
     maxNumberOfCategories: number;
@@ -120,7 +120,7 @@ const SelectRandomCategories: React.FunctionComponent<SelectRandomCategoriesProp
         if (numberOfCategories && retainSelection !== undefined) {
             props.selectCategoriesRandomly(numberOfCategories, retainSelection);
         }
-    }
+    };
 
     return (
         <React.Fragment>
@@ -140,6 +140,6 @@ const SelectRandomCategories: React.FunctionComponent<SelectRandomCategoriesProp
             />
         </React.Fragment>
     );
-}
+};
 
 export default SelectRandomCategories;

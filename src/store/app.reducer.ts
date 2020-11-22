@@ -1,6 +1,8 @@
 import { AppTheme, AppThemes } from '../constants/themes.constant';
 import { GameConfig, GameRound } from '../models/game.interface';
 import { PlayerInfo } from '../models/player.interface';
+import { StoredRunningGameInfo } from './../models/game.interface';
+import { StoredPlayerInfo } from './../models/player.interface';
 import {
     AppAction,
     RESET_APP_STATE,
@@ -39,11 +41,13 @@ const initialState: AppState = {
 };
 
 export const appReducer = (state: AppState = initialState, action: AppAction): AppState => {
+    let storedPlayerInfo: StoredPlayerInfo;
+    let storedRunningGameInfo: StoredRunningGameInfo;
     switch (action.type) {
         case SET_APP_THEME:
             return { ...state, activeTheme: (action as SetAppThemeAction).payload };
         case SET_STORED_PLAYER_INFO:
-            const storedPlayerInfo = (action as SetStoredPlayerInfoAction).payload;
+            storedPlayerInfo = (action as SetStoredPlayerInfoAction).payload;
             return {
                 ...state,
                 isRejoiningGame: false,
@@ -55,7 +59,7 @@ export const appReducer = (state: AppState = initialState, action: AppAction): A
                 }
             };
         case SET_STORED_RUNNING_GAME_INFO:
-            const storedRunningGameInfo = (action as SetStoredRunningGameInfoAction).payload;
+            storedRunningGameInfo = (action as SetStoredRunningGameInfoAction).payload;
             return {
                 ...state,
                 isRejoiningGame: true,

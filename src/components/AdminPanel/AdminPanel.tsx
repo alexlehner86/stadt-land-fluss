@@ -48,7 +48,7 @@ const KickUserDialog: React.FunctionComponent<KickUserDialogProps> = props => {
             <DialogContent classes={{ root: classes.dialogContent }}>
                 {props.playerToBeKicked ? (
                     <DialogContentText classes={{ root: classes.dialogContentText }}>
-                        "With great power comes great responsibility" – Willst du {props.playerToBeKicked.name} wirklich aus dem Spiel werfen?
+                        &quot;With great power comes great responsibility&quot; – Willst du {props.playerToBeKicked.name} wirklich aus dem Spiel werfen?
                     </DialogContentText>
                 ) : null}
             </DialogContent>
@@ -65,7 +65,7 @@ const KickUserDialog: React.FunctionComponent<KickUserDialogProps> = props => {
             </DialogActions>
         </Dialog>
     );
-}
+};
 
 interface AdminPanelProps {
     allPlayers: Map<string, PlayerInfo>;
@@ -139,6 +139,6 @@ const AdminPanel: React.FunctionComponent<AdminPanelProps> = props => {
             />
         </div>
     );
-}
+};
 
 export default AdminPanel;

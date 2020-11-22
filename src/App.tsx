@@ -1,7 +1,7 @@
 import './App.css';
 
 import { ThemeProvider } from '@material-ui/core';
-import React, { Component, Dispatch, lazy, Suspense } from 'react';
+import React, { Component, CSSProperties, Dispatch, lazy, Suspense } from 'react';
 import { connect } from 'react-redux';
 import { HashRouter, Route, Switch } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
@@ -62,7 +62,7 @@ class App extends Component<AppProps> {
                         <Header theme={this.props.activeTheme} />
                         <main
                             className={'app-main ' + this.props.activeTheme.className}
-                            style={this.props.activeTheme.style}
+                            style={this.props.activeTheme.style as CSSProperties}
                         >
                             <Suspense fallback={<LoadingScreen />}>
                                 <Switch>

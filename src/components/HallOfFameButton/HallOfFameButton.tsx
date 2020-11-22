@@ -65,7 +65,7 @@ const HallOfFameDialog: React.FunctionComponent<HallOfFameDialogProps> = props =
             </DialogActions>
         </Dialog>
     );
-}
+};
 
 interface HallOfFameButtonProps {
     hallOfFameData: HallOfFameEntry[];
@@ -95,6 +95,6 @@ const HallOfFameButton: React.FunctionComponent<HallOfFameButtonProps> = props =
             />
         </React.Fragment>
     );
-}
+};
 
 export default HallOfFameButton;

@@ -60,7 +60,7 @@ const CustomCategoryDialog: React.FunctionComponent<CustomCategoryDialogProps> =
             </form>
         </Dialog>
     );
-}
+};
 
 interface AddCustomCategoryProps {
     addCustomCategory: (newCategory: string) => void;
@@ -73,7 +73,7 @@ const AddCustomCategory: React.FunctionComponent<AddCustomCategoryProps> = props
         if (newCategory) {
             props.addCustomCategory(newCategory);
         }
-    }
+    };
 
     return (
         <React.Fragment>
@@ -88,6 +88,6 @@ const AddCustomCategory: React.FunctionComponent<AddCustomCategoryProps> = props
             <CustomCategoryDialog open={open} onClose={handleClose} />
         </React.Fragment>
     );
-}
+};
 
 export default AddCustomCategory;

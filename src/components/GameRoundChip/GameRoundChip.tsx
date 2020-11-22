@@ -36,6 +36,6 @@ const GameRoundChip: React.FunctionComponent<GameRoundChipProps> = props => {
             />
         </div>
     );
-}
+};
 
 export default GameRoundChip;
