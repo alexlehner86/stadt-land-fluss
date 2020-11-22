@@ -5,3 +5,37 @@
     margin-block-end: 0.3rem;
     padding-right: 2rem;
 }
+
+.end_round_fieldset {
+    box-sizing: border-box;
+    width: 100%;
+    border: 1px solid rgba(0, 0, 0, 0.23);
+    border-radius: 4px;
+    padding: 0.5rem;
+}
+
+.end_round_legend {
+    position: absolute;
+    top: 0;
+    left: 0.5rem;
+    transform: translateY(-50%);
+    padding: 0 0.3rem;
+    font-size: 0.75em;
+    color: rgba(0, 0, 0, 0.87);
+    background-color: white;
+}
+
+.radio_group {
+    flex-direction: row !important;
+}
+
+.countdown_wrapper {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.countdown_input {
+    margin: 0.5rem 0 !important;
+    width: 3rem;
+    font-size: 0.9rem !important;
+}

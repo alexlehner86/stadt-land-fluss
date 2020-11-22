@@ -10,13 +10,3 @@
     margin-block-start: 0;
     margin-block-end: 0;
 }
-
-.radio_group {
-    flex-direction: row !important;
-}
-
-.countdown_input {
-    margin: 0.5rem 0 !important;
-    width: 3rem;
-    font-size: 0.9rem !important;
-}

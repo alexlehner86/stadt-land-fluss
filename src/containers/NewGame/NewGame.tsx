@@ -1,4 +1,14 @@
-import { Button, Snackbar, TextField } from '@material-ui/core';
+import {
+    Button,
+    FormControl,
+    FormControlLabel,
+    FormLabel,
+    Input,
+    Radio,
+    RadioGroup,
+    Snackbar,
+    TextField,
+} from '@material-ui/core';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import { xor } from 'lodash';
 import React, { ChangeEvent, Component, Dispatch, FormEvent } from 'react';
@@ -21,6 +31,7 @@ import {
     DEFAULT_DURATION_OF_COUNTDOWN,
     DEFAULT_NUMBER_OF_ROUNDS,
     MAX_NUMBER_OF_ROUNDS,
+    MIN_DURATION_OF_COUNTDOWN,
     MIN_NUMBER_OF_CATEGORIES,
     MIN_NUMBER_OF_ROUNDS,
     STANDARD_ALPHABET,
@@ -113,6 +124,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     label={numberOfRoundsInputLabel}
                     type="number"
                     value={this.state.numberOfRoundsInput}
+                    className="app-form-input"
                     variant="outlined"
                     fullWidth
                     required
@@ -120,15 +132,47 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     inputProps={{ 'min': MIN_NUMBER_OF_ROUNDS, 'max': MAX_NUMBER_OF_ROUNDS }}
                     onChange={this.handleNumberOfRoundsInputChange}
                 />
+                <FormControl component="fieldset" classes={{ root: styles.end_round_fieldset }}>
+                    <FormLabel
+                        component="legend"
+                        className={styles.end_round_legend}
+                    >
+                        Beenden der Runde durch:
+                    </FormLabel>
+                    <RadioGroup
+                        className={styles.radio_group}
+                        aria-label="Beenden der Runde"
+                        name="usecountdown"
+                        value={this.state.useCountdown ? UseCountdownRadioButton.countdown : UseCountdownRadioButton.player}
+                        onChange={this.handleUseCountdownChange}
+                    >
+                        <FormControlLabel
+                            value={UseCountdownRadioButton.player}
+                            control={<Radio color="primary" />}
+                            label="Spieler"
+                        />
+                        <div className={styles.countdown_wrapper}>
+                            <FormControlLabel
+                                value={UseCountdownRadioButton.countdown}
+                                control={<Radio color="primary" />}
+                                label="Countdown (Sekunden)"
+                            />
+                            <Input
+                                type="number"
+                                value={this.state.durationOfCountdown}
+                                className={styles.countdown_input}
+                                disabled={!this.state.useCountdown}
+                                inputProps={{ 'aria-label': 'Dauer des Countdowns', 'min': MIN_DURATION_OF_COUNTDOWN }}
+                                onChange={this.handleCountdownInputChange}
+                            />
+                        </div>
+                    </RadioGroup>
+                </FormControl>
                 <NewGameOptionsPanel
-                    durationOfCountdown={this.state.durationOfCountdown}
                     lettersToExclude={this.state.lettersToExclude}
                     scoringOptions={this.state.scoringOptions}
-                    useCountdown={this.state.useCountdown}
-                    handleCountdownInputChange={this.handleCountdownInputChange}
                     handleGameOptionChange={this.handleGameOptionChange}
                     handleLetterToExcludeChange={this.handleLetterToExcludeChange}
-                    handleUseCountdownChange={this.handleUseCountdownChange}
                 />
                 <p className={styles.options_label}>
                     <span>Ausgewählte Kategorien (mind. {MIN_NUMBER_OF_CATEGORIES}):</span>
