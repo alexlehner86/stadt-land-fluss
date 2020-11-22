@@ -1,9 +1,9 @@
 import {
+    Accordion,
+    AccordionDetails,
+    AccordionSummary,
     Checkbox,
     Divider,
-    ExpansionPanel,
-    ExpansionPanelDetails,
-    ExpansionPanelSummary,
     FormControlLabel,
     FormGroup,
 } from '@material-ui/core';
@@ -23,15 +23,15 @@ interface NewGameOptionsPanelProps {
 
 const NewGameOptionsPanel: React.FunctionComponent<NewGameOptionsPanelProps> = props => {
     return (
-        <ExpansionPanel className="new-game-expansion-panel">
-            <ExpansionPanelSummary
+        <Accordion className="new-game-expansion-panel">
+            <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
                 aria-controls="panel1a-content"
                 id="panel1a-header"
             >
                 Weitere Optionen
-            </ExpansionPanelSummary>
-            <ExpansionPanelDetails>
+            </AccordionSummary>
+            <AccordionDetails>
                 <FormGroup className="game-options-list">
                     <FormControlLabel
                         control={
@@ -84,8 +84,8 @@ const NewGameOptionsPanel: React.FunctionComponent<NewGameOptionsPanelProps> = p
                         />
                     ))}
                 </FormGroup>
-            </ExpansionPanelDetails>
-        </ExpansionPanel>
+            </AccordionDetails>
+        </Accordion>
     );
 };
 

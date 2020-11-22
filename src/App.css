@@ -123,32 +123,35 @@ li:not(.MuiListItem-root) {
     text-align: center;
 }
 
-.new-game-expansion-panel.MuiExpansionPanel-root,
-.new-game-expansion-panel.MuiExpansionPanel-root.Mui-expanded {
+.new-game-expansion-panel.MuiAccordion-root::before {
+    content: none;
+}
+.new-game-expansion-panel.MuiAccordion-root,
+.new-game-expansion-panel.MuiAccordion-root.Mui-expanded {
     margin: 1rem 0;
     box-shadow: none;
     border: 1px solid rgba(0, 0, 0, 0.23);
     border-radius: 4px;
 }
-.new-game-expansion-panel.MuiExpansionPanel-root .MuiExpansionPanelSummary-content {
+.new-game-expansion-panel.MuiAccordion-root .MuiAccordionSummary-content {
     margin: 0.5rem 0;
 }
-.new-game-expansion-panel.MuiExpansionPanel-root .MuiExpansionPanelSummary-root {
+.new-game-expansion-panel.MuiAccordion-root .MuiAccordionSummary-root {
     min-height: auto;
 }
-.new-game-expansion-panel.MuiExpansionPanel-root .MuiExpansionPanelDetails-root {
+.new-game-expansion-panel.MuiAccordion-root .MuiAccordionDetails-root {
     flex-direction: column;
 }
-.new-game-expansion-panel.MuiExpansionPanel-root .MuiFormGroup-root label span {
+.new-game-expansion-panel.MuiAccordion-root .MuiFormGroup-root label span {
     font-size: 0.9rem;
 }
-.new-game-expansion-panel.MuiExpansionPanel-root .MuiFormGroup-root.game-options-list label {
+.new-game-expansion-panel.MuiAccordion-root .MuiFormGroup-root.game-options-list label {
     margin-bottom: 0.5rem;
 }
-.new-game-expansion-panel.MuiExpansionPanel-root .MuiFormGroup-root.game-options-list label:last-of-type {
+.new-game-expansion-panel.MuiAccordion-root .MuiFormGroup-root.game-options-list label:last-of-type {
     margin-bottom: 1rem;
 }
-.new-game-expansion-panel.MuiExpansionPanel-root .MuiFormGroup-root.letters-to-exclude label span.MuiTypography-root {
+.new-game-expansion-panel.MuiAccordion-root .MuiFormGroup-root.letters-to-exclude label span.MuiTypography-root {
     min-width: 1rem;
 }
 /**************************************/
