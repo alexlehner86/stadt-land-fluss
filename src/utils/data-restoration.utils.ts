@@ -95,7 +95,7 @@ export const restoreGameRoundsOfRunningGameFromLocalStorage = (numberOfRoundsToR
  */
 export const setPointsAndValidity = (
     scoringOptions: GameConfigScoringOptions, gameRoundEvaluation: GameRoundEvaluation, minNumberOfInvalids: number, round: GameRound
-) => {
+): void => {
     // First evaluate validity
     round.forEach((playerInputs, playerId) => {
         const evaluations = gameRoundEvaluation.get(playerId) as PlayerInputEvaluation[];
@@ -113,7 +113,7 @@ export const setPointsAndValidity = (
 /**
  * Applies the "marked as very creative" flags to the player inputs for a player who is rejoining the game in evaluation phase.
  */
-export const applyMarkedAsCreativeFlags = (compressedData: boolean[][], sortedPlayers: PlayerInfo[], round: GameRound) => {
+export const applyMarkedAsCreativeFlags = (compressedData: boolean[][], sortedPlayers: PlayerInfo[], round: GameRound): void => {
     sortedPlayers.forEach((player, playerIndex) => {
         const markedAsCreativeAnswer = compressedData[playerIndex];
         (round.get(player.id) as PlayerInput[]).forEach((input, categoryIndex) => input.star = markedAsCreativeAnswer[categoryIndex]);

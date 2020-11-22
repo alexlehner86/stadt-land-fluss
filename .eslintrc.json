@@ -33,6 +33,18 @@
             "error",
             "always"
         ],
-        "react/prop-types": [0]
+        "react/prop-types": [
+            0
+        ],
+        "@typescript-eslint/no-explicit-any": 0,
+        "@typescript-eslint/explicit-module-boundary-types": [
+            "warn",
+            {
+                "allowedNames": [
+                    "componentDidMount",
+                    "render"
+                ]
+            }
+        ]
     }
 }

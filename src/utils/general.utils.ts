@@ -1,6 +1,6 @@
 import { Collection } from '../models/collection.interface';
 
-export const copyToClipboard = (text: string) => {
+export const copyToClipboard = (text: string): void => {
     const element = document.createElement('textarea');
     element.value = text;
     element.setAttribute('readonly', '');

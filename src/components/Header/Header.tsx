@@ -61,7 +61,7 @@ export class Header extends Component<HeaderProps, HeaderState> {
     }
 
     public componentDidMount() {
-        document.addEventListener('fullscreenchange', _ => {
+        document.addEventListener('fullscreenchange', () => {
             // document.fullscreenElement will point to the element that is in fullscreen mode if there is one.
             // If there isn't one, the value of the property is null.
             this.setState({ isFullscreenActive: !!document.fullscreenElement });

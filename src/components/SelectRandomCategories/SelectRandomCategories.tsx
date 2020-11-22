@@ -16,7 +16,7 @@ import React, { ChangeEvent, FormEvent, useState } from 'react';
 import { MIN_NUMBER_OF_CATEGORIES } from '../../constants/game.constant';
 import styles from './SelectRandomCategories.module.css';
 
-const useStyles = makeStyles(_ => ({
+const useStyles = makeStyles(() => ({
     label: {
         fontSize: '0.85rem',
     }

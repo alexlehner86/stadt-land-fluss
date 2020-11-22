@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme: Theme) =>
 interface ChipsArrayProps {
     chipsArray: string[];
     chipType: ChipType;
-    removeChip: (chip: string) => any;
+    removeChip: (chip: string) => void;
 }
 
 const ChipsArray: React.FunctionComponent<ChipsArrayProps> = props => {

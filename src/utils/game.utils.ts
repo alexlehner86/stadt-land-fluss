@@ -71,7 +71,7 @@ export const createGameRoundEvaluation = (players: Map<string, PlayerInfo>, cate
     const gameRoundEvaluation = new Map<string, PlayerInputEvaluation[]>();
     players.forEach(evaluatedPlayer => {
         const evaluationsForAllCategories: PlayerInputEvaluation[] = [];
-        categories.forEach(_ => {
+        categories.forEach(() => {
             const evaluationForOneCategory: PlayerInputEvaluation = new Map<string, boolean>();
             players.forEach(evaluatingPlayer => {
                 // The default evaluation for each input is valid (= true).
@@ -87,7 +87,7 @@ export const createGameRoundEvaluation = (players: Map<string, PlayerInfo>, cate
 /**
  * Calculates the points for the round's inputs according to the active scoring options.
  */
-export const calculatePointsForRound = (scoringOptions: GameConfigScoringOptions, round: GameRound) => {
+export const calculatePointsForRound = (scoringOptions: GameConfigScoringOptions, round: GameRound): void => {
     if (!scoringOptions.checkForDuplicates && !scoringOptions.onlyPlayerWithValidAnswer) { return; }
     const playerId = round.keys().next().value;
     const playerInputsOfPlayer1 = round.get(playerId) as PlayerInput[];
@@ -100,7 +100,7 @@ export const calculatePointsForRound = (scoringOptions: GameConfigScoringOptions
 /**
  * Calculates the points for the round's inputs for one category according to the active scoring options.
  */
-export const calculatePointsForCategory = (scoringOptions: GameConfigScoringOptions, round: GameRound, categoryIndex: number) => {
+export const calculatePointsForCategory = (scoringOptions: GameConfigScoringOptions, round: GameRound, categoryIndex: number): void => {
     if (!scoringOptions.checkForDuplicates && !scoringOptions.onlyPlayerWithValidAnswer) { return; }
     Array.from(round.keys()).forEach(playerId => {
         const playerInputs = round.get(playerId) as PlayerInput[];
@@ -177,7 +177,7 @@ export const getRejectingPlayers = (evaluations: PlayerInputEvaluation, players:
  * Adds extra points for "very creative answers" if scoring option is active
  * and sets invalid answer's points to zero.
  */
-export const applyValidFlagAndStarFlagToPoints = (scoringOptions: GameConfigScoringOptions, round: GameRound) => {
+export const applyValidFlagAndStarFlagToPoints = (scoringOptions: GameConfigScoringOptions, round: GameRound): void => {
     round.forEach(playerInputs => {
         playerInputs.forEach(input => {
             if (!input.valid) {

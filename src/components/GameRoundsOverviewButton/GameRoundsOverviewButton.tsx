@@ -10,8 +10,8 @@ import GameRoundsTable from '../GameRoundsTable/GameRoundsTable';
 
 interface TabPanelProps {
     children?: React.ReactNode;
-    index: any;
-    value: any;
+    index: number;
+    value: number;
 }
 const TabPanel: React.FunctionComponent<TabPanelProps> = props => {
     const { children, value, index, ...other } = props;
@@ -28,7 +28,7 @@ const TabPanel: React.FunctionComponent<TabPanelProps> = props => {
     );
 };
 
-const a11yProps = (index: any) => ({
+const a11yProps = (index: number) => ({
     id: `scrollable-auto-tab-${index}`,
     'aria-controls': `scrollable-auto-tabpanel-${index}`,
 });
