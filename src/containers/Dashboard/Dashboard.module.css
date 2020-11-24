@@ -34,10 +34,16 @@
 }
 
 .theme_picker_button {
-    position: absolute !important;
+    position: absolute;
     top: 1rem;
     right: 1rem;
-    border: 2px solid rgba(255,255,255,0.5) !important;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+}
+.theme_picker_button:focus {
+    border: 2px solid rgba(0, 0, 0 ,0.5);
+}
+.theme_picker_button:focus .theme_picker_button_icon {
+    fill: black;
 }
 
 .slf_image {

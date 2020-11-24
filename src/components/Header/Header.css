@@ -40,6 +40,20 @@
 .app-header.black-theme .icon-buttons svg {
     fill: white;
 }
+.app-header.green-theme .icon-buttons .Mui-focusVisible,
+.app-header.pink-theme .icon-buttons .Mui-focusVisible,
+.app-header.black-theme .icon-buttons .Mui-focusVisible {
+    background: white;
+}
+.app-header.green-theme .icon-buttons .Mui-focusVisible svg {
+    fill: darkgreen;
+}
+.app-header.pink-theme .icon-buttons .Mui-focusVisible svg {
+    fill: purple;
+}
+.app-header.black-theme .icon-buttons .Mui-focusVisible svg {
+    fill: #1a1a1a;
+}
 
 .app-header.green-theme {
     background-color: darkgreen;

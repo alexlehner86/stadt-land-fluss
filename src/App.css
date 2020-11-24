@@ -45,6 +45,9 @@
     background-color: black;
     color: white;
 }
+.app-main.black-theme .MuiLink-root.MuiLink-underlineHover.Mui-focusVisible {
+    box-shadow: 0 0 8px 5px orange;
+}
 
 .main-content-wrapper {
     max-width: 36rem;
@@ -87,6 +90,11 @@ li:not(.MuiListItem-root) {
 }
 .app-form-input.MuiFormControl-root {
     margin-bottom: 1rem;
+}
+
+.MuiLink-root.MuiLink-underlineHover.Mui-focusVisible {
+    box-shadow: 0 0 8px 5px black;
+    outline: none;
 }
 
 .fixed-bottom-right-button.MuiIconButton-root {

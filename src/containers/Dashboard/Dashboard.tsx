@@ -73,7 +73,7 @@ class Dashboard extends Component<DashboardProps, DashboardState> {
                             aria-haspopup="true"
                             onClick={this.handleThemePickerClick}
                         >
-                            <BrushIcon fontSize="small" />
+                            <BrushIcon fontSize="small" className={styles.theme_picker_button_icon} />
                         </IconButton>
                         <Menu
                             id="theme-picker-menu"
