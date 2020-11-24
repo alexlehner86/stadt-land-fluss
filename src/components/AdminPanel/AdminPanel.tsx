@@ -104,8 +104,8 @@ const AdminPanel: React.FunctionComponent<AdminPanelProps> = props => {
         <div className={classes.adminPanel}>
             <IconButton
                 className={classes.menuButton}
-                title="Admin-Panel öffnen"
-                aria-label="Admin-Panel öffnen"
+                title="Admin-Panel"
+                aria-label="Admin-Panel"
                 aria-controls="admin-panel"
                 aria-haspopup="true"
                 onClick={handleClick}
