@@ -1,16 +1,6 @@
 import './PhaseEvaluateRound.css';
-import {
-    Badge,
-    Chip,
-    createStyles,
-    IconButton,
-    InputAdornment,
-    Snackbar,
-    TextField,
-    Theme,
-    Tooltip,
-    withStyles,
-} from '@material-ui/core';
+
+import { Badge, Box, Chip, createStyles, Divider, IconButton, Snackbar, Theme, Tooltip, withStyles } from '@material-ui/core';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import SearchIcon from '@material-ui/icons/Search';
@@ -18,6 +8,7 @@ import StarIcon from '@material-ui/icons/Star';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
 import ThumbDownRoundedIcon from '@material-ui/icons/ThumbDownRounded';
 import React, { useState } from 'react';
+
 import { EXTRA_POINTS } from '../../constants/game.constant';
 import {
     EvaluationOfPlayerInput,
@@ -77,7 +68,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
         setSnackBarMessage(message);
         setIsSnackbarOpen(true);
     };
-    const handleSnackBarClose = () =>  setIsSnackbarOpen(false);
+    const handleSnackBarClose = () => setIsSnackbarOpen(false);
     /**
       * Toggles the user's evaluation of a player's input for a category,
       * but only if the user hasn't accepted the round evaluation yet.
@@ -115,10 +106,11 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                 <IconButton
                     className="slf-evaluation-button"
                     color={isInputAcceptedByUser ? 'default' : 'secondary'}
+                    size="small"
                     onClick={() => handleEvaluationButtonClick(categoryIndex, evaluatedPlayer.id, isInputAcceptedByUser)}
                 >
                     <StyledBadge badgeContent={rejectingPlayers.length} color="secondary">
-                        <ThumbDownRoundedIcon />
+                        <ThumbDownRoundedIcon fontSize="small" />
                     </StyledBadge>
                 </IconButton>
             </Tooltip>
@@ -131,15 +123,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                 <ThumbDownRoundedIcon color="secondary" className="slf-auto-reject-icon" />
             </Tooltip>
         );
-
-        return (
-            <div
-                key={`slf-evaluation-button-wrapper-${categoryIndex}-${indexInSortedPlayers}`}
-                className="slf-evaluation-button-wrapper"
-            >
-                {hasPlayerTypedText ? evaluationButtonForTypedText : autoRejectIconForMissingText}
-            </div>
-        );
+        return hasPlayerTypedText ? evaluationButtonForTypedText : autoRejectIconForMissingText;
     };
     /**
      * Creates a search link for a specific category and player input.
@@ -208,7 +192,13 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
     const createPointsChip = (evaluatedPlayerInput: PlayerInput): JSX.Element => {
         const points = gameConfig.scoringOptions.creativeAnswersExtraPoints && evaluatedPlayerInput.star
             ? evaluatedPlayerInput.points + EXTRA_POINTS : evaluatedPlayerInput.points;
-        return <Chip label={`+${points}`} color="primary" />;
+        const label = '+' + (evaluatedPlayerInput.valid ? points : 0);
+        const color = evaluatedPlayerInput.valid ? 'primary' : 'default';
+        return (
+            <div className="slf-evaluation-points-wrapper">
+                <Chip label={label} color={color} classes={{ root: 'slf-evaluation-points' }} />
+            </div>
+        );
     };
     /**
      * Shows the player's input for a category. TODO: Rework docu!
@@ -222,11 +212,15 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
         const isInputValid = evaluatedPlayerInput.valid;
         const inputCssClass = isInputValid ? (evaluatedPlayerInput.star ? 'very-creative-player-input' : '') : 'invalid-player-input';
         return (
-            <div
+            <Box
                 key={`slf-evaluation-textfield-wrapper-${categoryIndex}-${indexInSortedPlayers}`}
+                boxShadow={1}
                 className="slf-evaluation-textfield-wrapper"
             >
-                <TextField
+                <h4 className="slf-evaluation-player-name">{evaluatedPlayer.name}</h4>
+                <Divider light />
+                <p className="slf-evaluation-answer">{evaluatedPlayerInput.text}</p>
+                {/* <TextField
                     key={'slf-textfield-category-no-' + categoryIndex + '-player-' + indexInSortedPlayers}
                     value={evaluatedPlayerInput.text}
                     variant="outlined"
@@ -243,9 +237,14 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                             </div>
                         </InputAdornment>
                     }}
-                />
-                {createEvaluationButton(categoryIndex, indexInSortedPlayers)}
-            </div>
+                /> */}
+                <div className="slf-evaluation-button-wrapper">
+                    {hasPlayerTypedText ? createSearchLink(categoryIndex, indexInSortedPlayers) : null}
+                    {isInputValid ? createMarkAsCreativeAnswerToggle(categoryIndex, indexInSortedPlayers) : null}
+                    {createEvaluationButton(categoryIndex, indexInSortedPlayers)}
+                </div>
+                {createPointsChip(evaluatedPlayerInput)}
+            </Box>
         );
     };
     /**

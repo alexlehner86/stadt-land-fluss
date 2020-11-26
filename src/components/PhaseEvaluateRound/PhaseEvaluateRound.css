@@ -1,36 +1,56 @@
 .slf-evaluation-textfield-wrapper {
     position: relative;
-    display: flex;
-    margin-bottom: 0.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.23);
+    border-radius: 4px;
+    padding: 0.5rem;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.00938em;
 }
-.very-creative-player-input.MuiInputBase-root {
+.slf-evaluation-textfield-wrapper:not(:last-child) {
+    margin-bottom: 1rem;
+}
+.slf-evaluation-player-name {
+    margin-block-end: 0.2rem;
+    margin-block-start: 0.4rem;
+    font-size: 0.9em;
+    font-style: normal;
+    font-weight: normal;
+}
+.slf-evaluation-answer {
+    margin-block-end: 0.25rem;
+    margin-block-start: 0.75rem;
+}
+.slf-evaluation-button-wrapper {
+    position: absolute;
+    top: 0.15rem;
+    right: 0.15rem;
+    display: flex;
+}
+.slf-evaluation-points-wrapper {
+    position: absolute;
+    bottom: -1px;
+    right: -1px;
+}
+.slf-evaluation-points {
+    border: 1px solid rgba(0, 0, 0, 0.23);
+    border-radius: 0;
+    border-top-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+.very-creative-player-input {
     background-color: rgba(0, 0, 0, 0.1);
 }
-.invalid-player-input.MuiInputBase-root {
+.invalid-player-input {
     color: crimson;
     text-decoration: line-through;
-}
-.slf-evaluation-textfield-end-adornment {
-    display: flex;
-    align-items: center;
 }
 a.slf-evaluation-search-link {
     display: flex;
     align-items: center;
+    justify-content: center;
     width: 1em;
     height: 1em;
     font-size: 1.5rem;
-}
-.slf-mark-as-creative-button.MuiIconButton-root {
-    margin-right: 0.4rem;
-}
-.slf-evaluation-button-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-left: 0.3rem;
-}
-.slf-evaluation-button.MuiIconButton-root,
-.slf-auto-reject-icon {
-    padding: 0.75rem;
+    padding: 3px;
 }
