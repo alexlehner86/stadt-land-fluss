@@ -12,6 +12,7 @@ const useStyles = makeStyles({
         height: '3rem',
         marginTop: '1rem',
         borderRadius: '5px',
+        fontWeight: 'normal',
         fontSize: '1.2rem',
         boxShadow: '0 2px 4px rgba(0,0,0,.501961)'
     }
@@ -30,6 +31,7 @@ const GameRoundChip: React.FunctionComponent<GameRoundChipProps> = props => {
         <div className={classes.centerContent}>
             <Chip
                 color="primary"
+                component="h2"
                 icon={<EmojiObjectsIcon />}
                 label={`Runde ${currentRound} von ${numberOfRounds}: „${currentLetter}“`}
                 className={classes.chip}

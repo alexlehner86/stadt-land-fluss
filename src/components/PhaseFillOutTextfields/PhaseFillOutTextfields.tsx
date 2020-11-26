@@ -30,7 +30,7 @@ const PhaseFillOutTextfields: React.FunctionComponent<PhaseFillOutTextfieldsProp
             key={'slf-input-for-category-no-' + index}
             className="material-card-style"
         >
-            <SectionHeader showDivider={false} text={category}></SectionHeader>
+            <SectionHeader isH3={true} showDivider={false} text={category}></SectionHeader>
             <TextField
                 value={gameRoundInputs[index].text}
                 onChange={event => handleInputChange(event, index)}

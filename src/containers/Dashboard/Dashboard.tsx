@@ -51,7 +51,7 @@ class Dashboard extends Component<DashboardProps, DashboardState> {
         return (
             <div className="main-content-wrapper">
                 <div className="material-card-style">
-                    <SectionHeader showDivider={true} text="Dashboard"></SectionHeader>
+                    <SectionHeader isH3={false} showDivider={true} text="Dashboard"></SectionHeader>
                     <div className={styles.link_container}>
                         {this.props.gameId ? rejoinGameElement : null}
                         <Link component={RouterLink} to="/newgame">Neues Spiel</Link>

@@ -211,7 +211,8 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
         return <Chip label={`+${points}`} color="primary" />;
     };
     /**
-     * Creates a text input showing the player's input for a category. If the player input isn't an empty string,
+     * Shows the player's input for a category. TODO: Rework docu!
+     * If the player input isn't an empty string,
      * then on the right side of the textfield a search link and clickable evaluation button are displayed.
      */
     const playerEvaluationElements = (categoryIndex: number, indexInSortedPlayers: number): JSX.Element => {
@@ -257,7 +258,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
             key={'slf-evaluation-for-category-no-' + categoryIndex}
             className="material-card-style"
         >
-            <SectionHeader showDivider={false} text={category}></SectionHeader>
+            <SectionHeader isH3={true} showDivider={false} text={category}></SectionHeader>
             {sortedPlayers.map((_, indexInSortedPlayers) => playerEvaluationElements(categoryIndex, indexInSortedPlayers))}
         </div>
     );
