@@ -10,6 +10,7 @@ const useStyles = makeStyles({
     },
     chip: {
         height: '3rem',
+        marginBottom: '0',
         marginTop: '1rem',
         borderRadius: '5px',
         fontWeight: 'normal',

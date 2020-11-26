@@ -46,15 +46,16 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
             <form onSubmit={this.handleSubmit} className="app-form" noValidate autoComplete="off">
                 <TextField
                     name="nameInput"
-                    label="Spielername"
+                    label="Spielername (max. 20 Zeichen)"
                     value={this.state.nameInput}
-                    onChange={this.handleInputChange}
                     className="app-form-input"
                     variant="outlined"
                     fullWidth
                     required
                     autoFocus
                     error={this.state.validateInputs && !this.state.nameInput}
+                    inputProps={{ 'maxLength': '20' }}
+                    onChange={this.handleInputChange}
                 />
                 <TextField
                     name="idInput"

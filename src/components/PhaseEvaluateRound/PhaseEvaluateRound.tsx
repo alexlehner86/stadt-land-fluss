@@ -1,6 +1,15 @@
-import './PhaseEvaluateRound.css';
-
-import { Badge, Box, Chip, createStyles, Divider, IconButton, Snackbar, Theme, Tooltip, withStyles } from '@material-ui/core';
+import {
+    Badge,
+    Box,
+    Chip,
+    createStyles,
+    Divider,
+    IconButton,
+    Snackbar,
+    Theme,
+    Tooltip,
+    withStyles,
+} from '@material-ui/core';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import SearchIcon from '@material-ui/icons/Search';
@@ -23,6 +32,7 @@ import { PlayerInfo } from '../../models/player.interface';
 import { getPlayersInAlphabeticalOrder, getRejectingPlayers } from '../../utils/game.utils';
 import GameRoundChip from '../GameRoundChip/GameRoundChip';
 import { SectionHeader } from '../SectionHeader/SectionHeader';
+import styles from './PhaseEvaluateRound.module.css';
 
 const StyledBadge = withStyles((theme: Theme) =>
     createStyles({
@@ -120,7 +130,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                 key={`slf-evaluation-tooltip-${categoryIndex}-${indexInSortedPlayers}`}
                 title="Automatisch abgelehnt"
             >
-                <ThumbDownRoundedIcon color="secondary" className="slf-auto-reject-icon" />
+                <ThumbDownRoundedIcon color="secondary" className={styles.auto_reject_icon} fontSize="small" />
             </Tooltip>
         );
         return hasPlayerTypedText ? evaluationButtonForTypedText : autoRejectIconForMissingText;
@@ -135,7 +145,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
         const searchLink = `https://www.ecosia.org/search?q=${encodeURIComponent(category)}+${encodeURIComponent(playerInput)}`;
         return (
             <a
-                className="slf-evaluation-search-link"
+                className={styles.search_link}
                 href={searchLink}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -179,7 +189,6 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                 placement="bottom"
             >
                 <IconButton
-                    className="slf-mark-as-creative-button"
                     color="primary"
                     size="small"
                     onClick={() => handleMarkAsCreativeAnswerToggleClick(categoryIndex, evaluatedPlayer.id, playerInput.star)}
@@ -189,56 +198,41 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
             </Tooltip>
         );
     };
-    const createPointsChip = (evaluatedPlayerInput: PlayerInput): JSX.Element => {
-        const points = gameConfig.scoringOptions.creativeAnswersExtraPoints && evaluatedPlayerInput.star
+    const calculatePoints = (evaluatedPlayerInput: PlayerInput): number => {
+        return gameConfig.scoringOptions.creativeAnswersExtraPoints && evaluatedPlayerInput.star
             ? evaluatedPlayerInput.points + EXTRA_POINTS : evaluatedPlayerInput.points;
-        const label = '+' + (evaluatedPlayerInput.valid ? points : 0);
+    };
+    const createPointsChip = (evaluatedPlayerInput: PlayerInput): JSX.Element => {
+        const label = '+' + (evaluatedPlayerInput.valid ? calculatePoints(evaluatedPlayerInput) : 0);
         const color = evaluatedPlayerInput.valid ? 'primary' : 'default';
         return (
-            <div className="slf-evaluation-points-wrapper">
-                <Chip label={label} color={color} classes={{ root: 'slf-evaluation-points' }} />
+            <div className={styles.points_wrapper}>
+                <Chip label={label} color={color} classes={{ root: styles.points }} />
             </div>
         );
     };
     /**
-     * Shows the player's input for a category. TODO: Rework docu!
-     * If the player input isn't an empty string,
-     * then on the right side of the textfield a search link and clickable evaluation button are displayed.
+     * Shows the player's input for a category. If the player input isn't an empty string, then on the right upper
+     * side of the textfield a search link, "mark as creative" button and evaluation button are displayed.
      */
     const playerEvaluationElements = (categoryIndex: number, indexInSortedPlayers: number): JSX.Element => {
         const evaluatedPlayer = sortedPlayers[indexInSortedPlayers];
         const evaluatedPlayerInput = (finishedRound.get(evaluatedPlayer.id) as PlayerInput[])[categoryIndex];
         const hasPlayerTypedText = !!evaluatedPlayerInput.text;
         const isInputValid = evaluatedPlayerInput.valid;
-        const inputCssClass = isInputValid ? (evaluatedPlayerInput.star ? 'very-creative-player-input' : '') : 'invalid-player-input';
+        const isCreativeAnswer = isInputValid && evaluatedPlayerInput.star;
         return (
             <Box
                 key={`slf-evaluation-textfield-wrapper-${categoryIndex}-${indexInSortedPlayers}`}
                 boxShadow={1}
-                className="slf-evaluation-textfield-wrapper"
+                className={isCreativeAnswer ? styles.textfield_wrapper_creative : styles.textfield_wrapper}
             >
-                <h4 className="slf-evaluation-player-name">{evaluatedPlayer.name}</h4>
+                <h4 className={styles.player_name}>{evaluatedPlayer.name}</h4>
                 <Divider light />
-                <p className="slf-evaluation-answer">{evaluatedPlayerInput.text}</p>
-                {/* <TextField
-                    key={'slf-textfield-category-no-' + categoryIndex + '-player-' + indexInSortedPlayers}
-                    value={evaluatedPlayerInput.text}
-                    variant="outlined"
-                    fullWidth
-                    InputProps={{
-                        className: inputCssClass,
-                        spellCheck: false,
-                        startAdornment: <InputAdornment position="start">{evaluatedPlayer.name}:</InputAdornment>,
-                        endAdornment: <InputAdornment position="end">
-                            <div className="slf-evaluation-textfield-end-adornment">
-                                {hasPlayerTypedText ? createSearchLink(categoryIndex, indexInSortedPlayers) : null}
-                                {isInputValid ? createMarkAsCreativeAnswerToggle(categoryIndex, indexInSortedPlayers) : null}
-                                {isInputValid ? createPointsChip(evaluatedPlayerInput) : null}
-                            </div>
-                        </InputAdornment>
-                    }}
-                /> */}
-                <div className="slf-evaluation-button-wrapper">
+                <p className={isInputValid ? styles.answer : styles.invalid_answer}>
+                    {hasPlayerTypedText ? evaluatedPlayerInput.text : '(leer)'}
+                </p>
+                <div className={styles.button_wrapper}>
                     {hasPlayerTypedText ? createSearchLink(categoryIndex, indexInSortedPlayers) : null}
                     {isInputValid ? createMarkAsCreativeAnswerToggle(categoryIndex, indexInSortedPlayers) : null}
                     {createEvaluationButton(categoryIndex, indexInSortedPlayers)}
@@ -275,22 +269,20 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                 currentRound={currentRound}
                 numberOfRounds={gameConfig.numberOfRounds}
             />
-            <form className="app-form" noValidate autoComplete="off">
-                {gameConfig.categories.map(createCategorySection)}
-                <div className="material-card-style">
-                    Bestätigung ausstehend: <span className="bold-text">{notFinishedPlayers.join(', ')}</span>
-                </div>
-                <IconButton
-                    type="button"
-                    className="fixed-bottom-right-button"
-                    color="secondary"
-                    title="Bestätigen"
-                    aria-label="Bestätigen"
-                    onClick={onAcceptEvaluationButtonClick}
-                >
-                    {hasFinishedEvaluation ? <CheckCircleIcon /> : <RadioButtonUncheckedIcon />}
-                </IconButton>
-            </form>
+            {gameConfig.categories.map(createCategorySection)}
+            <div className="material-card-style">
+                Bestätigung ausstehend: <span className="bold-text">{notFinishedPlayers.join(', ')}</span>
+            </div>
+            <IconButton
+                type="button"
+                className="fixed-bottom-right-button"
+                color="secondary"
+                title="Bestätigen"
+                aria-label="Bestätigen"
+                onClick={onAcceptEvaluationButtonClick}
+            >
+                {hasFinishedEvaluation ? <CheckCircleIcon /> : <RadioButtonUncheckedIcon />}
+            </IconButton>
             <Snackbar
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                 open={isSnackbarOpen}
