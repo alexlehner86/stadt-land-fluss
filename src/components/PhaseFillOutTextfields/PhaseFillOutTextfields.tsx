@@ -25,24 +25,30 @@ const PhaseFillOutTextfields: React.FunctionComponent<PhaseFillOutTextfieldsProp
         newGameRoundInputs[index] = { ...newGameRoundInputs[index], text: event.target.value };
         props.updateCurrentRoundInputs(newGameRoundInputs);
     };
-    const createTextfieldElement = (category: string, index: number): JSX.Element => (
-        <div
-            key={'slf-input-for-category-no-' + index}
-            className="material-card-style"
-        >
-            <SectionHeader isH3={true} showDivider={false} text={category}></SectionHeader>
-            <TextField
-                value={gameRoundInputs[index].text}
-                onChange={event => handleInputChange(event, index)}
-                variant="outlined"
-                fullWidth
-                InputProps={{
-                    startAdornment: <InputAdornment position="start">{currentLetter}:</InputAdornment>,
-                    spellCheck: false
-                }}
-            />
-        </div>
-    );
+    const createTextfieldElement = (category: string, index: number): JSX.Element => {
+        const uniqueId = 'slf-input-for-category-no-' + index;
+        const label = `${category} mit Buchstabe (${currentLetter})`;
+        return (
+            <div
+                key={uniqueId}
+                className="material-card-style"
+            >
+                <SectionHeader isH3={true} showDivider={false} text={category}></SectionHeader>
+                <label htmlFor={uniqueId} className="sr-only">{label}</label>
+                <TextField
+                    value={gameRoundInputs[index].text}
+                    variant="outlined"
+                    fullWidth
+                    InputProps={{
+                        id: uniqueId,
+                        startAdornment: <InputAdornment position="start">{currentLetter}:</InputAdornment>,
+                        spellCheck: false
+                    }}
+                    onChange={event => handleInputChange(event, index)}
+                />
+            </div>
+        );
+    };
     const endRoundButton = (
         <IconButton
             type="button"
@@ -71,7 +77,7 @@ const PhaseFillOutTextfields: React.FunctionComponent<PhaseFillOutTextfieldsProp
             />
             <form className="app-form" noValidate autoComplete="off">
                 {gameConfig.categories.map(createTextfieldElement)}
-                {gameConfig.endRoundMode === EndRoundMode.countdownEnds ? countdownElement : endRoundButton }
+                {gameConfig.endRoundMode === EndRoundMode.countdownEnds ? countdownElement : endRoundButton}
             </form>
         </React.Fragment>
     );

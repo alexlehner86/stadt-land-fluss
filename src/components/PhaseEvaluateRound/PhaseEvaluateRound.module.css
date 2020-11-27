@@ -21,6 +21,7 @@
     font-size: 0.9em;
     font-style: normal;
     font-weight: bold;
+    color: #555555;
 }
 .answer,
 .invalid_answer {
