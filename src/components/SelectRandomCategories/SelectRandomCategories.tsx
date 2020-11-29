@@ -14,6 +14,7 @@ import FlipCameraAndroidIcon from '@material-ui/icons/FlipCameraAndroid';
 import React, { ChangeEvent, FormEvent, useState } from 'react';
 
 import { MIN_NUMBER_OF_CATEGORIES } from '../../constants/game.constant';
+import { NUMBER_OF_CATEGORIES_LABEL } from '../../constants/text.constant';
 import styles from './SelectRandomCategories.module.css';
 
 const useStyles = makeStyles(() => ({
@@ -34,7 +35,8 @@ const SelectRandomCategoriesDialog: React.FunctionComponent<SelectRandomCategori
     const [numberOfCategoriesInput, setNumberOfCategoriesInput] = useState(MIN_NUMBER_OF_CATEGORIES);
     const [validateInputs, setValidateInputs] = useState(false);
     const [retainSelection, setRetainSelection] = useState(false);
-    const numberOfRoundsInputLabel = `Anzahl Kategorien (${MIN_NUMBER_OF_CATEGORIES}-${props.maxNumberOfCategories})`;
+    const numberOfCategoriesAriaLabel = `${NUMBER_OF_CATEGORIES_LABEL} (mindestens ${MIN_NUMBER_OF_CATEGORIES}, maximal ${props.maxNumberOfCategories})`;
+    const numberOfCategoriesVisibleLabel = `${NUMBER_OF_CATEGORIES_LABEL} (${MIN_NUMBER_OF_CATEGORIES}-${props.maxNumberOfCategories})`;
 
     const handleNumberOfCategoriesInputChange = (event: ChangeEvent<HTMLInputElement>) => {
         const value = +event.target.value;
@@ -68,16 +70,24 @@ const SelectRandomCategoriesDialog: React.FunctionComponent<SelectRandomCategori
                     <DialogContentText className={styles.dialog_title}>
                         Kategorien zufällig auswählen
                     </DialogContentText>
+                    <label htmlFor="number-of-categories-input" className="sr-only">
+                        {numberOfCategoriesAriaLabel}
+                    </label>
                     <TextField
                         name="numberOfRoundsInput"
-                        label={numberOfRoundsInputLabel}
+                        label={numberOfCategoriesVisibleLabel}
                         type="number"
                         value={numberOfCategoriesInput}
                         variant="outlined"
                         fullWidth
                         required
+                        autoFocus
                         error={validateInputs && !isNumberOfCategoriesInputValid}
-                        inputProps={{ 'min': MIN_NUMBER_OF_CATEGORIES, 'max': props.maxNumberOfCategories }}
+                        inputProps={{
+                            id: 'number-of-categories-input',
+                            min: MIN_NUMBER_OF_CATEGORIES,
+                            max: props.maxNumberOfCategories
+                        }}
                         onChange={handleNumberOfCategoriesInputChange}
                     />
                     <FormControlLabel

@@ -121,7 +121,10 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     required
                     autoFocus
                     error={this.state.validateInputs && !this.state.nameInput}
-                    inputProps={{ id: 'player-name-input', 'maxLength': PLAYER_NAME_MAX_LENGTH }}
+                    inputProps={{
+                        id: 'player-name-input',
+                        maxLength: PLAYER_NAME_MAX_LENGTH
+                    }}
                     onChange={this.handleNameInputChange}
                 />
                 <label htmlFor="number-of-rounds-input" className="sr-only">{numberOfRoundsAriaLabel}</label>
@@ -135,19 +138,22 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     fullWidth
                     required
                     error={this.state.validateInputs && !this.state.isNumberOfRoundsInputValid}
-                    inputProps={{ id: 'number-of-rounds-input', 'min': MIN_NUMBER_OF_ROUNDS, 'max': MAX_NUMBER_OF_ROUNDS }}
+                    inputProps={{
+                        id: 'number-of-rounds-input',
+                        min: MIN_NUMBER_OF_ROUNDS,
+                        max: MAX_NUMBER_OF_ROUNDS
+                    }}
                     onChange={this.handleNumberOfRoundsInputChange}
                 />
-                <FormControl component="fieldset" classes={{ root: styles.end_round_fieldset }}>
+                <FormControl component="fieldset" classes={{ root: styles.custom_fieldset }}>
                     <FormLabel
                         component="legend"
-                        className={styles.end_round_legend}
+                        className={styles.custom_legend}
                     >
-                        Beenden der Runde durch:
+                        Beenden der Runde durch
                     </FormLabel>
                     <RadioGroup
                         className={styles.radio_group}
-                        aria-label="Beenden der Runde"
                         name="usecountdown"
                         value={this.state.endRoundMode}
                         onChange={this.handleUseCountdownChange}
@@ -185,26 +191,46 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     handleGameOptionChange={this.handleGameOptionChange}
                     handleLetterToExcludeChange={this.handleLetterToExcludeChange}
                 />
-                <p className={styles.options_label}>
-                    <span>Ausgewählte Kategorien (mind. {MIN_NUMBER_OF_CATEGORIES}):</span>
+                <FormControl component="fieldset" classes={{ root: styles.custom_fieldset }}>
+                    <FormLabel
+                        component="legend"
+                        className={styles.custom_legend}
+                    >
+                        Ausgewählte Kategorien (mind. {MIN_NUMBER_OF_CATEGORIES})
+                        <span className="sr-only">
+                            Klicke auf eine Kategorie, um diese aus der Liste
+                            der ausgewählten Kategorien zu entfernen.
+                        </span>
+                    </FormLabel>
+                    <ChipsArray
+                        chipsArray={this.state.selectedCategories}
+                        chipType={ChipType.selected}
+                        removeChip={(chipToRemove) => this.updateCategoryArrays(chipToRemove, CategoryArray.selected)}
+                    />
                     <SelectRandomCategories
                         maxNumberOfCategories={maxNumberOfCategories}
                         selectCategoriesRandomly={this.selectCategoriesRandomly}
                     />
-                </p>
-                <ChipsArray
-                    chipsArray={this.state.selectedCategories}
-                    chipType={ChipType.selected}
-                    removeChip={(chipToRemove) => this.updateCategoryArrays(chipToRemove, CategoryArray.selected)}
-                />
-                <p className={styles.options_label}>Verfügbare Kategorien:</p>
-                <ChipsArray
-                    chipsArray={this.state.availableCategories}
-                    chipType={ChipType.available}
-                    removeChip={(chipToRemove) => this.updateCategoryArrays(chipToRemove, CategoryArray.available)}
-                >
-                    <AddCustomCategory addCustomCategory={this.addCustomCategory} />
-                </ChipsArray>
+                </FormControl>
+                <FormControl component="fieldset" classes={{ root: styles.custom_fieldset }}>
+                    <FormLabel
+                        component="legend"
+                        className={styles.custom_legend}
+                    >
+                        Verfügbare Kategorien
+                        <span className="sr-only">
+                            Klicke auf eine Kategorie, um diese der Liste
+                            der ausgewählten Kategorien hinzuzufügen.
+                        </span>
+                    </FormLabel>
+                    <ChipsArray
+                        chipsArray={this.state.availableCategories}
+                        chipType={ChipType.available}
+                        removeChip={(chipToRemove) => this.updateCategoryArrays(chipToRemove, CategoryArray.available)}
+                    >
+                        <AddCustomCategory addCustomCategory={this.addCustomCategory} />
+                    </ChipsArray>
+                </FormControl>
                 <div className="button-wrapper add-margin-top">
                     <Button
                         type="submit"

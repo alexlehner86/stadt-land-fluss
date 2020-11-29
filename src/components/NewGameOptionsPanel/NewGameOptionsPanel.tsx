@@ -4,8 +4,10 @@ import {
     AccordionSummary,
     Checkbox,
     Divider,
+    FormControl,
     FormControlLabel,
     FormGroup,
+    FormLabel,
 } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import React, { ChangeEvent } from 'react';
@@ -68,22 +70,29 @@ const NewGameOptionsPanel: React.FunctionComponent<NewGameOptionsPanelProps> = p
                     />
                 </FormGroup>
                 <Divider />
-                <p className={styles.options_label}>Folgende Buchstaben ausschließen:</p>
-                <FormGroup row className="letters-to-exclude">
-                    {STANDARD_ALPHABET.map((letter, letterIndex) => (
-                        <FormControlLabel
-                            key={`slf-letters-to-exclude-${letterIndex}`}
-                            control={
-                                <Checkbox
-                                    checked={props.lettersToExclude.includes(letter)}
-                                    color="primary"
-                                    onChange={(event) => props.handleLetterToExcludeChange(event, letter)}
-                                />
-                            }
-                            label={letter}
-                        />
-                    ))}
-                </FormGroup>
+                <FormControl component="fieldset">
+                    <FormLabel
+                        component="legend"
+                        className={styles.options_label}
+                    >
+                        Folgende Buchstaben ausschließen:
+                    </FormLabel>
+                    <FormGroup row className="letters-to-exclude">
+                        {STANDARD_ALPHABET.map((letter, letterIndex) => (
+                            <FormControlLabel
+                                key={`slf-letters-to-exclude-${letterIndex}`}
+                                control={
+                                    <Checkbox
+                                        checked={props.lettersToExclude.includes(letter)}
+                                        color="primary"
+                                        onChange={(event) => props.handleLetterToExcludeChange(event, letter)}
+                                    />
+                                }
+                                label={letter}
+                            />
+                        ))}
+                    </FormGroup>
+                </FormControl>
             </AccordionDetails>
         </Accordion>
     );

@@ -1,0 +1,11 @@
+.chip {
+    height: auto;
+    min-height: 2rem;
+    margin: 0.25rem;
+}
+
+.chip_label {
+    white-space: normal;
+    padding: 0.25rem 0.75rem;
+    text-align: center;
+}

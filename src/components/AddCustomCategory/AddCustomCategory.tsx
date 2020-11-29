@@ -36,14 +36,17 @@ const CustomCategoryDialog: React.FunctionComponent<CustomCategoryDialogProps> =
             <form onSubmit={handleSubmit} className={styles.dialog_min_width} noValidate autoComplete="off">
                 <DialogContent>
                     <DialogContentText>Kategorie hinzufügen</DialogContentText>
+                    <label htmlFor="new-category-input" className="sr-only">
+                        Neue Kategorie
+                    </label>
                     <TextField
-                        id="new-category-input"
                         autoFocus
                         margin="dense"
                         fullWidth
                         required
                         value={categoryInput}
                         error={validateInputs && !categoryInput}
+                        inputProps={{ id: 'new-category-input' }}
                         onChange={event => setCategoryInput(event.target.value)}
                     />
                 </DialogContent>

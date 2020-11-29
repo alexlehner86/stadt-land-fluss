@@ -3,6 +3,7 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import DoneIcon from '@material-ui/icons/Done';
 import React from 'react';
+import styles from './ChipsArray.module.css';
 
 export enum ChipType {
     available = 'available',
@@ -33,10 +34,10 @@ const ChipsArray: React.FunctionComponent<ChipsArrayProps> = props => {
             {props.chipsArray.map((chip, index) => (
                 <Chip
                     key={`chip-to-${props.chipType}-${index}`}
+                    classes={{ root: styles.chip, label: styles.chip_label }}
                     color={props.chipType === 'selected' ? 'primary' : undefined}
                     icon={props.chipType === 'selected' ? <DoneIcon className="chip-icon-no-bg" /> : <ChevronRightIcon />}
                     label={chip}
-                    className="slf-chip-array-item"
                     onClick={() => props.removeChip(chip)}
                 />
             ))}
