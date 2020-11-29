@@ -1,10 +1,11 @@
-import { IconButton, Menu, MenuItem } from '@material-ui/core';
+import { Menu, MenuItem } from '@material-ui/core';
 import Link from '@material-ui/core/Link';
 import BrushIcon from '@material-ui/icons/Brush';
 import DirectionsRunIcon from '@material-ui/icons/DirectionsRun';
 import React, { Component, Dispatch } from 'react';
 import { connect } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
+
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
 import { AppTheme, AppThemes } from '../../constants/themes.constant';
 import { AppAction, setAppTheme } from '../../store/app.actions';
@@ -38,14 +39,51 @@ class Dashboard extends Component<DashboardProps, DashboardState> {
                 Zurück ins laufende Spiel
             </Link>
         );
+        const creditsButtonAction = this.state.showCredits ? 'ausblenden' : 'einblenden';
         const creditsElement = (
             <React.Fragment>
-                <a href="https://www.vecteezy.com/vector-art/830131-river-city-landscape-with-buildings-hills-and-trees" target="_blank" rel="noopener noreferrer">Homepage/Stadt-Land-Fluss by pikgura – www.vecteezy.com</a>
-                <a href="https://www.vecteezy.com/vector-art/276920-abstract-seamless-pattern-with-tropical-leaves" target="_blank" rel="noopener noreferrer">Theme Grün/Wald by NadiaGrapes – www.vecteezy.com</a>
-                <a href="https://www.freepik.com/free-photos-vectors/background" target="_blank" rel="noopener noreferrer">Theme Blau/Meer by macrovector – www.freepik.com</a>
-                <a href="https://www.vecteezy.com/vector-art/460735-seashell-sand-seamless-pattern" target="_blank" rel="noopener noreferrer">Theme Orange/Strand by Macrovector – www.vecteezy.com</a>
-                <a href="https://www.vecteezy.com/vector-art/454258-music-seamless" target="_blank" rel="noopener noreferrer">Theme Pink/Musik by Macrovector – www.vecteezy.com</a>
-                <a href="https://www.vecteezy.com/vector-art/662038-cat-and-bat-pattern" target="_blank" rel="noopener noreferrer">Theme Schwarz/Goth by angyee – www.vecteezy.com</a>
+                <a
+                    href="https://www.vecteezy.com/vector-art/830131-river-city-landscape-with-buildings-hills-and-trees"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    Illustration „Stadt-Land-Fluss“ von pikgura – www.vecteezy.com
+                </a>
+                <a
+                    href="https://www.vecteezy.com/vector-art/276920-abstract-seamless-pattern-with-tropical-leaves"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    Design „Grün/Wald“ von NadiaGrapes – www.vecteezy.com
+                </a>
+                <a
+                    href="https://www.freepik.com/free-photos-vectors/background"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    Design „Blau/Meer“ von macrovector – www.freepik.com
+                </a>
+                <a
+                    href="https://www.vecteezy.com/vector-art/460735-seashell-sand-seamless-pattern"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    Design „Orange/Strand“ von Macrovector – www.vecteezy.com
+                </a>
+                <a
+                    href="https://www.vecteezy.com/vector-art/454258-music-seamless"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    Design „Pink/Musik“ von Macrovector – www.vecteezy.com
+                </a>
+                <a
+                    href="https://www.vecteezy.com/vector-art/662038-cat-and-bat-pattern"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    Design „Schwarz/Goth“ von angyee – www.vecteezy.com
+                </a>
             </React.Fragment>
         );
         return (
@@ -64,17 +102,16 @@ class Dashboard extends Component<DashboardProps, DashboardState> {
                             alt="Stadt, Land, Fluss"
                             className={styles.slf_image}
                         />
-                        <IconButton
+                        <button
                             className={styles.theme_picker_button}
-                            color="primary"
-                            title="Theme ändern"
-                            aria-label="Theme ändern"
+                            title="Design ändern"
+                            aria-label="Design ändern"
                             aria-controls="theme-picker-menu"
                             aria-haspopup="true"
                             onClick={this.handleThemePickerClick}
                         >
                             <BrushIcon fontSize="small" className={styles.theme_picker_button_icon} />
-                        </IconButton>
+                        </button>
                         <Menu
                             id="theme-picker-menu"
                             anchorEl={this.state.anchorEl}
@@ -91,7 +128,9 @@ class Dashboard extends Component<DashboardProps, DashboardState> {
                         </Menu>
                     </div>
                     <div className={styles.img_copyright}>
-                        <button onClick={this.handleCreditsClick}>Credits/Bilder</button>
+                        <button onClick={this.handleCreditsClick}>
+                            Copyright-Hinweis <span className="sr-only">{creditsButtonAction}</span>
+                        </button>
                         {this.state.showCredits ? creditsElement : null}
                     </div>
                 </div>

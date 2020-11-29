@@ -93,7 +93,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
         selectedCategories: STANDARD_CATEGORIES,
         scoringOptions: {
             checkForDuplicates: true,
-            creativeAnswersExtraPoints: false,
+            creativeAnswersExtraPoints: true,
             onlyPlayerWithValidAnswer: true,
         },
         snackBarMessage: '',

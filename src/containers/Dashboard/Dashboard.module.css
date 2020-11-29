@@ -37,10 +37,22 @@
     position: absolute;
     top: 1rem;
     right: 1rem;
-    border: 2px solid rgba(255, 255, 255, 0.5);
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    margin: 0;
+    color: black;
+    background-color: rgba(255, 255, 255, 0.4);
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .theme_picker_button:focus {
-    border: 2px solid rgba(0, 0, 0 ,0.5);
+    border: 2px solid black;
+    outline: none;
+    background-color: white;
 }
 .theme_picker_button:focus .theme_picker_button_icon {
     fill: black;
@@ -64,20 +76,20 @@
     border: none;
     background: none;
     cursor: pointer;
-    width: min-content;
-    color: #353434;
 }
 .img_copyright button:focus,
 .img_copyright button:hover {
-    background: rgb(235, 233, 233);
+    outline: 2px solid black;
 }
 .img_copyright a {
     margin-top: 0.5em;
-    color: gray;
-}
-.img_copyright a:hover {
     color: black;
 }
+.img_copyright a:focus,
+.img_copyright a:hover {
+    outline: 2px solid black;
+    outline-offset: 1px;
+}
 .img_copyright a:active {
-    color: gray;
+    color: black;
 }

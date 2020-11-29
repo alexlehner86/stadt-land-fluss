@@ -32,10 +32,10 @@ class GameManual extends Component<RouteComponentProps> {
                     <h3>Allgemeines</h3>
                     <p>
                         Im Dashboard (Startseite) kann man über <span>Neues Spiel</span> ein neues Spiel erstellen bzw. über <span>Spiel
-                        beitreten</span> einem bereits erstellten Spiel beitreten. Die Webseite bietet fünf verschiedene Themes zur
-                        Auswahl. Das aktuelle Theme kann über den <BrushIcon fontSize="small" className={styles.inline_icon} />
-                        <span className="sr-only">Theme ändern</span>-Button (rechts oben im zentralen Bild) geändert werden.
-                        Die Theme-Auswahl sowie der zuletzt gewählte Spielername wird im{' '}
+                        beitreten</span> einem bereits erstellten Spiel beitreten. Die Webseite bietet fünf verschiedene Designs zur
+                        Auswahl. Das aktuelle Design kann über den <BrushIcon fontSize="small" className={styles.inline_icon} />
+                        <span className="sr-only">Design ändern</span>-Button (rechts oben im zentralen Bild) geändert werden.
+                        Die Design-Auswahl sowie der zuletzt gewählte Spielername wird im{' '}
                         <a
                             href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage"
                             target="_blank"
@@ -49,7 +49,7 @@ class GameManual extends Component<RouteComponentProps> {
                         Runden festlegen, einen Spielmodus auswählen und mindestens drei Kategorien bestimmen.
                     </p>
                     <p>
-                        Es stehen 45 Kategorien zur Auswahl, darunter Klassiker wie <span>Stadt</span>, <span>Land</span> und
+                        Es stehen 45 Kategorien zur Auswahl, darunter Klassiker wie <span>Stadt</span>, <span>Land</span> und{' '}
                         <span>Fluss/Gewässer</span>, jedoch auch neue Kategorien wie <span>Könnte ein Trump-Tweet sein</span>.
                         Der <FlipCameraAndroidIcon fontSize="small" className={styles.inline_icon} />
                         <span className="sr-only">Kategorien zufällig auswählen</span>-Button öffnet einen Dialog, über den eine
@@ -69,7 +69,7 @@ class GameManual extends Component<RouteComponentProps> {
                         Im Bereich <span>Weitere Optionen</span> können optional weitere Einstellungen vorgenommen werden.
                         Der Nutzer kann bestimmen, welche Buchstaben ausgeschlossen werden sollen. Standardmäßig sind
                         hier Q, X und Y ausgewählt. Weiters stehen drei zusätzliche <span>Regeln für die Punktevergabe</span> zur
-                        Auswahl, von denen die ersten beiden vorausgewählt sind:
+                        Auswahl, die standardmäßig ausgewählt sind:
                     </p>
                     <ul>
                         <li>{GAME_OPTION_LABEL.checkForDuplicates}</li>
