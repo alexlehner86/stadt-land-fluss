@@ -83,7 +83,7 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
             <div className="main-content-wrapper">
                 {this.props.gameId ? <RejoinRunningGameHint context={RejoinRunningGameHintContext.joingame} /> : null}
                 <div className="material-card-style">
-                    <SectionHeader isH3={false} showDivider={true} text="Spiel beitreten"></SectionHeader>
+                    <SectionHeader text="Spiel beitreten"></SectionHeader>
                     {joinGameForm}
                 </div>
                 <ToDashboardButton onReturnToDashboard={this.returnToDashboard} />

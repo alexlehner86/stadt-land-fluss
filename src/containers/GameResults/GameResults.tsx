@@ -42,7 +42,7 @@ class GameResults extends Component<GameResultsProps, GameResultsState> {
         return (
             <div className="main-content-wrapper">
                 <div className="material-card-style">
-                    <SectionHeader isH3={false} showDivider={true} text="Ergebnis"></SectionHeader>
+                    <SectionHeader text="Ergebnis"></SectionHeader>
                     <GameResultsList gameResults={gameResults} />
                     <Divider />
                     <div className={styles.button_wrapper}>
@@ -55,7 +55,7 @@ class GameResults extends Component<GameResultsProps, GameResultsState> {
                     </div>
                 </div>
                 <div className="material-card-style">
-                    <SectionHeader isH3={false} showDivider={true} text="Spieleinstellungen"></SectionHeader>
+                    <SectionHeader text="Spieleinstellungen"></SectionHeader>
                     <p><span className="bold-text">Runden:</span> {gameConfig.numberOfRounds}</p>
                     <p><span className="bold-text">Buchstaben:</span> {gameConfig.letters.join(', ')}</p>
                     <p><span className="bold-text">Kategorien:</span> {gameConfig.categories.join(', ')}</p>

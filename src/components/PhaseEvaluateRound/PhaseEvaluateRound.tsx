@@ -31,7 +31,6 @@ import {
 import { PlayerInfo } from '../../models/player.interface';
 import { getPlayersInAlphabeticalOrder, getRejectingPlayers } from '../../utils/game.utils';
 import GameRoundChip from '../GameRoundChip/GameRoundChip';
-import { SectionHeader } from '../SectionHeader/SectionHeader';
 import styles from './PhaseEvaluateRound.module.css';
 
 const StyledBadge = withStyles((theme: Theme) =>
@@ -251,7 +250,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
             key={'slf-evaluation-for-category-no-' + categoryIndex}
             className="material-card-style"
         >
-            <SectionHeader isH3={true} showDivider={false} text={category}></SectionHeader>
+            <h3 className="section-header">{category}</h3>
             {sortedPlayers.map((_, indexInSortedPlayers) => playerEvaluationElements(categoryIndex, indexInSortedPlayers))}
         </div>
     );

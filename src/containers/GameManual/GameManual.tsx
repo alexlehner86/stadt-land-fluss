@@ -19,7 +19,7 @@ class GameManual extends Component<RouteComponentProps> {
         return (
             <div className="main-content-wrapper">
                 <div className={'material-card-style ' + styles.slf_game_manual}>
-                    <SectionHeader isH3={false} showDivider={true} text="Spielanleitung"></SectionHeader>
+                    <SectionHeader text="Spielanleitung"></SectionHeader>
                     <p>
                         Willkommen bei <span>Stadt-Land-Fluss (MALEX-Edition)</span>, einer modernen Version des{' '}
                         <a

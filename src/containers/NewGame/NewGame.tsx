@@ -213,7 +213,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
             <div className="main-content-wrapper">
                 {this.props.gameId ? <RejoinRunningGameHint context={RejoinRunningGameHintContext.newgame} /> : null}
                 <div className="material-card-style">
-                    <SectionHeader isH3={false} showDivider={true} text="Neues Spiel" />
+                    <SectionHeader text="Neues Spiel" />
                     {newGameForm}
                 </div>
                 <ToDashboardButton onReturnToDashboard={this.returnToDashboard} />

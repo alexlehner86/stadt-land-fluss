@@ -5,7 +5,6 @@ import React, { ChangeEvent } from 'react';
 import { EndRoundMode, GameConfig, PlayerInput } from '../../models/game.interface';
 import GameRoundChip from '../GameRoundChip/GameRoundChip';
 import RoundCountdown from '../RoundCountdown/RoundCountdown';
-import { SectionHeader } from '../SectionHeader/SectionHeader';
 
 interface PhaseFillOutTextfieldsProps {
     currentRound: number;
@@ -27,14 +26,14 @@ const PhaseFillOutTextfields: React.FunctionComponent<PhaseFillOutTextfieldsProp
     };
     const createTextfieldElement = (category: string, index: number): JSX.Element => {
         const uniqueId = 'slf-input-for-category-no-' + index;
-        const label = `${category} mit Buchstabe (${currentLetter})`;
         return (
             <div
                 key={uniqueId}
                 className="material-card-style"
             >
-                <SectionHeader isH3={true} showDivider={false} text={category}></SectionHeader>
-                <label htmlFor={uniqueId} className="sr-only">{label}</label>
+                <label htmlFor={uniqueId} className="section-header">
+                    {category}<span className="sr-only"> mit Buchstabe ({currentLetter})</span>
+                </label>
                 <TextField
                     value={gameRoundInputs[index].text}
                     variant="outlined"
