@@ -3,12 +3,15 @@ import DirectionsWalkIcon from '@material-ui/icons/DirectionsWalk';
 import React, { ChangeEvent, Component, Dispatch, FormEvent } from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
+
 import {
     RejoinRunningGameHint,
     RejoinRunningGameHintContext,
 } from '../../components/RejoinRunningGameHint/RejoinRunningGameHint';
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
 import ToDashboardButton from '../../components/ToDashboardButton/ToDashboardButton';
+import { PLAYER_NAME_MAX_LENGTH } from '../../constants/app.constant';
+import { GAME_ID_LABEL, PLAYER_NAME_LABEL } from '../../constants/text.constant';
 import { PlayerInfo } from '../../models/player.interface';
 import { AppAction, setDataForNewGame, SetDataForNewGamePayload } from '../../store/app.actions';
 import { AppState } from '../../store/app.reducer';
@@ -42,11 +45,14 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
     };
 
     public render() {
+        const playerNameAriaLabel = `${PLAYER_NAME_LABEL} (maximal ${PLAYER_NAME_MAX_LENGTH} Zeichen)`;
+        const playerNameVisibleLabel = `${PLAYER_NAME_LABEL} (max. ${PLAYER_NAME_MAX_LENGTH} Zeichen)`;
         const joinGameForm = (
             <form onSubmit={this.handleSubmit} className="app-form" noValidate autoComplete="off">
+                <label htmlFor="player-name-input" className="sr-only">{playerNameAriaLabel}</label>
                 <TextField
                     name="nameInput"
-                    label="Spielername (max. 20 Zeichen)"
+                    label={playerNameVisibleLabel}
                     value={this.state.nameInput}
                     className="app-form-input"
                     variant="outlined"
@@ -54,19 +60,21 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
                     required
                     autoFocus
                     error={this.state.validateInputs && !this.state.nameInput}
-                    inputProps={{ 'maxLength': '20' }}
+                    inputProps={{ id: 'player-name-input', 'maxLength': PLAYER_NAME_MAX_LENGTH }}
                     onChange={this.handleInputChange}
                 />
+                <label htmlFor="game-id-input" className="sr-only">{GAME_ID_LABEL}</label>
                 <TextField
                     name="idInput"
-                    label="Spiel-ID"
+                    label={GAME_ID_LABEL}
                     value={this.state.idInput}
-                    onChange={this.handleInputChange}
                     className="app-form-input"
                     variant="outlined"
                     fullWidth
                     required
                     error={this.state.validateInputs && !this.state.idInput}
+                    inputProps={{ id: 'game-id-input' }}
+                    onChange={this.handleInputChange}
                 />
                 <div className="button-wrapper">
                     <Button

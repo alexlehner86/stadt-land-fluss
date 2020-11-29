@@ -26,6 +26,7 @@ import {
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
 import SelectRandomCategories from '../../components/SelectRandomCategories/SelectRandomCategories';
 import ToDashboardButton from '../../components/ToDashboardButton/ToDashboardButton';
+import { PLAYER_NAME_MAX_LENGTH } from '../../constants/app.constant';
 import {
     AVAILABLE_CATEGORIES,
     DEFAULT_DURATION_OF_COUNTDOWN,
@@ -38,6 +39,7 @@ import {
     STANDARD_CATEGORIES,
     STANDARD_EXCLUDED_LETTERS,
 } from '../../constants/game.constant';
+import { NUMBER_OF_ROUNDS_LABEL, PLAYER_NAME_LABEL } from '../../constants/text.constant';
 import { EndRoundMode, GameConfigScoringOptions } from '../../models/game.interface';
 import { PlayerInfo } from '../../models/player.interface';
 import { AppAction, setDataForNewGame, SetDataForNewGamePayload } from '../../store/app.actions';
@@ -101,13 +103,17 @@ class NewGame extends Component<NewGameProps, NewGameState> {
     };
 
     public render() {
-        const numberOfRoundsInputLabel = `Anzahl Runden (${MIN_NUMBER_OF_ROUNDS}-${MAX_NUMBER_OF_ROUNDS})`;
+        const playerNameAriaLabel = `${PLAYER_NAME_LABEL} (maximal ${PLAYER_NAME_MAX_LENGTH} Zeichen)`;
+        const playerNameVisibleLabel = `${PLAYER_NAME_LABEL} (max. ${PLAYER_NAME_MAX_LENGTH} Zeichen)`;
+        const numberOfRoundsAriaLabel = `${NUMBER_OF_ROUNDS_LABEL} (maximal ${MAX_NUMBER_OF_ROUNDS})`;
+        const numberOfRoundsVisibleLabel = `${NUMBER_OF_ROUNDS_LABEL} (max. ${MAX_NUMBER_OF_ROUNDS})`;
         const maxNumberOfCategories = this.state.availableCategories.length + this.state.selectedCategories.length;
         const newGameForm = (
             <form onSubmit={this.handleSubmit} className="app-form" noValidate autoComplete="off">
+                <label htmlFor="player-name-input" className="sr-only">{playerNameAriaLabel}</label>
                 <TextField
                     name="nameInput"
-                    label="Spielername (max. 20 Zeichen)"
+                    label={playerNameVisibleLabel}
                     value={this.state.nameInput}
                     className="app-form-input"
                     variant="outlined"
@@ -115,12 +121,13 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     required
                     autoFocus
                     error={this.state.validateInputs && !this.state.nameInput}
-                    inputProps={{ 'maxLength': '20' }}
+                    inputProps={{ id: 'player-name-input', 'maxLength': PLAYER_NAME_MAX_LENGTH }}
                     onChange={this.handleNameInputChange}
                 />
+                <label htmlFor="number-of-rounds-input" className="sr-only">{numberOfRoundsAriaLabel}</label>
                 <TextField
                     name="numberOfRoundsInput"
-                    label={numberOfRoundsInputLabel}
+                    label={numberOfRoundsVisibleLabel}
                     type="number"
                     value={this.state.numberOfRoundsInput}
                     className="app-form-input"
@@ -128,7 +135,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     fullWidth
                     required
                     error={this.state.validateInputs && !this.state.isNumberOfRoundsInputValid}
-                    inputProps={{ 'min': MIN_NUMBER_OF_ROUNDS, 'max': MAX_NUMBER_OF_ROUNDS }}
+                    inputProps={{ id: 'number-of-rounds-input', 'min': MIN_NUMBER_OF_ROUNDS, 'max': MAX_NUMBER_OF_ROUNDS }}
                     onChange={this.handleNumberOfRoundsInputChange}
                 />
                 <FormControl component="fieldset" classes={{ root: styles.end_round_fieldset }}>
