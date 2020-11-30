@@ -52,7 +52,7 @@
 .theme_picker_button:focus {
     border: 2px solid black;
     outline: none;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.7);
 }
 .theme_picker_button:focus .theme_picker_button_icon {
     fill: black;

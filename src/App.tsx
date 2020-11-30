@@ -3,6 +3,7 @@ import './App.css';
 import { ThemeProvider } from '@material-ui/core';
 import { SnackbarProvider } from 'notistack';
 import React, { Component, CSSProperties, Dispatch, lazy, Suspense } from 'react';
+import { LiveAnnouncer } from 'react-aria-live';
 import { connect } from 'react-redux';
 import { HashRouter, Route, Switch } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
@@ -92,12 +93,14 @@ class App extends Component<AppProps, AppComponentState> {
         return (
             <ThemeProvider theme={this.props.activeTheme.muiTheme}>
                 <SnackbarProvider maxSnack={3}>
-                    <div className="app-container">
-                        <HashRouter basename={process.env.PUBLIC_URL}>
-                            <Header theme={this.props.activeTheme} />
-                            {mainContent}
-                        </HashRouter>
-                    </div>
+                    <LiveAnnouncer>
+                        <div className="app-container">
+                            <HashRouter basename={process.env.PUBLIC_URL}>
+                                <Header theme={this.props.activeTheme} />
+                                {mainContent}
+                            </HashRouter>
+                        </div>
+                    </LiveAnnouncer>
                     {this.state.newVersionAvailable ? newVersionSnackbar : null}
                 </SnackbarProvider>
             </ThemeProvider>

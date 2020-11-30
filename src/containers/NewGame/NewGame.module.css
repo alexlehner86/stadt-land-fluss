@@ -1,5 +1,4 @@
 .custom_fieldset {
-    position: relative;
     box-sizing: border-box;
     width: 100%;
     border: 1px solid rgba(0, 0, 0, 0.23);
@@ -37,4 +36,13 @@
 }
 .countdown_input:after {
     content: none;
+}
+
+.button_anchor {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.alert_snackbar {
+    background-color: #BF360C
 }

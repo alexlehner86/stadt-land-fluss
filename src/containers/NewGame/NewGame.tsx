@@ -7,11 +7,13 @@ import {
     Radio,
     RadioGroup,
     Snackbar,
+    SnackbarContent,
     TextField,
 } from '@material-ui/core';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import { xor } from 'lodash';
 import React, { ChangeEvent, Component, Dispatch, FormEvent } from 'react';
+import { LiveMessage } from 'react-aria-live';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { v4 as uuidv4 } from 'uuid';
@@ -68,6 +70,7 @@ interface NewGameDispatchProps {
 }
 interface NewGameProps extends NewGamePropsFromStore, NewGameDispatchProps, RouteComponentProps { }
 interface NewGameState {
+    a11yMessage: string;
     availableCategories: string[];
     durationOfCountdown: number;
     endRoundMode: EndRoundMode;
@@ -84,6 +87,7 @@ interface NewGameState {
 
 class NewGame extends Component<NewGameProps, NewGameState> {
     public state: NewGameState = {
+        a11yMessage: '',
         availableCategories: AVAILABLE_CATEGORIES,
         durationOfCountdown: DEFAULT_DURATION_OF_COUNTDOWN,
         endRoundMode: EndRoundMode.allPlayersSubmit,
@@ -191,27 +195,29 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     handleGameOptionChange={this.handleGameOptionChange}
                     handleLetterToExcludeChange={this.handleLetterToExcludeChange}
                 />
-                <FormControl component="fieldset" classes={{ root: styles.custom_fieldset }}>
-                    <FormLabel
-                        component="legend"
-                        className={styles.custom_legend}
-                    >
-                        Ausgewählte Kategorien (mind. {MIN_NUMBER_OF_CATEGORIES})
+                <div className={styles.button_anchor}>
+                    <FormControl component="fieldset" classes={{ root: styles.custom_fieldset }}>
+                        <FormLabel
+                            component="legend"
+                            className={styles.custom_legend}
+                        >
+                            Ausgewählte Kategorien (mind. {MIN_NUMBER_OF_CATEGORIES})
                         <span className="sr-only">
-                            Klicke auf eine Kategorie, um diese aus der Liste
-                            der ausgewählten Kategorien zu entfernen.
+                                Klicke auf eine Kategorie, um diese aus der Liste
+                                der ausgewählten Kategorien zu entfernen.
                         </span>
-                    </FormLabel>
-                    <ChipsArray
-                        chipsArray={this.state.selectedCategories}
-                        chipType={ChipType.selected}
-                        removeChip={(chipToRemove) => this.updateCategoryArrays(chipToRemove, CategoryArray.selected)}
-                    />
+                        </FormLabel>
+                        <ChipsArray
+                            chipsArray={this.state.selectedCategories}
+                            chipType={ChipType.selected}
+                            removeChip={(chipToRemove) => this.updateCategoryArrays(chipToRemove, CategoryArray.selected)}
+                        />
+                    </FormControl>
                     <SelectRandomCategories
                         maxNumberOfCategories={maxNumberOfCategories}
                         selectCategoriesRandomly={this.selectCategoriesRandomly}
                     />
-                </FormControl>
+                </div>
                 <FormControl component="fieldset" classes={{ root: styles.custom_fieldset }}>
                     <FormLabel
                         component="legend"
@@ -254,8 +260,17 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                     open={this.state.isSnackbarOpen}
                     autoHideDuration={3000}
-                    message={this.state.snackBarMessage}
                     onClose={this.handleSnackBarClose}
+                >
+                    <SnackbarContent
+                        classes={{ root: styles.alert_snackbar }}
+                        message={this.state.snackBarMessage}
+                    ></SnackbarContent>
+                </Snackbar>
+                <LiveMessage
+                    message={this.state.a11yMessage}
+                    aria-live="assertive"
+                    clearOnUnmount="true"
                 />
             </div>
         );
@@ -312,16 +327,20 @@ class NewGame extends Component<NewGameProps, NewGameState> {
     private updateCategoryArrays = (chipToRemove: string, removeFromArray: CategoryArray) => {
         let newSelectedCategories: string[];
         let newAvailableCategories: string[];
+        let a11yMessage: string;
         if (removeFromArray === CategoryArray.selected) {
             newSelectedCategories = this.state.selectedCategories.filter(category => category !== chipToRemove);
             newAvailableCategories = [...this.state.availableCategories];
             newAvailableCategories.push(chipToRemove);
+            a11yMessage = `Kategorie ${chipToRemove} wurde aus der Liste der ausgewählten Kategorien entfernt.`;
         } else {
             newAvailableCategories = this.state.availableCategories.filter(category => category !== chipToRemove);
             newSelectedCategories = [...this.state.selectedCategories];
             newSelectedCategories.push(chipToRemove);
+            a11yMessage = `Kategorie ${chipToRemove} wurde der Liste der ausgewählten Kategorien hinzugefügt.`;
         }
         this.setState({
+            a11yMessage,
             availableCategories: newAvailableCategories,
             selectedCategories: newSelectedCategories
         });
@@ -342,22 +361,28 @@ class NewGame extends Component<NewGameProps, NewGameState> {
 
     private isReadyToStartGame = (): boolean => {
         const { isNumberOfRoundsInputValid, lettersToExclude, numberOfRoundsInput, selectedCategories } = this.state;
+        if (!this.state.nameInput.trim()) {
+            this.alertUser('Du musst einen Spielernamen eingeben!');
+            return false;
+        }
         if (!isNumberOfRoundsInputValid) {
-            this.showSnackBar(`Die Anzahl an Runden muss zwischen ${MIN_NUMBER_OF_ROUNDS} und ${MAX_NUMBER_OF_ROUNDS} liegen!`);
+            this.alertUser(`Die Anzahl an Runden muss zwischen ${MIN_NUMBER_OF_ROUNDS} und ${MAX_NUMBER_OF_ROUNDS} liegen!`);
             return false;
         }
         if (selectedCategories.length < MIN_NUMBER_OF_CATEGORIES) {
-            this.showSnackBar(`Du musst mindestens ${MIN_NUMBER_OF_CATEGORIES} Kategorien auswählen!`);
+            this.alertUser(`Du musst mindestens ${MIN_NUMBER_OF_CATEGORIES} Kategorien auswählen!`);
             return false;
         }
         if (STANDARD_ALPHABET.length - lettersToExclude.length < numberOfRoundsInput) {
-            this.showSnackBar('Du hast zu viele Buchstaben ausgeschlossen!');
+            this.alertUser('Du hast zu viele Buchstaben ausgeschlossen!');
             return false;
         }
-        return !!this.state.nameInput.trim();
+        return true;
     }
 
-    private showSnackBar = (message: string) => this.setState({ isSnackbarOpen: true, snackBarMessage: message });
+    private alertUser = (message: string) => this.setState(
+        { a11yMessage: message, isSnackbarOpen: true, snackBarMessage: message }
+    );
     private handleSnackBarClose = () => this.setState({ isSnackbarOpen: false });
 
     private startNewGame = () => {

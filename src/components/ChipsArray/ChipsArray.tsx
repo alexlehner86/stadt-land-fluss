@@ -30,10 +30,11 @@ interface ChipsArrayProps {
 const ChipsArray: React.FunctionComponent<ChipsArrayProps> = props => {
     const classes = useStyles();
     return (
-        <div className={classes.root}>
+        <div className={classes.root} role="list">
             {props.chipsArray.map((chip, index) => (
                 <Chip
                     key={`chip-to-${props.chipType}-${index}`}
+                    role="listitem"
                     classes={{ root: styles.chip, label: styles.chip_label }}
                     color={props.chipType === 'selected' ? 'primary' : undefined}
                     icon={props.chipType === 'selected' ? <DoneIcon className="chip-icon-no-bg" /> : <ChevronRightIcon />}

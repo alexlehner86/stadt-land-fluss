@@ -20,7 +20,7 @@
     left: 1rem;
     transform: translateY(-50%);
     font-size: 0.8rem;
-    opacity: 0.7;
+    opacity: 0.8;
 }
 .app-header .about-section a {
     color: inherit;
@@ -30,6 +30,10 @@
     outline: 2px solid black;
     outline-offset: 1px;
 }
+.app-header.green-theme .about-section a:focus,
+.app-header.green-theme .about-section a:hover,
+.app-header.pink-theme .about-section a:focus,
+.app-header.pink-theme .about-section a:hover,
 .app-header.black-theme .about-section a:focus,
 .app-header.black-theme .about-section a:hover {
     outline: 2px solid white;
@@ -42,7 +46,10 @@
     transform: translateY(-50%);
     display: flex;
     color: black;
-    opacity: 0.7;
+    opacity: 0.8;
+}
+.app-header .icon-buttons svg {
+    fill: black;
 }
 .app-header.green-theme .icon-buttons svg,
 .app-header.pink-theme .icon-buttons svg,
