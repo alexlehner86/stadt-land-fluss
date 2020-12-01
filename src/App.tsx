@@ -33,6 +33,7 @@ import {
 } from './utils/local-storage.utils';
 
 // Preload all routes available from the dashboard in the background.
+const a11yStatementPromise = import('./containers/AccessibilityStatement/AccessibilityStatement');
 const aboutTheGamePromise = import('./containers/AboutTheGame/AboutTheGame');
 const gameManualPromise = import('./containers/GameManual/GameManual');
 const joinGamePromise = import('./containers/JoinGame/JoinGame');
@@ -41,6 +42,7 @@ const playGamePromise = import('./containers/PlayGame/PlayGame');
 
 // Use lazy loading of routes to speed up time to FCP (first contentful paint)
 const AboutTheGame = lazy(() => aboutTheGamePromise);
+const AccessibilityStatement = lazy(() => a11yStatementPromise);
 const GameManual = lazy(() => gameManualPromise);
 const GameResults = lazy(() => import('./containers/GameResults/GameResults'));
 const JoinGame = lazy(() => joinGamePromise);
@@ -80,6 +82,7 @@ class App extends Component<AppProps, AppComponentState> {
                 <Suspense fallback={<LoadingScreen />}>
                     <Switch>
                         <Route path="/about" exact component={AboutTheGame} />
+                        <Route path="/accessibility" exact component={AccessibilityStatement} />
                         <Route path="/joingame" exact component={JoinGame} />
                         <Route path="/manual" exact component={GameManual} />
                         <Route path="/newgame" exact component={NewGame} />

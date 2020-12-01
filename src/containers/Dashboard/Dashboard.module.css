@@ -79,7 +79,7 @@
     padding: 0.25rem;
     border: none;
     background: none;
-    color: black;
+    color: rgba(0, 0, 0, 0.87);
     cursor: pointer;
     text-decoration: none;
     font: 500 0.8rem sans-serif;
@@ -102,7 +102,7 @@
 }
 .img_copyright a {
     margin-top: 0.5em;
-    color: black;
+    color: rgba(0, 0, 0, 0.87);
 }
 .img_copyright a:focus,
 .img_copyright a:hover {

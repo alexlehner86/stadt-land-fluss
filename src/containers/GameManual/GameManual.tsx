@@ -1,4 +1,3 @@
-import { Divider } from '@material-ui/core';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import BrushIcon from '@material-ui/icons/Brush';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
@@ -8,6 +7,7 @@ import StarIcon from '@material-ui/icons/Star';
 import ThumbDownRoundedIcon from '@material-ui/icons/ThumbDownRounded';
 import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router';
+import { Link as RouterLink } from 'react-router-dom';
 
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
 import ToDashboardButton from '../../components/ToDashboardButton/ToDashboardButton';
@@ -21,7 +21,9 @@ class GameManual extends Component<RouteComponentProps> {
                 <div className="material-card-style slf-article-container">
                     <SectionHeader text="Spielanleitung"></SectionHeader>
                     <p>
-                        Willkommen bei <span>Stadt-Land-Fluss (MALEX-Edition)</span>, einer modernen Version des{' '}
+                        Willkommen bei{' '}
+                        <RouterLink to="/about">Stadt-Land-Fluss (MALEX-Edition)</RouterLink>,
+                        einer modernen Version des{' '}
                         <a
                             href="https://de.wikipedia.org/wiki/Stadt,_Land,_Fluss"
                             target="_blank"
@@ -35,13 +37,7 @@ class GameManual extends Component<RouteComponentProps> {
                         beitreten</span> einem bereits erstellten Spiel beitreten. Die Webseite bietet fünf verschiedene Designs zur
                         Auswahl. Das aktuelle Design kann über den <BrushIcon fontSize="small" className={styles.inline_icon} />
                         <span className="sr-only">Design ändern</span>-Button (rechts oben im zentralen Bild) geändert werden.
-                        Die Design-Auswahl sowie der zuletzt gewählte Spielername wird im{' '}
-                        <a
-                            href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >Local Storage</a>
-                        {' '}des Browsers gespeichert.
+                        Die Design-Auswahl sowie der zuletzt gewählte Spielername werden vom Browser gespeichert.
                     </p>
                     <h3>Neues Spiel</h3>
                     <p>
