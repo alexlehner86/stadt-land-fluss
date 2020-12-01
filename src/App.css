@@ -88,6 +88,34 @@ li:not(.MuiListItem-root) {
     margin-bottom: 0.5rem;
 }
 
+/*********************************************************************/
+/******* Game Manual, About the Game, Accessibility Statement *******/
+/*******************************************************************/
+
+.slf-article-container {
+    line-height: 1.5;
+    padding: 1rem 2rem;
+}
+.slf-article-container p,
+.slf-article-container ol,
+.slf-article-container ul {
+    font-size: 0.9rem;
+}
+.slf-article-container p span {
+    font-style: italic;
+}
+.slf-article-container p:not(:first-of-type) {
+    margin-block-start: 0;
+}
+.slf-article-container p:last-of-type {
+    margin-block-end: 0.5rem;
+}
+.slf-article-container h3 {
+    font-size: 1rem;
+    margin-block-end: 0.5rem;
+}
+/**************************************/
+
 /**************************************/
 /******* Material UI overrides *******/
 /************************************/

@@ -196,6 +196,10 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     handleLetterToExcludeChange={this.handleLetterToExcludeChange}
                 />
                 <div className={styles.button_anchor}>
+                    <SelectRandomCategories
+                        maxNumberOfCategories={maxNumberOfCategories}
+                        selectCategoriesRandomly={this.selectCategoriesRandomly}
+                    />
                     <FormControl component="fieldset" classes={{ root: styles.custom_fieldset }}>
                         <FormLabel
                             component="legend"
@@ -213,10 +217,6 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                             removeChip={(chipToRemove) => this.updateCategoryArrays(chipToRemove, CategoryArray.selected)}
                         />
                     </FormControl>
-                    <SelectRandomCategories
-                        maxNumberOfCategories={maxNumberOfCategories}
-                        selectCategoriesRandomly={this.selectCategoriesRandomly}
-                    />
                 </div>
                 <FormControl component="fieldset" classes={{ root: styles.custom_fieldset }}>
                     <FormLabel

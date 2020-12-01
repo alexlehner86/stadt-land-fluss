@@ -18,7 +18,7 @@ class GameManual extends Component<RouteComponentProps> {
     public render() {
         return (
             <div className="main-content-wrapper">
-                <div className={'material-card-style ' + styles.slf_game_manual}>
+                <div className="material-card-style slf-article-container">
                     <SectionHeader text="Spielanleitung"></SectionHeader>
                     <p>
                         Willkommen bei <span>Stadt-Land-Fluss (MALEX-Edition)</span>, einer modernen Version des{' '}
@@ -144,19 +144,6 @@ class GameManual extends Component<RouteComponentProps> {
                         im Detail (Antworten, Punkte etc.) dargestellt werden. Falls während des Spiels einzelne Begriffe als besonders
                         kreativ oder lustig ausgezeichnet wurden, so kann man über den <span>Hall of Fame</span>-Button
                         einen Dialog öffnen, der eine Liste mit allen Begriffen anzeigt.
-                    </p>
-                    <Divider />
-                    <h3 id="aboutthegame">Über das Spiel</h3>
-                    <p>
-                        Das Spiel <span>Stadt-Land-Fluss (MALEX-Edition)</span> ist ein Kind des ersten Corona-Lockdowns im Frühjahr 2020.
-                        Quasi in den eigenen vier Wänden eingesperrt hielten mein Partner und ich den Kontakt zu Freunden und Familie
-                        online aufrecht. Da wir mit dem Angebot an Online-Versionen von Stadt-Land-Fluss unzufrieden waren, habe ich
-                        einfach eine eigene Version programmiert.
-                    </p>
-                    <p>
-                        Der Zusatz <span>MALEX-Edition</span> ist eine Wortverschränkung von
-                        „Martin“ (der Name meines Partners) und „Alex“ (mein Name). Danke Hase für deine tollen Ideen, deine Unterstützung
-                        und Geduld. Ohne dich würde es das Spiel nicht geben!
                     </p>
                 </div>
                 <ToDashboardButton onReturnToDashboard={this.returnToDashboard} />

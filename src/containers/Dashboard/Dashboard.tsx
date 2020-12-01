@@ -41,7 +41,7 @@ class Dashboard extends Component<DashboardProps, DashboardState> {
         );
         const creditsButtonAction = this.state.showCredits ? 'ausblenden' : 'einblenden';
         const creditsElement = (
-            <React.Fragment>
+            <div className={styles.img_copyright}>
                 <a
                     href="https://www.vecteezy.com/vector-art/830131-river-city-landscape-with-buildings-hills-and-trees"
                     target="_blank"
@@ -84,18 +84,18 @@ class Dashboard extends Component<DashboardProps, DashboardState> {
                 >
                     Design „Schwarz/Goth“ von angyee – www.vecteezy.com
                 </a>
-            </React.Fragment>
+            </div>
         );
         return (
             <div className="main-content-wrapper">
                 <div className="material-card-style">
                     <SectionHeader text="Dashboard"></SectionHeader>
-                    <div className={styles.link_container}>
+                    <nav className={styles.link_container}>
                         {this.props.gameId ? rejoinGameElement : null}
                         <Link component={RouterLink} to="/newgame">Neues Spiel</Link>
                         <Link component={RouterLink} to="/joingame">Spiel beitreten</Link>
                         <Link component={RouterLink} to="/manual">Spielanleitung</Link>
-                    </div>
+                    </nav>
                     <div className={styles.image_wrapper}>
                         <img
                             src={this.props.activeTheme.homepageImageUrl}
@@ -127,12 +127,16 @@ class Dashboard extends Component<DashboardProps, DashboardState> {
                             ))}
                         </Menu>
                     </div>
-                    <div className={styles.img_copyright}>
+                    <div className={styles.footer_links}>
+                        <RouterLink to="/about">Über das Spiel</RouterLink>
+                        <div className={styles.separator}>|</div>
+                        <RouterLink to="/accessibility">Barrierefreiheitserklärung</RouterLink>
+                        <div className={styles.separator}>|</div>
                         <button onClick={this.handleCreditsClick}>
                             Copyright-Hinweis <span className="sr-only">{creditsButtonAction}</span>
                         </button>
-                        {this.state.showCredits ? creditsElement : null}
                     </div>
+                    {this.state.showCredits ? creditsElement : null}
                 </div>
             </div>
         );
