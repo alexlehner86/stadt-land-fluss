@@ -35,6 +35,10 @@ class AboutTheGame extends Component<RouteComponentProps> {
                             rel="noopener noreferrer"
                         >Github-Seite</a>.
                     </p>
+                    <h3>Barrierefreiheit</h3>
+                    <p>
+                        Siehe <RouterLink to="/accessibility">Barrierefreiheitserklärung</RouterLink>.
+                    </p>
                     <h3>Datenschutz</h3>
                     <p>
                         Es werden keine personenbezogenen Daten verarbeitet und generell keine Cookies gespeichert.
@@ -49,10 +53,63 @@ class AboutTheGame extends Component<RouteComponentProps> {
                         {' '}des Browsers gespeichert. Letzteres dient dazu, ein laufendes Spiel wiederherstellen zu
                         können, falls der Nutzer z.B. das Browserfenster schließt.
                     </p>
-                    <h3>Barrierefreiheit</h3>
-                    <p>
-                        Siehe <RouterLink to="/accessibility">Barrierefreiheitserklärung</RouterLink>.
-                    </p>
+                    <h3>Copyright-Hinweise</h3>
+                    <ul>
+                        <li>
+                            <a
+                                href="https://www.vecteezy.com/vector-art/830131-river-city-landscape-with-buildings-hills-and-trees"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                Illustration „Stadt-Land-Fluss“ von pikgura – www.vecteezy.com
+                            </a>
+                        </li>
+                        <li>
+                            <a
+                                href="https://www.vecteezy.com/vector-art/276920-abstract-seamless-pattern-with-tropical-leaves"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                Design „Grün/Wald“ von NadiaGrapes – www.vecteezy.com
+                            </a>
+                        </li>
+                        <li>
+                            <a
+                                href="https://www.freepik.com/free-photos-vectors/background"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                Design „Blau/Meer“ von macrovector – www.freepik.com
+                            </a>
+                        </li>
+                        <li>
+                            <a
+                                href="https://www.vecteezy.com/vector-art/460735-seashell-sand-seamless-pattern"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                Design „Orange/Strand“ von Macrovector – www.vecteezy.com
+                            </a>
+                        </li>
+                        <li>
+                            <a
+                                href="https://www.vecteezy.com/vector-art/454258-music-seamless"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                Design „Pink/Musik“ von Macrovector – www.vecteezy.com
+                            </a>
+                        </li>
+                        <li>
+                            <a
+                                href="https://www.vecteezy.com/vector-art/662038-cat-and-bat-pattern"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                Design „Schwarz/Goth“ von angyee – www.vecteezy.com
+                            </a>
+                        </li>
+                    </ul>
                 </div>
                 <ToDashboardButton onReturnToDashboard={this.returnToDashboard} />
             </div>

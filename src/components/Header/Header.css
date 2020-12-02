@@ -22,22 +22,6 @@
     font-size: 0.8rem;
     opacity: 0.8;
 }
-.app-header .about-section a {
-    color: inherit;
-}
-.app-header .about-section a:focus,
-.app-header .about-section a:hover {
-    outline: 2px solid black;
-    outline-offset: 1px;
-}
-.app-header.green-theme .about-section a:focus,
-.app-header.green-theme .about-section a:hover,
-.app-header.pink-theme .about-section a:focus,
-.app-header.pink-theme .about-section a:hover,
-.app-header.black-theme .about-section a:focus,
-.app-header.black-theme .about-section a:hover {
-    outline: 2px solid white;
-}
 
 .app-header .icon-buttons {
     position: absolute;

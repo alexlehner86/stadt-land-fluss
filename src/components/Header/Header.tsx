@@ -30,13 +30,11 @@ export class Header extends Component<HeaderProps, HeaderState> {
                 <h1>Stadt-Land-Fluss</h1>
                 <p>Spieler: {this.props.playerName ? this.props.playerName : '-'}</p>
                 <div className="about-section">
-                    <p>v{packageJson.version}</p>
-                    <a
-                        href="https://github.com/alexlehner86"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label="Mehr über den Autor erfahren (öffnet neues Fenster)"
-                    >Autor</a>
+                    <p>
+                        <span aria-hidden="true">v</span>
+                        <span className="sr-only">Version</span>
+                        {packageJson.version}
+                    </p>
                 </div>
                 <div className="icon-buttons">
                     <IconButton

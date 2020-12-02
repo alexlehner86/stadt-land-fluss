@@ -23,14 +23,10 @@ interface DashboardDispatchProps {
 interface DashboardProps extends DashboardPropsFromStore, DashboardDispatchProps { }
 interface DashboardState {
     anchorEl: EventTarget | null;
-    showCredits: boolean;
 }
 
 class Dashboard extends Component<DashboardProps, DashboardState> {
-    public state = {
-        anchorEl: null,
-        showCredits: false
-    };
+    public state = { anchorEl: null };
 
     public render() {
         const rejoinGameElement = (
@@ -38,53 +34,6 @@ class Dashboard extends Component<DashboardProps, DashboardState> {
                 <DirectionsRunIcon />
                 Zurück ins laufende Spiel
             </Link>
-        );
-        const creditsButtonAction = this.state.showCredits ? 'ausblenden' : 'einblenden';
-        const creditsElement = (
-            <div className={styles.img_copyright}>
-                <a
-                    href="https://www.vecteezy.com/vector-art/830131-river-city-landscape-with-buildings-hills-and-trees"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    Illustration „Stadt-Land-Fluss“ von pikgura – www.vecteezy.com
-                </a>
-                <a
-                    href="https://www.vecteezy.com/vector-art/276920-abstract-seamless-pattern-with-tropical-leaves"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    Design „Grün/Wald“ von NadiaGrapes – www.vecteezy.com
-                </a>
-                <a
-                    href="https://www.freepik.com/free-photos-vectors/background"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    Design „Blau/Meer“ von macrovector – www.freepik.com
-                </a>
-                <a
-                    href="https://www.vecteezy.com/vector-art/460735-seashell-sand-seamless-pattern"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    Design „Orange/Strand“ von Macrovector – www.vecteezy.com
-                </a>
-                <a
-                    href="https://www.vecteezy.com/vector-art/454258-music-seamless"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    Design „Pink/Musik“ von Macrovector – www.vecteezy.com
-                </a>
-                <a
-                    href="https://www.vecteezy.com/vector-art/662038-cat-and-bat-pattern"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    Design „Schwarz/Goth“ von angyee – www.vecteezy.com
-                </a>
-            </div>
         );
         return (
             <div className="main-content-wrapper">
@@ -99,7 +48,7 @@ class Dashboard extends Component<DashboardProps, DashboardState> {
                     <div className={styles.image_wrapper}>
                         <img
                             src={this.props.activeTheme.homepageImageUrl}
-                            alt="Stadt, Land, Fluss"
+                            alt=""
                             className={styles.slf_image}
                         />
                         <button
@@ -129,14 +78,9 @@ class Dashboard extends Component<DashboardProps, DashboardState> {
                     </div>
                     <div className={styles.footer_links}>
                         <RouterLink to="/about">Über das Spiel</RouterLink>
-                        <div className={styles.separator}>|</div>
+                        <div className={styles.separator} aria-hidden="true">|</div>
                         <RouterLink to="/accessibility">Barrierefreiheitserklärung</RouterLink>
-                        <div className={styles.separator}>|</div>
-                        <button onClick={this.handleCreditsClick}>
-                            Copyright-Hinweis <span className="sr-only">{creditsButtonAction}</span>
-                        </button>
                     </div>
-                    {this.state.showCredits ? creditsElement : null}
                 </div>
             </div>
         );
@@ -155,10 +99,6 @@ class Dashboard extends Component<DashboardProps, DashboardState> {
         this.props.onSetAppTheme(selectedTheme);
         setAppThemeIdInLocalStorage(selectedTheme.id);
     };
-
-    private handleCreditsClick = () => {
-        this.setState({ showCredits: !this.state.showCredits });
-    }
 }
 
 const mapStateToProps = (state: AppState): DashboardPropsFromStore => {
