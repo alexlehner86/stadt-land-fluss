@@ -10,6 +10,7 @@ import {
     SnackbarContent,
     TextField,
 } from '@material-ui/core';
+import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import { xor } from 'lodash';
 import React, { ChangeEvent, Component, Dispatch, FormEvent } from 'react';
@@ -105,6 +106,12 @@ class NewGame extends Component<NewGameProps, NewGameState> {
         snackBarMessage: '',
         validateInputs: false
     };
+    private submitButton: React.RefObject<HTMLButtonElement>;
+
+    constructor(props: NewGameProps) {
+        super(props);
+        this.submitButton = React.createRef();
+    }
 
     public render() {
         const playerNameAriaLabel = `${PLAYER_NAME_LABEL} (maximal ${PLAYER_NAME_MAX_LENGTH} Zeichen)`;
@@ -195,7 +202,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     handleGameOptionChange={this.handleGameOptionChange}
                     handleLetterToExcludeChange={this.handleLetterToExcludeChange}
                 />
-                <div className={styles.button_anchor}>
+                <div className={styles.selected_categories_wrapper}>
                     <SelectRandomCategories
                         maxNumberOfCategories={maxNumberOfCategories}
                         selectCategoriesRandomly={this.selectCategoriesRandomly}
@@ -218,6 +225,14 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                         />
                     </FormControl>
                 </div>
+                <button
+                    type="button"
+                    className={styles.jump_to_end_button}
+                    onClick={this.scrollToAndFocusSubmitButton}
+                >
+                    <span>Zum Formularende springen</span>
+                    <KeyboardArrowDownIcon className={styles.jump_to_end_button_icon} />
+                </button>
                 <FormControl component="fieldset" classes={{ root: styles.custom_fieldset }}>
                     <FormLabel
                         component="legend"
@@ -244,6 +259,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                         variant="contained"
                         size="large"
                         startIcon={<AddCircleIcon />}
+                        ref={this.submitButton}
                     >Spiel erstellen</Button>
                 </div>
             </form>
@@ -348,6 +364,11 @@ class NewGame extends Component<NewGameProps, NewGameState> {
 
     private addCustomCategory = (newCategory: string) => {
         this.setState({ availableCategories: [...this.state.availableCategories, newCategory] });
+    }
+
+    private scrollToAndFocusSubmitButton = () => {
+        this.submitButton.current?.scrollIntoView();
+        this.submitButton.current?.focus();
     }
 
     private handleSubmit = (event: FormEvent) => {

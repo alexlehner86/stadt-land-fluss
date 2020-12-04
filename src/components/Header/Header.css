@@ -32,6 +32,9 @@
     color: black;
     opacity: 0.8;
 }
+.app-header .icon-buttons .MuiIconButton-root.Mui-disabled {
+    opacity: 0.5;
+}
 .app-header .icon-buttons svg {
     fill: black;
 }

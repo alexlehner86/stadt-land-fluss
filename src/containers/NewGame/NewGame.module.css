@@ -38,9 +38,32 @@
     content: none;
 }
 
-.button_anchor {
+.selected_categories_wrapper {
     position: relative;
     margin-bottom: 1rem;
+}
+
+.jump_to_end_button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 auto;
+    margin-bottom: 0.5rem;
+    background: none;
+    border: none;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-size: 0.75em;
+    text-decoration: underline;
+    color: rgba(0, 0, 0, 0.87);
+}
+.jump_to_end_button:focus,
+.jump_to_end_button:hover {
+    outline: 2px solid black;
+    outline-offset: 1px;
+}
+.jump_to_end_button_icon {
+    margin-top: -0.2rem;
+    fill: rgba(0, 0, 0, 0.87);
 }
 
 .alert_snackbar {

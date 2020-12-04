@@ -39,19 +39,20 @@ export class Header extends Component<HeaderProps, HeaderState> {
                 <div className="icon-buttons">
                     <IconButton
                         size="small"
+                        title="Zum Dashboard"
+                        aria-label="Zum Dashboard"
+                        disabled={this.props.location.pathname === '/'}
+                        onClick={() => this.props.history.push('/')}
+                    >
+                        <ExitToAppIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton
+                        size="small"
                         title={fullscreenButtonTitle}
                         aria-label={fullscreenButtonTitle}
                         onClick={() => this.toggleFullscreen()}
                     >
                         {this.state.isFullscreenActive ? <FullscreenExitIcon fontSize="small" /> : <FullscreenIcon fontSize="small" />}
-                    </IconButton>
-                    <IconButton
-                        size="small"
-                        title="Zum Dashboard"
-                        aria-label="Zum Dashboard"
-                        onClick={() => this.props.history.push('/')}
-                    >
-                        <ExitToAppIcon fontSize="small" />
                     </IconButton>
                 </div>
             </header>
