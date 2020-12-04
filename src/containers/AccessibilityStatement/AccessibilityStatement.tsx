@@ -12,7 +12,8 @@ class AccessibilityStatement extends Component<RouteComponentProps> {
                     <SectionHeader text="Barrierefreiheitserklärung"></SectionHeader>
                     <h3>Erklärung zur Barrierefreiheit</h3>
                     <p>
-                        Der Autor dieser Webseite ist bemüht, diese im Einklang mit den <span>Web Content Accessibility Guidelines (WCAG)</span> barrierefrei
+                        Der Autor dieser Webseite ist bemüht, diese im Einklang mit
+                        den <span lang="en">Web Content Accessibility Guidelines (WCAG)</span> barrierefrei
                         zugänglich zu machen. Diese Erklärung zur Barrierefreiheit gilt für die Webseite alexlehner86.github.io/stadt-land-fluss/.
                     </p>
                     <h3>Stand der Vereinbarkeit mit den Anforderungen</h3>

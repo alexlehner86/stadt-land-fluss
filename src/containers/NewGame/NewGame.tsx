@@ -2,6 +2,7 @@ import {
     Button,
     FormControl,
     FormControlLabel,
+    FormHelperText,
     FormLabel,
     Input,
     Radio,
@@ -10,8 +11,8 @@ import {
     SnackbarContent,
     TextField,
 } from '@material-ui/core';
-import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
+import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import { xor } from 'lodash';
 import React, { ChangeEvent, Component, Dispatch, FormEvent } from 'react';
 import { LiveMessage } from 'react-aria-live';
@@ -119,6 +120,14 @@ class NewGame extends Component<NewGameProps, NewGameState> {
         const numberOfRoundsAriaLabel = `${NUMBER_OF_ROUNDS_LABEL} (maximal ${MAX_NUMBER_OF_ROUNDS})`;
         const numberOfRoundsVisibleLabel = `${NUMBER_OF_ROUNDS_LABEL} (max. ${MAX_NUMBER_OF_ROUNDS})`;
         const maxNumberOfCategories = this.state.availableCategories.length + this.state.selectedCategories.length;
+        const isNameInvalid = this.state.validateInputs && !this.state.nameInput;
+        const isNumberOfRoundsInvalid = this.state.validateInputs && !this.state.isNumberOfRoundsInputValid;
+        const isNumberOfCategoriesInvalid = this.state.validateInputs && this.state.selectedCategories.length < MIN_NUMBER_OF_CATEGORIES;
+        const tooFewCategoriesError = (
+            <FormHelperText className="MuiFormHelperText-contained" error>
+                {this.getTooFewCategoriesError()}
+            </FormHelperText>
+        );
         const newGameForm = (
             <form onSubmit={this.handleSubmit} className="app-form" noValidate autoComplete="off">
                 <label htmlFor="player-name-input" className="sr-only">{playerNameAriaLabel}</label>
@@ -131,9 +140,11 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     fullWidth
                     required
                     autoFocus
-                    error={this.state.validateInputs && !this.state.nameInput}
+                    error={isNameInvalid}
+                    helperText={isNameInvalid ? 'Du musst einen Spielernamen eingeben' : ''}
                     inputProps={{
                         id: 'player-name-input',
+                        autoComplete: 'nickname',
                         maxLength: PLAYER_NAME_MAX_LENGTH
                     }}
                     onChange={this.handleNameInputChange}
@@ -148,7 +159,8 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     variant="outlined"
                     fullWidth
                     required
-                    error={this.state.validateInputs && !this.state.isNumberOfRoundsInputValid}
+                    error={isNumberOfRoundsInvalid}
+                    helperText={isNumberOfRoundsInvalid ? this.getInvalidRoundsError() : ''}
                     inputProps={{
                         id: 'number-of-rounds-input',
                         min: MIN_NUMBER_OF_ROUNDS,
@@ -207,7 +219,10 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                         maxNumberOfCategories={maxNumberOfCategories}
                         selectCategoriesRandomly={this.selectCategoriesRandomly}
                     />
-                    <FormControl component="fieldset" classes={{ root: styles.custom_fieldset }}>
+                    <FormControl
+                        component="fieldset"
+                        classes={{ root: isNumberOfCategoriesInvalid ? styles.custom_fieldset_error : styles.custom_fieldset }}
+                    >
                         <FormLabel
                             component="legend"
                             className={styles.custom_legend}
@@ -224,6 +239,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                             removeChip={(chipToRemove) => this.updateCategoryArrays(chipToRemove, CategoryArray.selected)}
                         />
                     </FormControl>
+                    {isNumberOfCategoriesInvalid ? tooFewCategoriesError : null}
                 </div>
                 <button
                     type="button"
@@ -233,7 +249,10 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     <span>Zum Formularende springen</span>
                     <KeyboardArrowDownIcon className={styles.jump_to_end_button_icon} />
                 </button>
-                <FormControl component="fieldset" classes={{ root: styles.custom_fieldset }}>
+                <FormControl
+                    component="fieldset"
+                    classes={{ root: styles.custom_fieldset }}
+                >
                     <FormLabel
                         component="legend"
                         className={styles.custom_legend}
@@ -383,22 +402,29 @@ class NewGame extends Component<NewGameProps, NewGameState> {
     private isReadyToStartGame = (): boolean => {
         const { isNumberOfRoundsInputValid, lettersToExclude, numberOfRoundsInput, selectedCategories } = this.state;
         if (!this.state.nameInput.trim()) {
-            this.alertUser('Du musst einen Spielernamen eingeben!');
+            this.alertUser('Du musst einen Spielernamen eingeben');
             return false;
         }
         if (!isNumberOfRoundsInputValid) {
-            this.alertUser(`Die Anzahl an Runden muss zwischen ${MIN_NUMBER_OF_ROUNDS} und ${MAX_NUMBER_OF_ROUNDS} liegen!`);
+            this.alertUser(this.getInvalidRoundsError());
             return false;
         }
         if (selectedCategories.length < MIN_NUMBER_OF_CATEGORIES) {
-            this.alertUser(`Du musst mindestens ${MIN_NUMBER_OF_CATEGORIES} Kategorien auswählen!`);
+            this.alertUser(this.getTooFewCategoriesError());
             return false;
         }
         if (STANDARD_ALPHABET.length - lettersToExclude.length < numberOfRoundsInput) {
-            this.alertUser('Du hast zu viele Buchstaben ausgeschlossen!');
+            this.alertUser('Du hast zu viele Buchstaben ausgeschlossen');
             return false;
         }
         return true;
+    }
+
+    private getInvalidRoundsError = () => {
+        return `Die Anzahl an Runden muss zwischen ${MIN_NUMBER_OF_ROUNDS} und ${MAX_NUMBER_OF_ROUNDS} liegen`;
+    }
+    private getTooFewCategoriesError = () => {
+        return `Du musst mindestens ${MIN_NUMBER_OF_CATEGORIES} Kategorien auswählen`;
     }
 
     private alertUser = (message: string) => this.setState(

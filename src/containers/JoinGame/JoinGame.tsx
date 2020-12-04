@@ -47,6 +47,8 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
     public render() {
         const playerNameAriaLabel = `${PLAYER_NAME_LABEL} (maximal ${PLAYER_NAME_MAX_LENGTH} Zeichen)`;
         const playerNameVisibleLabel = `${PLAYER_NAME_LABEL} (max. ${PLAYER_NAME_MAX_LENGTH} Zeichen)`;
+        const isNameInvalid = this.state.validateInputs && !this.state.nameInput;
+        const isIdInvalid = this.state.validateInputs && !this.state.idInput;
         const joinGameForm = (
             <form onSubmit={this.handleSubmit} className="app-form" noValidate autoComplete="off">
                 <label htmlFor="player-name-input" className="sr-only">{playerNameAriaLabel}</label>
@@ -59,8 +61,13 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
                     fullWidth
                     required
                     autoFocus
-                    error={this.state.validateInputs && !this.state.nameInput}
-                    inputProps={{ id: 'player-name-input', 'maxLength': PLAYER_NAME_MAX_LENGTH }}
+                    error={isNameInvalid}
+                    helperText={isNameInvalid ? 'Du musst einen Spielernamen eingeben' : ''}
+                    inputProps={{
+                        id: 'player-name-input',
+                        autoComplete: 'nickname',
+                        maxLength: PLAYER_NAME_MAX_LENGTH
+                    }}
                     onChange={this.handleInputChange}
                 />
                 <label htmlFor="game-id-input" className="sr-only">{GAME_ID_LABEL}</label>
@@ -72,7 +79,8 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
                     variant="outlined"
                     fullWidth
                     required
-                    error={this.state.validateInputs && !this.state.idInput}
+                    error={isIdInvalid}
+                    helperText={isIdInvalid ? 'Du musst eine Spiel-ID eingeben' : ''}
                     inputProps={{ id: 'game-id-input' }}
                     onChange={this.handleInputChange}
                 />
