@@ -41,8 +41,15 @@ export interface SetDataOfFinishedGameAction extends Action {
     payload: SetDataOfFinishedGamePayload
 }
 
+export interface ResetAppStatePayload {
+    joinGameErrorMessage: string | null;
+}
+export interface ResetAppStateAction extends Action {
+    payload?: ResetAppStatePayload
+}
+
 export type AppAction = SetAppThemeAction | SetStoredPlayerInfoAction | SetStoredRunningGameInfoAction
-    | SetDataForNewGameAction | SetDataOfFinishedGameAction | Action;
+    | SetDataForNewGameAction | SetDataOfFinishedGameAction | ResetAppStateAction | Action;
 
 /*
  * Action Creators
@@ -62,6 +69,6 @@ export const setDataForNewGame = (payload: SetDataForNewGamePayload): SetDataFor
 export const setDataOfFinishedGame = (payload: SetDataOfFinishedGamePayload): SetDataOfFinishedGameAction => {
     return { type: SET_DATA_OF_FINISHED_GAME, payload };
 };
-export const resetAppState = (): Action => {
-    return { type: RESET_APP_STATE };
+export const resetAppState = (payload?: ResetAppStatePayload): ResetAppStateAction => {
+    return { type: RESET_APP_STATE, payload };
 };

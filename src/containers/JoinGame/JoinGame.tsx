@@ -27,6 +27,7 @@ import styles from './JoinGame.module.css';
 
 interface JoinGamePropsFromStore {
     gameId: string | null;
+    joinGameErrorMessage: string | null;
     playerIdCreationTimestamp: number;
     playerInfo: PlayerInfo | null;
 }
@@ -137,6 +138,8 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
         if (query.has('id')) {
             this.setState({ idInput: query.get('id') as string });
         }
+        // TODO: Show snackbar!
+        console.log('error message', this.props.joinGameErrorMessage);
     }
 
     public componentDidUpdate(prevProps: JoinGameProps) {
@@ -195,6 +198,7 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
 const mapStateToProps = (state: AppState): JoinGamePropsFromStore => {
     return {
         gameId: state.gameId,
+        joinGameErrorMessage: state.joinGameErrorMessage,
         playerIdCreationTimestamp: state.playerIdCreationTimestamp,
         playerInfo: state.playerInfo
     };

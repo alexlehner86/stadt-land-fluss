@@ -35,7 +35,7 @@ import {
     PubNubMessageType,
     PubNubUserState,
 } from '../../models/pub-nub-data.model';
-import { AppAction, resetAppState, setDataOfFinishedGame, SetDataOfFinishedGamePayload } from '../../store/app.actions';
+import { AppAction, resetAppState, ResetAppStatePayload, setDataOfFinishedGame, SetDataOfFinishedGamePayload } from '../../store/app.actions';
 import { AppState } from '../../store/app.reducer';
 import {
     applyMarkedAsCreativeFlags,
@@ -74,7 +74,7 @@ interface PlayGamePropsFromStore {
 }
 interface PlayGameDispatchProps {
     onSetDataOfFinishedGame: (payload: SetDataOfFinishedGamePayload) => void;
-    onResetAppState: () => void;
+    onResetAppState: (payload?: ResetAppStatePayload) => void;
 }
 interface PlayGameProps extends PlayGamePropsFromStore, PlayGameDispatchProps, RouterProps { }
 export interface PlayGameState {
@@ -139,7 +139,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                     gameConfig={this.props.gameConfig}
                     isRejoiningGame={this.props.isRejoiningGame}
                     playerInfo={this.props.playerInfo}
-                    navigateToDashboard={this.navigateToDashboard}
+                    navigateToJoinGamePage={this.navigateToJoinGamePage}
                     addPlayers={this.addPlayers}
                     processPubNubMessage={this.processPubNubMessage}
                 />
@@ -238,10 +238,10 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         this.setState({ showLetterAnimation: false });
     }
 
-    private navigateToDashboard = () => {
+    private navigateToJoinGamePage = (errorMessage: string) => {
         removeAllDataOfRunningGameFromLocalStorage();
-        this.props.onResetAppState();
-        this.props.history.push('/');
+        this.props.onResetAppState({ joinGameErrorMessage: errorMessage });
+        this.props.history.push('/joingame');
     }
 
     /**
@@ -592,7 +592,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             });
         } else {
             console.log('Error: Can\'t restore game session because data is missing in local storage!');
-            this.navigateToDashboard();
+            this.navigateToJoinGamePage('Rückkehr in laufendes Spiel ist aufgrund korrumpierter Daten nicht möglich!');
         }
     }
 }
@@ -608,7 +608,7 @@ const mapStateToProps = (state: AppState): PlayGamePropsFromStore => {
 const mapDispatchToProps = (dispatch: Dispatch<AppAction>): PlayGameDispatchProps => {
     return {
         onSetDataOfFinishedGame: (payload: SetDataOfFinishedGamePayload) => dispatch(setDataOfFinishedGame(payload)),
-        onResetAppState: () => dispatch(resetAppState())
+        onResetAppState: (payload?: ResetAppStatePayload) => dispatch(resetAppState(payload))
     };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(PlayGame);

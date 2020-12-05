@@ -6,6 +6,8 @@ import { StoredPlayerInfo } from './../models/player.interface';
 import {
     AppAction,
     RESET_APP_STATE,
+    ResetAppStateAction,
+    ResetAppStatePayload,
     SET_APP_THEME,
     SET_DATA_FOR_NEW_GAME,
     SET_DATA_OF_FINISHED_GAME,
@@ -25,6 +27,7 @@ export interface AppState {
     gameConfig: GameConfig | null;
     gameRounds: GameRound[] | null;
     isRejoiningGame: boolean;
+    joinGameErrorMessage: string | null;
     playerIdCreationTimestamp: number;
     playerInfo: PlayerInfo | null;
 }
@@ -36,6 +39,7 @@ const initialState: AppState = {
     gameConfig: null,
     gameRounds: null,
     isRejoiningGame: false,
+    joinGameErrorMessage: null,
     playerIdCreationTimestamp: 0,
     playerInfo: null
 };
@@ -43,6 +47,7 @@ const initialState: AppState = {
 export const appReducer = (state: AppState = initialState, action: AppAction): AppState => {
     let storedPlayerInfo: StoredPlayerInfo;
     let storedRunningGameInfo: StoredRunningGameInfo;
+    let resetAppStatePayload: ResetAppStatePayload | undefined;
     switch (action.type) {
         case SET_APP_THEME:
             return { ...state, activeTheme: (action as SetAppThemeAction).payload };
@@ -72,7 +77,8 @@ export const appReducer = (state: AppState = initialState, action: AppAction): A
         case SET_DATA_FOR_NEW_GAME:
             return {
                 ...state,
-                ...(action as SetDataForNewGameAction).payload
+                ...(action as SetDataForNewGameAction).payload,
+                joinGameErrorMessage: null
             };
         case SET_DATA_OF_FINISHED_GAME:
             return {
@@ -82,12 +88,14 @@ export const appReducer = (state: AppState = initialState, action: AppAction): A
                 gameId: null
             };
         case RESET_APP_STATE:
+            resetAppStatePayload = (action as ResetAppStateAction).payload;
             return {
                 ...state,
                 allPlayers: null,
                 gameId: null,
                 gameConfig: null,
                 gameRounds: null,
+                joinGameErrorMessage: resetAppStatePayload ? resetAppStatePayload.joinGameErrorMessage : null
             };
         default:
             return state;

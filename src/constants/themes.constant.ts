@@ -1,12 +1,12 @@
-import amber from '@material-ui/core/colors/amber';
 import blue from '@material-ui/core/colors/blue';
+import blueGrey from '@material-ui/core/colors/blueGrey';
 import deepOrange from '@material-ui/core/colors/deepOrange';
 import green from '@material-ui/core/colors/green';
 import grey from '@material-ui/core/colors/grey';
 import indigo from '@material-ui/core/colors/indigo';
-import orange from '@material-ui/core/colors/orange';
 import purple from '@material-ui/core/colors/purple';
 import red from '@material-ui/core/colors/red';
+import teal from '@material-ui/core/colors/teal';
 import { createMuiTheme, Theme } from '@material-ui/core/styles';
 import CSS from 'csstype';
 
@@ -40,7 +40,7 @@ export const AppThemes: AppTheme[] = [
         displayName: 'Grün/Wald',
         homepageImageUrl: `${process.env.PUBLIC_URL}/assets/city-country-river-green.jpg`,
         muiTheme: createMuiTheme({
-            palette: { primary: { main: green[800] }, secondary: red }
+            palette: { primary: { main: green[800] }, secondary: { main: red[700] } }
         }),
         style: {
             background:
@@ -55,7 +55,7 @@ export const AppThemes: AppTheme[] = [
         displayName: 'Blau/Meer',
         homepageImageUrl: `${process.env.PUBLIC_URL}/assets/city-country-river-blue.jpg`,
         muiTheme: createMuiTheme({
-            palette: { primary: { main: blue[800] }, secondary: deepOrange }
+            palette: { primary: { main: blue[800] }, secondary: { main: deepOrange['A700'] } }
         }),
         style: {
             background:
@@ -70,7 +70,7 @@ export const AppThemes: AppTheme[] = [
         displayName: 'Orange/Strand',
         homepageImageUrl: `${process.env.PUBLIC_URL}/assets/city-country-river-orange.jpg`,
         muiTheme: createMuiTheme({
-            palette: { primary: { main: deepOrange[900] }, secondary: indigo }
+            palette: { primary: { main: deepOrange[900] }, secondary: { main: indigo[600] } }
         }),
         style: {
             background:
@@ -84,7 +84,9 @@ export const AppThemes: AppTheme[] = [
         className: 'pink-theme',
         displayName: 'Pink/Musik',
         homepageImageUrl: `${process.env.PUBLIC_URL}/assets/city-country-river-pink.jpg`,
-        muiTheme: createMuiTheme({ palette: { primary: purple, secondary: amber } }),
+        muiTheme: createMuiTheme(
+            { palette: { primary: { main: purple[600] }, secondary: { main: teal[800] } } }
+        ),
         style: {
             background:
                 `linear-gradient(rgba(133, 14, 103, 0.3), rgba(133, 14, 103, 0.3)),
@@ -98,7 +100,7 @@ export const AppThemes: AppTheme[] = [
         displayName: 'Schwarz/Goth',
         homepageImageUrl: `${process.env.PUBLIC_URL}/assets/city-country-river-bw.jpg`,
         muiTheme: createMuiTheme({
-            palette: { primary: { main: grey[900] }, secondary: orange }
+            palette: { primary: { main: grey[900] }, secondary: { main: blueGrey[700] } }
         }),
         style: {
             background:

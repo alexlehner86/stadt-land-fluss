@@ -59,9 +59,9 @@ export const AVAILABLE_CATEGORIES = [
 ];
 
 export enum GamePhase {
-    waitingToStart = 'waitingToStart',
+    evaluateRound = 'evaluateRound',
     fillOutTextfields = 'fillOutTextfields',
-    evaluateRound = 'evaluateRound'
+    waitingToStart = 'waitingToStart',
 }
 
 export const MIN_NUMBER_OF_PLAYERS = 2;
