@@ -48,6 +48,12 @@ import { EndRoundMode, GameConfigScoringOptions } from '../../models/game.interf
 import { PlayerInfo } from '../../models/player.interface';
 import { AppAction, setDataForNewGame, SetDataForNewGamePayload } from '../../store/app.actions';
 import { AppState } from '../../store/app.reducer';
+import {
+    getInvalidNameError,
+    getInvalidRoundsError,
+    getTooFewCategoriesError,
+    getTooManyLettersExcludedError,
+} from '../../utils/error-text.util';
 import { getRandomCategories, getRandomLetters } from '../../utils/game.utils';
 import { convertDateToUnixTimestamp } from '../../utils/general.utils';
 import {
@@ -72,7 +78,8 @@ interface NewGameDispatchProps {
 }
 interface NewGameProps extends NewGamePropsFromStore, NewGameDispatchProps, RouteComponentProps { }
 interface NewGameState {
-    a11yMessage: string;
+    a11yMessageAssertive: string;
+    a11yMessagePolite: string;
     availableCategories: string[];
     durationOfCountdown: number;
     endRoundMode: EndRoundMode;
@@ -89,7 +96,8 @@ interface NewGameState {
 
 class NewGame extends Component<NewGameProps, NewGameState> {
     public state: NewGameState = {
-        a11yMessage: '',
+        a11yMessageAssertive: '',
+        a11yMessagePolite: '',
         availableCategories: AVAILABLE_CATEGORIES,
         durationOfCountdown: DEFAULT_DURATION_OF_COUNTDOWN,
         endRoundMode: EndRoundMode.allPlayersSubmit,
@@ -107,6 +115,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
         snackBarMessage: '',
         validateInputs: false
     };
+
     private submitButton: React.RefObject<HTMLButtonElement>;
 
     constructor(props: NewGameProps) {
@@ -123,9 +132,15 @@ class NewGame extends Component<NewGameProps, NewGameState> {
         const isNameInvalid = this.state.validateInputs && !this.state.nameInput;
         const isNumberOfRoundsInvalid = this.state.validateInputs && !this.state.isNumberOfRoundsInputValid;
         const isNumberOfCategoriesInvalid = this.state.validateInputs && this.state.selectedCategories.length < MIN_NUMBER_OF_CATEGORIES;
+        const areTooManyLettersExcluded = this.state.validateInputs && (STANDARD_ALPHABET.length - this.state.lettersToExclude.length < this.state.numberOfRoundsInput);
         const tooFewCategoriesError = (
-            <FormHelperText className="MuiFormHelperText-contained" error>
-                {this.getTooFewCategoriesError()}
+            <FormHelperText className={'MuiFormHelperText-contained ' + styles.too_few_categories_error} error>
+                {getTooFewCategoriesError()}
+            </FormHelperText>
+        );
+        const tooManyLettersExcludedError = (
+            <FormHelperText className={'MuiFormHelperText-contained ' + styles.too_many_letters_excluded_error} error>
+                {getTooManyLettersExcludedError(this.state.numberOfRoundsInput)}
             </FormHelperText>
         );
         const newGameForm = (
@@ -141,7 +156,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     required
                     autoFocus
                     error={isNameInvalid}
-                    helperText={isNameInvalid ? 'Du musst einen Spielernamen eingeben' : ''}
+                    helperText={isNameInvalid ? getInvalidNameError() : ''}
                     inputProps={{
                         id: 'player-name-input',
                         autoComplete: 'nickname',
@@ -160,7 +175,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     fullWidth
                     required
                     error={isNumberOfRoundsInvalid}
-                    helperText={isNumberOfRoundsInvalid ? this.getInvalidRoundsError() : ''}
+                    helperText={isNumberOfRoundsInvalid ? getInvalidRoundsError() : ''}
                     inputProps={{
                         id: 'number-of-rounds-input',
                         min: MIN_NUMBER_OF_ROUNDS,
@@ -214,6 +229,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     handleGameOptionChange={this.handleGameOptionChange}
                     handleLetterToExcludeChange={this.handleLetterToExcludeChange}
                 />
+                {areTooManyLettersExcluded && !isNumberOfRoundsInvalid ? tooManyLettersExcludedError : null}
                 <div className={styles.selected_categories_wrapper}>
                     <SelectRandomCategories
                         maxNumberOfCategories={maxNumberOfCategories}
@@ -239,8 +255,9 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                             removeChip={(chipToRemove) => this.updateCategoryArrays(chipToRemove, CategoryArray.selected)}
                         />
                     </FormControl>
-                    {isNumberOfCategoriesInvalid ? tooFewCategoriesError : null}
+                    <AddCustomCategory addCustomCategory={this.addCustomCategory} />
                 </div>
+                {isNumberOfCategoriesInvalid ? tooFewCategoriesError : null}
                 <button
                     type="button"
                     className={styles.jump_to_end_button}
@@ -267,9 +284,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                         chipsArray={this.state.availableCategories}
                         chipType={ChipType.available}
                         removeChip={(chipToRemove) => this.updateCategoryArrays(chipToRemove, CategoryArray.available)}
-                    >
-                        <AddCustomCategory addCustomCategory={this.addCustomCategory} />
-                    </ChipsArray>
+                    />
                 </FormControl>
                 <div className="button-wrapper add-margin-top">
                     <Button
@@ -303,8 +318,13 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     ></SnackbarContent>
                 </Snackbar>
                 <LiveMessage
-                    message={this.state.a11yMessage}
+                    message={this.state.a11yMessageAssertive}
                     aria-live="assertive"
+                    clearOnUnmount="true"
+                />
+                <LiveMessage
+                    message={this.state.a11yMessagePolite}
+                    aria-live="polite"
                     clearOnUnmount="true"
                 />
             </div>
@@ -357,32 +377,42 @@ class NewGame extends Component<NewGameProps, NewGameState> {
         );
         const availableCategories = categoryPool.filter(c => !selectedCategories.includes(c)).sort();
         this.setState({ availableCategories, selectedCategories });
+        // Trigger a11y message after short timeout so that screen reader reads new position of focus first.
+        setTimeout(() => {
+            const a11yMessagePolite = `Es wurden ${numberOfCategories} Kategorien zufällig ausgewählt.`;
+            this.setState({ a11yMessagePolite });
+        }, 500);
     }
 
     private updateCategoryArrays = (chipToRemove: string, removeFromArray: CategoryArray) => {
         let newSelectedCategories: string[];
         let newAvailableCategories: string[];
-        let a11yMessage: string;
+        let a11yMessagePolite: string;
         if (removeFromArray === CategoryArray.selected) {
             newSelectedCategories = this.state.selectedCategories.filter(category => category !== chipToRemove);
             newAvailableCategories = [...this.state.availableCategories];
             newAvailableCategories.push(chipToRemove);
-            a11yMessage = `Kategorie ${chipToRemove} wurde aus der Liste der ausgewählten Kategorien entfernt.`;
+            a11yMessagePolite = `Kategorie ${chipToRemove} wurde aus der Liste der ausgewählten Kategorien entfernt.`;
         } else {
             newAvailableCategories = this.state.availableCategories.filter(category => category !== chipToRemove);
             newSelectedCategories = [...this.state.selectedCategories];
             newSelectedCategories.push(chipToRemove);
-            a11yMessage = `Kategorie ${chipToRemove} wurde der Liste der ausgewählten Kategorien hinzugefügt.`;
+            a11yMessagePolite = `Kategorie ${chipToRemove} wurde der Liste der ausgewählten Kategorien hinzugefügt.`;
         }
         this.setState({
-            a11yMessage,
+            a11yMessagePolite,
             availableCategories: newAvailableCategories,
             selectedCategories: newSelectedCategories
         });
     }
 
     private addCustomCategory = (newCategory: string) => {
-        this.setState({ availableCategories: [...this.state.availableCategories, newCategory] });
+        this.setState({ selectedCategories: [...this.state.selectedCategories, newCategory] });
+        // Trigger a11y message after short timeout so that screen reader reads new position of focus first.
+        setTimeout(() => {
+            const a11yMessagePolite = `Die Kategorie ${newCategory} wurde der Liste der ausgewählten Kategorien hinzugefügt.`;
+            this.setState({ a11yMessagePolite });
+        }, 500);
     }
 
     private scrollToAndFocusSubmitButton = () => {
@@ -402,34 +432,28 @@ class NewGame extends Component<NewGameProps, NewGameState> {
     private isReadyToStartGame = (): boolean => {
         const { isNumberOfRoundsInputValid, lettersToExclude, numberOfRoundsInput, selectedCategories } = this.state;
         if (!this.state.nameInput.trim()) {
-            this.alertUser('Du musst einen Spielernamen eingeben');
+            this.alertUser(getInvalidNameError());
             return false;
         }
         if (!isNumberOfRoundsInputValid) {
-            this.alertUser(this.getInvalidRoundsError());
+            this.alertUser(getInvalidRoundsError());
             return false;
         }
         if (selectedCategories.length < MIN_NUMBER_OF_CATEGORIES) {
-            this.alertUser(this.getTooFewCategoriesError());
+            this.alertUser(getTooFewCategoriesError());
             return false;
         }
         if (STANDARD_ALPHABET.length - lettersToExclude.length < numberOfRoundsInput) {
-            this.alertUser('Du hast zu viele Buchstaben ausgeschlossen');
+            this.alertUser(getTooManyLettersExcludedError(numberOfRoundsInput));
             return false;
         }
         return true;
     }
 
-    private getInvalidRoundsError = () => {
-        return `Die Anzahl an Runden muss zwischen ${MIN_NUMBER_OF_ROUNDS} und ${MAX_NUMBER_OF_ROUNDS} liegen`;
-    }
-    private getTooFewCategoriesError = () => {
-        return `Du musst mindestens ${MIN_NUMBER_OF_CATEGORIES} Kategorien auswählen`;
-    }
-
     private alertUser = (message: string) => this.setState(
-        { a11yMessage: message, isSnackbarOpen: true, snackBarMessage: message }
+        { a11yMessageAssertive: message, isSnackbarOpen: true, snackBarMessage: message }
     );
+
     private handleSnackBarClose = () => this.setState({ isSnackbarOpen: false });
 
     private startNewGame = () => {

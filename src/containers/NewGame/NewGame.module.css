@@ -4,14 +4,15 @@
     width: 100%;
     border: 1px solid rgba(0, 0, 0, 0.23);
     border-radius: 4px;
-    padding: 0.75rem 0.75rem 0.5rem;
+    padding: 1rem;
 }
 .custom_fieldset:not(:last-of-type),
 .custom_fieldset_error:not(:last-of-type) {
     margin-bottom: 1rem;
 }
+/* Conforms to Level AA colour contrast */
 .custom_fieldset_error {
-    border-color: #f44336;
+    border-color: #E51F00;
 }
 
 .custom_legend {
@@ -43,9 +44,19 @@
     content: none;
 }
 
+.too_many_letters_excluded_error {
+    margin-bottom: 1.5rem;
+}
+
+.too_few_categories_error {
+    margin-top: -0.75rem;
+    margin-bottom: 1rem;
+}
+
 .selected_categories_wrapper {
     position: relative;
     margin-bottom: 1rem;
+    z-index: 5;
 }
 
 .jump_to_end_button {

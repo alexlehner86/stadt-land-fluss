@@ -175,13 +175,17 @@ li:not(.MuiListItem-root) {
     width: 2em;
 }
 
-.MuiSvgIcon-root.MuiChip-avatar.chip-icon-no-bg {
-    background-color: rgba(0, 0, 0, 0) !important;
-}
-
 .MuiFormLabel-root.MuiInputLabel-root,
 .MuiDialogContentText-root.MuiTypography-colorTextSecondary {
     color: black;
+}
+
+/* Conforms to Level AA colour contrast */
+.MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline {
+    border-color: #E51F00;
+}
+.MuiFormHelperText-root.Mui-error {
+    color: #E51F00;
 }
 
 .new-game-expansion-panel.MuiAccordion-root::before {

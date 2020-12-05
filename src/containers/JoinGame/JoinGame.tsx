@@ -1,6 +1,7 @@
-import { Button, TextField } from '@material-ui/core';
+import { Button, Snackbar, SnackbarContent, TextField } from '@material-ui/core';
 import DirectionsWalkIcon from '@material-ui/icons/DirectionsWalk';
 import React, { ChangeEvent, Component, Dispatch, FormEvent } from 'react';
+import { LiveMessage } from 'react-aria-live';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 
@@ -15,12 +16,14 @@ import { GAME_ID_LABEL, PLAYER_NAME_LABEL } from '../../constants/text.constant'
 import { PlayerInfo } from '../../models/player.interface';
 import { AppAction, setDataForNewGame, SetDataForNewGamePayload } from '../../store/app.actions';
 import { AppState } from '../../store/app.reducer';
+import { getInvalidGameIdError, getInvalidNameError } from '../../utils/error-text.util';
 import { convertDateToUnixTimestamp } from '../../utils/general.utils';
 import {
     removeAllDataOfRunningGameFromLocalStorage,
     setPlayerInfoInLocalStorage,
     setRunningGameInfoInLocalStorage,
 } from '../../utils/local-storage.utils';
+import styles from './JoinGame.module.css';
 
 interface JoinGamePropsFromStore {
     gameId: string | null;
@@ -32,15 +35,21 @@ interface JoinGameDispatchProps {
 }
 interface JoinGameProps extends JoinGamePropsFromStore, JoinGameDispatchProps, RouteComponentProps { }
 interface JoinGameState {
+    a11yMessageAssertive: string;
     idInput: string;
+    isSnackbarOpen: boolean;
     nameInput: string;
+    snackBarMessage: string;
     validateInputs: boolean;
 }
 
 class JoinGame extends Component<JoinGameProps, JoinGameState> {
     public state: JoinGameState = {
+        a11yMessageAssertive: '',
         idInput: '',
+        isSnackbarOpen: false,
         nameInput: this.props.playerInfo ? this.props.playerInfo.name : '',
+        snackBarMessage: '',
         validateInputs: false
     };
 
@@ -62,7 +71,7 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
                     required
                     autoFocus
                     error={isNameInvalid}
-                    helperText={isNameInvalid ? 'Du musst einen Spielernamen eingeben' : ''}
+                    helperText={isNameInvalid ? getInvalidNameError() : ''}
                     inputProps={{
                         id: 'player-name-input',
                         autoComplete: 'nickname',
@@ -80,7 +89,7 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
                     fullWidth
                     required
                     error={isIdInvalid}
-                    helperText={isIdInvalid ? 'Du musst eine Spiel-ID eingeben' : ''}
+                    helperText={isIdInvalid ? getInvalidGameIdError() : ''}
                     inputProps={{ id: 'game-id-input' }}
                     onChange={this.handleInputChange}
                 />
@@ -103,6 +112,22 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
                     {joinGameForm}
                 </div>
                 <ToDashboardButton onReturnToDashboard={this.returnToDashboard} />
+                <Snackbar
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                    open={this.state.isSnackbarOpen}
+                    autoHideDuration={3000}
+                    onClose={this.handleSnackBarClose}
+                >
+                    <SnackbarContent
+                        classes={{ root: styles.alert_snackbar }}
+                        message={this.state.snackBarMessage}
+                    ></SnackbarContent>
+                </Snackbar>
+                <LiveMessage
+                    message={this.state.a11yMessageAssertive}
+                    aria-live="assertive"
+                    clearOnUnmount="true"
+                />
             </div>
         );
     }
@@ -127,12 +152,20 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
 
     private handleSubmit = (event: FormEvent) => {
         event.preventDefault();
-        if (this.state.idInput && this.state.nameInput.trim()) {
+        const trimmedName = this.state.nameInput.trim();
+        if (trimmedName && this.state.idInput) {
             this.joinGame();
         } else {
-            this.setState({ nameInput: this.state.nameInput.trim(), validateInputs: true });
+            this.setState({ nameInput: trimmedName, validateInputs: true });
+            this.alertUser(!trimmedName ? getInvalidNameError() : getInvalidGameIdError());
         }
     }
+
+    private alertUser = (message: string) => this.setState(
+        { a11yMessageAssertive: message, isSnackbarOpen: true, snackBarMessage: message }
+    );
+
+    private handleSnackBarClose = () => this.setState({ isSnackbarOpen: false });
 
     private joinGame = () => {
         const playerInfo = this.props.playerInfo as PlayerInfo;

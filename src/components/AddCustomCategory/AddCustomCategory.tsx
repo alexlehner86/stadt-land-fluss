@@ -12,17 +12,18 @@ const CustomCategoryDialog: React.FunctionComponent<CustomCategoryDialogProps> =
     const { onClose, open } = props;
     const [categoryInput, setCategoryInput] = useState('');
     const [validateInputs, setValidateInputs] = useState(false);
+    const isCategoryInputInvalid = validateInputs && !categoryInput;
 
-    const handleClose = () => {
-        onClose(null);
+    const handleEnter = () => {
+        setValidateInputs(false);
+        setCategoryInput('');
     };
-
+    const handleClose = () => onClose(null);
     const handleSubmit = (event: FormEvent) => {
         event.preventDefault();
         event.stopPropagation();
         const trimmedCategoryInput = categoryInput.trim();
         if (trimmedCategoryInput !== '') {
-            setCategoryInput('');
             setValidateInputs(false);
             onClose(trimmedCategoryInput);
         } else {
@@ -32,10 +33,10 @@ const CustomCategoryDialog: React.FunctionComponent<CustomCategoryDialogProps> =
     };
 
     return (
-        <Dialog onClose={handleClose} open={open}>
+        <Dialog onEnter={handleEnter} onClose={handleClose} open={open}>
             <form onSubmit={handleSubmit} className={styles.dialog_min_width} noValidate autoComplete="off">
                 <DialogContent>
-                    <DialogContentText>Kategorie hinzufügen</DialogContentText>
+                    <DialogContentText>Eigene Kategorie definieren</DialogContentText>
                     <label htmlFor="new-category-input" className="sr-only">
                         Neue Kategorie
                     </label>
@@ -45,7 +46,8 @@ const CustomCategoryDialog: React.FunctionComponent<CustomCategoryDialogProps> =
                         fullWidth
                         required
                         value={categoryInput}
-                        error={validateInputs && !categoryInput}
+                        error={isCategoryInputInvalid}
+                        helperText={isCategoryInputInvalid ? 'Kategorie eingeben' : ''}
                         inputProps={{ id: 'new-category-input' }}
                         onChange={event => setCategoryInput(event.target.value)}
                     />
@@ -81,9 +83,10 @@ const AddCustomCategory: React.FunctionComponent<AddCustomCategoryProps> = props
     return (
         <React.Fragment>
             <IconButton
-                className={styles.less_padding}
-                title="Kategorie hinzufügen"
-                aria-label="Kategorie hinzufügen"
+                className={styles.add_category_button}
+                size="small"
+                title="Eigene Kategorie definieren"
+                aria-label="Eigene Kategorie definieren"
                 onClick={() => setOpen(true)}
             >
                 <AddCircleOutlineIcon />

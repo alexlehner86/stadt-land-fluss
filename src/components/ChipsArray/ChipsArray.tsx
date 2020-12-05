@@ -3,6 +3,7 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import DoneIcon from '@material-ui/icons/Done';
 import React from 'react';
+
 import styles from './ChipsArray.module.css';
 
 export enum ChipType {
@@ -37,12 +38,11 @@ const ChipsArray: React.FunctionComponent<ChipsArrayProps> = props => {
                     role="listitem"
                     classes={{ root: styles.chip, label: styles.chip_label }}
                     color={props.chipType === 'selected' ? 'primary' : undefined}
-                    icon={props.chipType === 'selected' ? <DoneIcon className="chip-icon-no-bg" /> : <ChevronRightIcon />}
+                    icon={props.chipType === 'selected' ? <DoneIcon /> : <ChevronRightIcon />}
                     label={chip}
                     onClick={() => props.removeChip(chip)}
                 />
             ))}
-            {props.children}
         </div>
     );
 };

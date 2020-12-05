@@ -51,8 +51,8 @@ class GameManual extends Component<RouteComponentProps> {
                         <span className="sr-only">Kategorien zufällig auswählen</span>-Button öffnet einen Dialog, über den eine
                         Zufallsauswahl an Kategorien erstellt werden kann.
                         Über den <AddCircleOutlineIcon fontSize="small" className={styles.inline_icon} />
-                        <span className="sr-only">Kategorie hinzufügen</span>-Button am Ende der Kategorien-Liste lässt sich auch
-                        jede beliebige, weitere Kategorie hinzufügen und für das Spiel auswählen.
+                        <span className="sr-only">Eigene Kategorie definieren</span>-Button am Ende der <span>Ausgewählte Kategorien</span>-Liste
+                        lässt sich auch jede beliebige, weitere Kategorie definieren und für das Spiel auswählen.
                     </p>
                     <p>
                         Standardmäßig ist die Option vorausgewählt, dass eine Runde von allen Spielenden gemeinsam beendet wird.

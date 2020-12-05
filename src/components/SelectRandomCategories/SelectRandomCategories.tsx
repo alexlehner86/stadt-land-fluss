@@ -43,15 +43,10 @@ const SelectRandomCategoriesDialog: React.FunctionComponent<SelectRandomCategori
         setNumberOfCategoriesInput(value);
         setIsNumberOfCategoriesInputValid(value >= MIN_NUMBER_OF_CATEGORIES && value <= props.maxNumberOfCategories);
     };
-
     const handleRetainSelectionOptionChange = (event: ChangeEvent<HTMLInputElement>) => {
         setRetainSelection(event.target.checked);
     };
-
-    const handleClose = () => {
-        onClose(null);
-    };
-
+    const handleClose = () => onClose(null);
     const handleSubmit = (event: FormEvent) => {
         event.preventDefault();
         event.stopPropagation();
@@ -83,6 +78,7 @@ const SelectRandomCategoriesDialog: React.FunctionComponent<SelectRandomCategori
                         required
                         autoFocus
                         error={validateInputs && !isNumberOfCategoriesInputValid}
+                        helperText={validateInputs && !isNumberOfCategoriesInputValid ? 'Du musst eine gültige Anzahl eingeben' : ''}
                         inputProps={{
                             id: 'number-of-categories-input',
                             min: MIN_NUMBER_OF_CATEGORIES,
@@ -141,7 +137,7 @@ const SelectRandomCategories: React.FunctionComponent<SelectRandomCategoriesProp
                 aria-label="Kategorien zufällig auswählen"
                 onClick={() => setOpen(true)}
             >
-                <FlipCameraAndroidIcon fontSize="small" />
+                <FlipCameraAndroidIcon />
             </IconButton>
             <SelectRandomCategoriesDialog
                 maxNumberOfCategories={props.maxNumberOfCategories}

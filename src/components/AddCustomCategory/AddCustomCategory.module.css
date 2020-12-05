@@ -1,3 +1,10 @@
+.add_category_button {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    z-index: 10;
+}
+
 .less_padding {
     padding: 0.375rem 0.5rem;
 }
