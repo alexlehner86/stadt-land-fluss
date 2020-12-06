@@ -88,6 +88,20 @@ li:not(.MuiListItem-root) {
     margin-bottom: 0.5rem;
 }
 
+.game-settings {
+    margin-bottom: 1rem;
+}
+.game-settings h3, .game-settings h4 {
+    margin-block-start: 1.25rem;
+    margin-block-end: 0.25rem;
+    font-size: 1rem;
+    font-style: normal;
+    font-weight: bold;
+}
+.game-settings p {
+    margin-block-start: 0.25rem;
+}
+
 /*********************************************************************/
 /******* Game Manual, About the Game, Accessibility Statement *******/
 /*******************************************************************/

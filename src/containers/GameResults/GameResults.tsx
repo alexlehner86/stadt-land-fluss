@@ -56,10 +56,15 @@ class GameResults extends Component<GameResultsProps, GameResultsState> {
                 </div>
                 <div className="material-card-style">
                     <SectionHeader text="Spieleinstellungen"></SectionHeader>
-                    <p><span className="bold-text">Runden:</span> {gameConfig.numberOfRounds}</p>
-                    <p><span className="bold-text">Buchstaben:</span> {gameConfig.letters.join(', ')}</p>
-                    <p><span className="bold-text">Kategorien:</span> {gameConfig.categories.join(', ')}</p>
-                    <ScoringOptionsList rules={gameConfig.scoringOptions} />
+                    <div className="game-settings">
+                        <h4>Runden</h4>
+                        <p>{gameConfig.numberOfRounds}</p>
+                        <h4>Buchstaben</h4>
+                        <p>{gameConfig.letters.join(', ')}</p>
+                        <h4>Kategorien</h4>
+                        <p>{gameConfig.categories.join(', ')}</p>
+                    </div>
+                    <ScoringOptionsList isForGameResultsPage={true} rules={gameConfig.scoringOptions} />
                 </div>
                 <ToDashboardButton onReturnToDashboard={() => this.props.history.push('/')} />
             </div>
@@ -67,7 +72,7 @@ class GameResults extends Component<GameResultsProps, GameResultsState> {
     }
 
     public componentDidMount() {
-        const { allPlayers, gameConfig, gameRounds} = this.props;
+        const { allPlayers, gameConfig, gameRounds } = this.props;
         // If there is no data present in application state, then reroute user to dashboard.
         if (allPlayers === null || gameConfig === null || gameRounds === null) {
             this.props.history.push('/');

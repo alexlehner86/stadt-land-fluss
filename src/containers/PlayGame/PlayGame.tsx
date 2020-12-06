@@ -15,6 +15,7 @@ import PhaseWaitingToStart from '../../components/PhaseWaitingToStart/PhaseWaiti
 import PubNubEventHandler from '../../components/PubNubEventHandler/PubNubEventHandler';
 import { PUBNUB_CONFIG } from '../../config/pubnub.config';
 import { GamePhase } from '../../constants/game.constant';
+import { CREATED_GAME_ADMIN_MESSAGE, JOINED_GAME_MESSAGE } from '../../constants/sr-message.constant';
 import {
     EndRoundMode,
     EvaluationOfPlayerInput,
@@ -190,6 +191,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             if (playerInfo.isAdmin) {
                 setRunningGameConfigInLocalStorage(gameConfig as GameConfig);
                 this.setState({ allPlayers, gameConfig, showLoadingScreen: false });
+                this.informScreenReaderUser(CREATED_GAME_ADMIN_MESSAGE);
             } else {
                 this.setState({ allPlayers });
             }
@@ -219,6 +221,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                         gameConfig={this.state.gameConfig}
                         gameId={this.props.gameId as string}
                         playerInfo={this.props.playerInfo}
+                        informScreenReaderUser={this.informScreenReaderUser}
                         sendPubNubMessage={this.sendPubNubMessage}
                     />
                 );
@@ -264,19 +267,6 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     }
 
     /**
-     * Returns the names of the players that haven't submitted their answers yet.
-     */
-    private getWaitingForPlayers = (): string[] => {
-        const waitingForPlayers: string[] = [];
-        getPlayersInAlphabeticalOrder(this.state.allPlayers).forEach(player => {
-            if (!this.state.playersThatFinishedRound.has(player.id)) {
-                waitingForPlayers.push(player.name);
-            }
-        });
-        return waitingForPlayers;
-    }
-
-    /**
      * Called by PubNubEventHandler when it receives a PubNub presence event with action 'state-change'.
      * It processes information about players that had already joined the game before this user joined
      * (hereNow result) or about a player that joins the game after this user joined.
@@ -298,6 +288,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         if (gameConfig) {
             setRunningGameConfigInLocalStorage(gameConfig);
             this.setState({ allPlayers, gameConfig, showLoadingScreen: false });
+            this.informScreenReaderUser(JOINED_GAME_MESSAGE);
         } else {
             this.setState({ allPlayers });
         }
@@ -320,6 +311,9 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                     this.setState({ playersThatFinishedRound });
                     if (event.publisher === this.props.playerInfo.id) {
                         this.stopRoundAndSendInputs();
+                    } else {
+                        const player = this.state.allPlayers.get(event.publisher);
+                        this.informScreenReaderUser(`${player?.name} hat Antworten abgeschickt.`);
                     }
                 } else {
                     // In game modes "countdown" and "fastet player", the round ends for all players right away.
@@ -371,6 +365,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             currentRoundInputs: getEmptyRoundInputs(gameConfig.categories.length),
             showLetterAnimation: true
         });
+        this.informScreenReaderUser(`Spiel beginnt. ${this.state.currentRound}. Buchstabe wird ermittelt.`);
     }
 
     private updateCurrentRoundInputs = (newCurrentRoundInputs: PlayerInput[]) => {
@@ -424,6 +419,19 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             // If no, then only store the updated gameRounds object in state.
             this.setState({ gameRounds });
         }
+    }
+
+    /**
+     * Returns the names of the players that haven't submitted their answers yet.
+     */
+    private getWaitingForPlayers = (): string[] => {
+        const waitingForPlayers: string[] = [];
+        getPlayersInAlphabeticalOrder(this.state.allPlayers).forEach(player => {
+            if (!this.state.playersThatFinishedRound.has(player.id)) {
+                waitingForPlayers.push(player.name);
+            }
+        });
+        return waitingForPlayers;
     }
 
     /**
@@ -596,6 +604,8 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                 setPointsAndValidity(gameConfig.scoringOptions, currentRoundEvaluation, getMinNumberOfInvalids(allPlayers.size), round);
                 applyMarkedAsCreativeFlags(payload.compressedMarkedAsCreativeFlags, payload.sortedPlayers, round);
             } else {
+                // If not in evaluation phase, we need to prepare a GameRound and GameRoundEvaluation object for the current round.
+                gameRounds.push(new Map<string, PlayerInput[]>());
                 currentRoundEvaluation = createGameRoundEvaluation(allPlayers, gameConfig.categories);
             }
             this.setState({

@@ -1,6 +1,7 @@
 import { Button } from '@material-ui/core';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import React from 'react';
+
 import styles from './ToDashboardButton.module.css';
 
 interface ToDashboardButtonProps {

@@ -19,17 +19,19 @@ interface PhaseWaitingToStartProps {
     gameConfig: GameConfig | null;
     gameId: string;
     playerInfo: PlayerInfo;
+    informScreenReaderUser: (message: string) => void;
     sendPubNubMessage: (message: PubNubMessage) => void;
 }
 
 const PhaseWaitingToStart: React.FunctionComponent<PhaseWaitingToStartProps> = props => {
     const { allPlayers, gameId, playerInfo } = props;
-    const gameConfig = props.gameConfig as GameConfig;    
+    const gameConfig = props.gameConfig as GameConfig;
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
     const onLinkCopiedToClipboard = () => {
         const message = 'Link zum Spiel wurde in die Zwischenablage kopiert';
-        enqueueSnackbar(message); // The snackbar has role=alert, so screen readers will read the message
+        enqueueSnackbar(message, { 'aria-live': 'off' });
+        props.informScreenReaderUser(message);
     };
     const waitForGameStartElement = (
         <p className="wait-for-start-animation">Warte auf Spielbeginn <span>.</span><span>.</span><span>.</span></p>
@@ -49,15 +51,18 @@ const PhaseWaitingToStart: React.FunctionComponent<PhaseWaitingToStartProps> = p
     const createGameSettingsElement = (): JSX.Element => (
         <React.Fragment>
             <Divider />
-            <h3>Spieleinstellungen:</h3>
-            <p><span className="bold-text">ID:</span> {props.gameId}</p>
-            <p><span className="bold-text">Runden:</span> {gameConfig.numberOfRounds}</p>
-            <p><span className="bold-text">Kategorien:</span> {gameConfig.categories.join(', ')}</p>
-            <p>
-                <span className="bold-text">Beenden der Runde durch:</span>
-                <span> {getEndRoundDescription(gameConfig)}</span>
-            </p>
-            <ScoringOptionsList rules={gameConfig.scoringOptions} />
+            <h3>Spieleinstellungen</h3>
+            <div className="game-settings">
+                <h4>Spiel-ID</h4>
+                <p>{props.gameId}</p>
+                <h4>Runden</h4>
+                <p>{gameConfig.numberOfRounds}</p>
+                <h4>Kategorien</h4>
+                <p>{gameConfig.categories.join(', ')}</p>
+                <h4>Beenden der Runde durch</h4>
+                <p>{getEndRoundDescription(gameConfig)}</p>
+            </div>
+            <ScoringOptionsList isForGameResultsPage={false} rules={gameConfig.scoringOptions} />
         </React.Fragment>
     );
     const createStartGameButton = (): JSX.Element => (
@@ -84,7 +89,7 @@ const PhaseWaitingToStart: React.FunctionComponent<PhaseWaitingToStartProps> = p
     return (
         <React.Fragment>
             <div className="material-card-style">
-                <SectionHeader text="Gleich geht's los..."></SectionHeader>
+                <SectionHeader text="Warteraum"></SectionHeader>
                 <div className="players-wrapper">
                     <h3>Mitspieler ({props.allPlayers.size}):</h3>
                     <PlayerList players={props.allPlayers} />
