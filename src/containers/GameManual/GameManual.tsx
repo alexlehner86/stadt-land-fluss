@@ -78,7 +78,7 @@ class GameManual extends Component<RouteComponentProps> {
                         Nutzer, der das Spiel erstellt hat, als Administrator in der Mitspieler-Liste sichtbar. Es müssen mindestens zwei
                         Spieler an einem Spiel teilnehmen, damit dieses starten kann. Unten auf der Seite wird dem Administrator ein Link
                         zum Teilen mit Freunden angeboten. Ein Klick auf den <FileCopyIcon fontSize="small" className={styles.inline_icon} />
-                        <span className="sr-only">Link kopieren</span>-Button rechts vom Link kopiert diesen in die Zwischenablage.
+                        <span className="sr-only">Link zum Spiel kopieren</span>-Button rechts vom Link kopiert diesen in die Zwischenablage.
                         Über diesen Link gelangen andere Mitspieler direkt zur <span>Spiel beitreten</span>-Seite, wo das Feld Spiel-ID
                         bereits vorausgefüllt wird.
                     </p>

@@ -1,7 +1,10 @@
 import './PhaseWaitingToStart.css';
+
 import { Button, Divider } from '@material-ui/core';
 import PlayCircleFilled from '@material-ui/icons/PlayCircleFilled';
+import { useSnackbar } from 'notistack';
 import React from 'react';
+
 import { MIN_NUMBER_OF_PLAYERS } from '../../constants/game.constant';
 import { EndRoundMode, GameConfig } from '../../models/game.interface';
 import { PlayerInfo } from '../../models/player.interface';
@@ -16,12 +19,18 @@ interface PhaseWaitingToStartProps {
     gameConfig: GameConfig | null;
     gameId: string;
     playerInfo: PlayerInfo;
-    sendMessage: (message: PubNubMessage) => void;
+    sendPubNubMessage: (message: PubNubMessage) => void;
 }
 
 const PhaseWaitingToStart: React.FunctionComponent<PhaseWaitingToStartProps> = props => {
     const { allPlayers, gameId, playerInfo } = props;
-    const gameConfig = props.gameConfig as GameConfig;
+    const gameConfig = props.gameConfig as GameConfig;    
+    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
+    const onLinkCopiedToClipboard = () => {
+        const message = 'Link zum Spiel wurde in die Zwischenablage kopiert';
+        enqueueSnackbar(message); // The snackbar has role=alert, so screen readers will read the message
+    };
     const waitForGameStartElement = (
         <p className="wait-for-start-animation">Warte auf Spielbeginn <span>.</span><span>.</span><span>.</span></p>
     );
@@ -59,13 +68,16 @@ const PhaseWaitingToStart: React.FunctionComponent<PhaseWaitingToStartProps> = p
                 size="large"
                 startIcon={<PlayCircleFilled />}
                 disabled={allPlayers.size < MIN_NUMBER_OF_PLAYERS}
-                onClick={() => props.sendMessage({ type: PubNubMessageType.startGame })}
+                onClick={() => props.sendPubNubMessage({ type: PubNubMessageType.startGame })}
             >Starten</Button>
         </div>
     );
     const createInvitePlayersElement = (): JSX.Element => (
         <div className="material-card-style">
-            <JoinGameLink gameId={gameId as string} />
+            <JoinGameLink
+                gameId={gameId as string}
+                onLinkCopiedToClipboard={onLinkCopiedToClipboard}
+            />
         </div>
     );
 

@@ -1,21 +1,19 @@
-import { IconButton, InputAdornment, OutlinedInput, Snackbar } from '@material-ui/core';
+import { IconButton, InputAdornment, OutlinedInput } from '@material-ui/core';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 import React, { useState } from 'react';
+
 import { copyToClipboard } from '../../utils/general.utils';
 import styles from './JoinGameLink.module.css';
 
 interface JoinGameLinkProps {
     gameId: string;
+    onLinkCopiedToClipboard: () => void;
 }
 
 export const JoinGameLink: React.FunctionComponent<JoinGameLinkProps> = props => {
-    const [open, setOpen] = useState(false);
     const handleClick = () => {
         copyToClipboard(joinGameLink);
-        setOpen(true);
-    };
-    const handleClose = () => {
-        setOpen(false);
+        props.onLinkCopiedToClipboard();
     };
 
     const url = window.location.href;
@@ -29,26 +27,20 @@ export const JoinGameLink: React.FunctionComponent<JoinGameLinkProps> = props =>
                 name="idInput"
                 value={joinGameLink}
                 className="app-form-input"
-                disabled
+                readOnly
                 fullWidth
                 endAdornment={
                     <InputAdornment position="end">
                         <IconButton
-                            title="Link kopieren"
-                            aria-label="Link kopieren"
+                            title="Link zum Spiel kopieren"
+                            aria-label="Link zum Spiel kopieren"
                             onClick={handleClick}
                         >
                             <FileCopyIcon />
                         </IconButton>
                     </InputAdornment>
                 }
-            />
-            <Snackbar
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-                open={open}
-                autoHideDuration={1500}
-                onClose={handleClose}
-                message="Der Link wurde in Zwischenablage kopiert."
+                inputProps={{ tabIndex: -1 }}
             />
         </React.Fragment>
     );

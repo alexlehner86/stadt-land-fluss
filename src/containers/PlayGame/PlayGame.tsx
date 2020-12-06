@@ -2,8 +2,10 @@ import { cloneDeep } from 'lodash';
 import Pubnub from 'pubnub';
 import { PubNubProvider } from 'pubnub-react';
 import React, { Component, Dispatch } from 'react';
+import { LiveMessage } from 'react-aria-live';
 import { connect } from 'react-redux';
 import { RouterProps } from 'react-router';
+
 import AdminPanel from '../../components/AdminPanel/AdminPanel';
 import { LetterAnimation } from '../../components/LetterAnimation/LetterAnimation';
 import LoadingScreen from '../../components/LoadingScreen/LoadingScreen';
@@ -35,7 +37,13 @@ import {
     PubNubMessageType,
     PubNubUserState,
 } from '../../models/pub-nub-data.model';
-import { AppAction, resetAppState, ResetAppStatePayload, setDataOfFinishedGame, SetDataOfFinishedGamePayload } from '../../store/app.actions';
+import {
+    AppAction,
+    resetAppState,
+    ResetAppStatePayload,
+    setDataOfFinishedGame,
+    SetDataOfFinishedGamePayload,
+} from '../../store/app.actions';
 import { AppState } from '../../store/app.reducer';
 import {
     applyMarkedAsCreativeFlags,
@@ -78,6 +86,7 @@ interface PlayGameDispatchProps {
 }
 interface PlayGameProps extends PlayGamePropsFromStore, PlayGameDispatchProps, RouterProps { }
 export interface PlayGameState {
+    a11yMessagePolite: string;
     allPlayers: Map<string, PlayerInfo>;
     currentPhase: GamePhase;
     currentRound: number;
@@ -93,6 +102,7 @@ export interface PlayGameState {
 
 class PlayGame extends Component<PlayGameProps, PlayGameState> {
     public state: PlayGameState = {
+        a11yMessagePolite: '',
         allPlayers: new Map<string, PlayerInfo>(),
         currentPhase: GamePhase.waitingToStart,
         currentRound: 1,
@@ -130,28 +140,35 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             : <LoadingScreen waitingForPlayers={this.getWaitingForPlayers()} />;
 
         return (
-            <PubNubProvider client={this.pubNubClient}>
-                {/* The props passed to PubNubEventHandler must never be changed,
+            <React.Fragment>
+                <PubNubProvider client={this.pubNubClient}>
+                    {/* The props passed to PubNubEventHandler must never be changed,
                     in order to ensure that the component is not rerendered!
                     (PubNubEventHandler is wrapped in React.memo) */}
-                <PubNubEventHandler
-                    gameChannel={this.props.gameId}
-                    gameConfig={this.props.gameConfig}
-                    isRejoiningGame={this.props.isRejoiningGame}
-                    playerInfo={this.props.playerInfo}
-                    navigateToJoinGamePage={this.navigateToJoinGamePage}
-                    addPlayers={this.addPlayers}
-                    processPubNubMessage={this.processPubNubMessage}
+                    <PubNubEventHandler
+                        gameChannel={this.props.gameId}
+                        gameConfig={this.props.gameConfig}
+                        isRejoiningGame={this.props.isRejoiningGame}
+                        playerInfo={this.props.playerInfo}
+                        navigateToJoinGamePage={this.navigateToJoinGamePage}
+                        addPlayers={this.addPlayers}
+                        processPubNubMessage={this.processPubNubMessage}
+                    />
+                    {showLetterAnimation ? letterAnimationElement : null}
+                    {showLoadingScreen ? loadingScreenElement : null}
+                    {!showLoadingScreen && !showLetterAnimation ? (
+                        <div className="main-content-wrapper">
+                            {this.createCurrentPhaseElement()}
+                        </div>
+                    ) : null}
+                    {this.props.playerInfo.isAdmin && this.state.allPlayers.size > 1 ? adminPanel : null}
+                </PubNubProvider>
+                <LiveMessage
+                    message={this.state.a11yMessagePolite}
+                    aria-live="polite"
+                    clearOnUnmount="true"
                 />
-                {showLetterAnimation ? letterAnimationElement : null}
-                {showLoadingScreen ? loadingScreenElement : null}
-                {!showLoadingScreen && !showLetterAnimation ? (
-                    <div className="main-content-wrapper">
-                        {this.createCurrentPhaseElement()}
-                    </div>
-                ) : null}
-                {this.props.playerInfo.isAdmin && this.state.allPlayers.size > 1 ? adminPanel : null}
-            </PubNubProvider>
+            </React.Fragment>
         );
     }
 
@@ -164,7 +181,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         }
         // If player is rejoining the game, we need to request the game data from the other players.
         if (isRejoiningGame) {
-            this.sendMessage({ type: PubNubMessageType.requestGameData });
+            this.sendPubNubMessage({ type: PubNubMessageType.requestGameData });
         } else {
             const allPlayers = new Map<string, PlayerInfo>();
             allPlayers.set(playerInfo.id, playerInfo);
@@ -179,7 +196,9 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         }
     }
 
-    private sendMessage = (message: PubNubMessage) => {
+    private informScreenReaderUser = (message: string) => this.setState({ a11yMessagePolite: message });
+
+    private sendPubNubMessage = (message: PubNubMessage) => {
         this.pubNubClient.publish(
             {
                 channel: this.props.gameId as string,
@@ -200,7 +219,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                         gameConfig={this.state.gameConfig}
                         gameId={this.props.gameId as string}
                         playerInfo={this.props.playerInfo}
-                        sendMessage={this.sendMessage}
+                        sendPubNubMessage={this.sendPubNubMessage}
                     />
                 );
             case GamePhase.fillOutTextfields:
@@ -365,7 +384,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         this.setState({ showLoadingScreen: true });
         // We only want the game admin to send the "roundFinished" message once.
         if (this.props.playerInfo.isAdmin) {
-            this.sendMessage({ type: PubNubMessageType.roundFinished });
+            this.sendPubNubMessage({ type: PubNubMessageType.roundFinished });
         }
     }
 
@@ -376,7 +395,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         const playersThatFinishedRound = cloneDeep(this.state.playersThatFinishedRound);
         playersThatFinishedRound.set(this.props.playerInfo.id, true);
         this.setState({ playersThatFinishedRound, showLoadingScreen: true });
-        this.sendMessage({ type: PubNubMessageType.roundFinished });
+        this.sendPubNubMessage({ type: PubNubMessageType.roundFinished });
     }
 
     /**
@@ -385,7 +404,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     private stopRoundAndSendInputs = () => {
         // Send this player's text inputs of current round to other players (and herself/himself).
         const message = new PubNubCurrentRoundInputsMessage(markEmptyPlayerInputsAsInvalid(this.state.currentRoundInputs));
-        this.sendMessage(message.toPubNubMessage());
+        this.sendPubNubMessage(message.toPubNubMessage());
     }
 
     /**
@@ -413,7 +432,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
      */
     private updateEvaluationOfPlayerInput = (newEvaluation: EvaluationOfPlayerInput) => {
         const message = new PubNubEvaluationOfPlayerInputMessage(newEvaluation);
-        this.sendMessage(message.toPubNubMessage());
+        this.sendPubNubMessage(message.toPubNubMessage());
     }
 
     /**
@@ -440,7 +459,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
      */
     private updateIsPlayerInputVeryCreativeStatus = (newStatus: IsPlayerInputVeryCreativeStatus) => {
         const message = new PubNubIsPlayerInputVeryCreativeMessage(newStatus);
-        this.sendMessage(message.toPubNubMessage());
+        this.sendPubNubMessage(message.toPubNubMessage());
     }
 
     /**
@@ -459,7 +478,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
      * Is called by PhaseEvaluateRound component in order to communicate to all players
      * that the user of this instance of the game has finished evaluating the current round.
      */
-    private sendEvaluationFinishedMessage = () => this.sendMessage({ type: PubNubMessageType.evaluationFinished });
+    private sendEvaluationFinishedMessage = () => this.sendPubNubMessage({ type: PubNubMessageType.evaluationFinished });
 
     /**
      * This method is called when the PubNub message 'evaluationFinished' is received.
@@ -502,7 +521,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
 
     private sendKickPlayerMessage = (playerId: string) => {
         const message = new PubNubKickPlayerMessage(playerId);
-        this.sendMessage(message.toPubNubMessage());
+        this.sendPubNubMessage(message.toPubNubMessage());
     }
 
     /**
@@ -550,7 +569,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             requestingPlayerId,
             sortedPlayers
         });
-        this.sendMessage(message.toPubNubMessage());
+        this.sendPubNubMessage(message.toPubNubMessage());
     }
 
     /**
