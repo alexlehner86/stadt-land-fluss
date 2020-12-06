@@ -18,12 +18,21 @@
     opacity: 0.9;
 }
 
-.rejoin_game_link {
-    min-width: calc(100% - 3.1rem);
+.rejoin_game_button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin: 0 0.5rem 1rem;
+    padding: 1rem 0.8rem;
     border: 5px solid rgba(255,255,255,0.5);
+    border-radius: 5px;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-size: 1rem;
     font-weight: bold;
+    opacity: 0.9;
 }
-.rejoin_game_link svg {
+.rejoin_game_button svg {
     margin-right: 0.5rem;
 }
 

@@ -7,7 +7,7 @@ import { PlayerInfo } from '../../models/player.interface';
 import { PubNubUserState } from '../../models/pub-nub-data.model';
 
 interface PubNubEventHandlerProps {
-    gameChannel: string;
+    gameChannel: string; // = Game ID
     gameConfig: GameConfig | null;
     isRejoiningGame: boolean;
     playerInfo: PlayerInfo;
@@ -27,7 +27,9 @@ const PubNubEventHandler: React.FunctionComponent<PubNubEventHandlerProps> = pro
                 // If a new user wants to join the game but the channel's history already includes messages, then the game
                 // has already started and user can't join. They get rerouted to the dashboard page by PlayGame component.
                 if (!props.isRejoiningGame && response.messages.length > 0) {
-                    props.navigateToJoinGamePage('Du kannst einem bereits gestarteten Spiel nicht beitreten!');
+                    props.navigateToJoinGamePage(
+                        `Das Spiel mit der ID ${props.gameChannel} wurde bereits gestartet. Du kannst einem laufenden Spiel nicht beitreten!`
+                    );
                     return;
                 }
                 // The hereNow call is used to check total occupancy and retrieve data of already joined players.
@@ -55,37 +57,39 @@ const PubNubEventHandler: React.FunctionComponent<PubNubEventHandlerProps> = pro
             state: newUserState
         });
     };
+    const getUserStatesOfOtherPlayers = (response: Pubnub.HereNowResponse): PubNubUserState[] => {
+        const pubNubUserStates: PubNubUserState[] = [];
+        const dataForGameChannel = response.channels[props.gameChannel] || [];
+        dataForGameChannel.occupants.forEach(occupant => {
+            const userState = occupant.state as PubNubUserState;
+            // Safeguard in case that a user's state should be missing or corrupted.
+            // Only include states of the other players, not of the user themselves.
+            if (!!userState && !!userState.playerInfo && userState.playerInfo.id !== props.playerInfo.id) {
+                pubNubUserStates.push(userState);
+            }
+        });
+        return pubNubUserStates;
+    };
     const getHereNowData = () => {
         pubNubClient.hereNow(
             { channels: [props.gameChannel], includeUUIDs: true, includeState: true },
             (_, response) => {
                 console.log('PubNub hereNow', response);
-                // If the player is not the game's admin, then the channel's occupancy should be at least 1 (= admin).
+                const userStatesOfOtherPlayers = getUserStatesOfOtherPlayers(response);
+                // If the player isn't the game's admin, then there should be at least one other player (= admin) in the channel.
                 // Otherwise there is no open game with the game id entered by the user in the JoinGame form.
                 // Also, if the player (including the admin) tries to rejoin but they are the only player left in the channel,
                 // then the game is already over. In both cases, the user gets rerouted to the dashboard page by PlayGame component.
-                if (response.totalOccupancy === 0 && (!props.playerInfo.isAdmin || props.isRejoiningGame)) {
-                    props.navigateToJoinGamePage('Es gibt kein offenes Spiel mit der angegebenen Spiel-ID!');
+                if (userStatesOfOtherPlayers.length === 0 && (!props.playerInfo.isAdmin || props.isRejoiningGame)) {
+                    props.navigateToJoinGamePage(
+                        `Es wurde kein offenes Spiel mit der ID ${props.gameChannel} gefunden!`
+                    );
                     return;
                 }
                 // Only process the information of players that joined before if user isn't rejoining the game.
                 // If user is rejoining game, then this information is received via the PubNubDataForCurrentGameMessage.
-                if (!props.isRejoiningGame) {
-                    const dataForGameChannel = response.channels[props.gameChannel];
-                    if (dataForGameChannel) {
-                        const pubNubUserStates: PubNubUserState[] = [];
-                        dataForGameChannel.occupants.forEach(occupant => {
-                            const userState = occupant.state as PubNubUserState;
-                            // Safeguard in case that a user's state should be missing or corrupted.
-                            // Only include states of the other players, not of the user themselves.
-                            if (!!userState && !!userState.playerInfo && userState.playerInfo.id !== props.playerInfo.id) {
-                                pubNubUserStates.push(userState);
-                            }
-                        });
-                        if (pubNubUserStates.length > 0) {
-                            props.addPlayers(...pubNubUserStates);
-                        }
-                    }
+                if (!props.isRejoiningGame && userStatesOfOtherPlayers.length > 0) {
+                    props.addPlayers(...userStatesOfOtherPlayers);
                 }
             }
         );

@@ -9,6 +9,7 @@ export const SET_STORED_RUNNING_GAME_INFO = 'SET_STORED_RUNNING_GAME_INFO';
 export const SET_DATA_FOR_NEW_GAME = 'SET_DATA_FOR_NEW_GAME';
 export const SET_DATA_OF_FINISHED_GAME = 'SET_DATA_OF_FINISHED_GAME';
 export const RESET_APP_STATE = 'RESET_APP_STATE';
+export const PREPARE_REJOINING_GAME = 'PREPARE_REJOINING_GAME';
 
 export interface SetAppThemeAction extends Action {
     payload: AppTheme;
@@ -71,4 +72,10 @@ export const setDataOfFinishedGame = (payload: SetDataOfFinishedGamePayload): Se
 };
 export const resetAppState = (payload?: ResetAppStatePayload): ResetAppStateAction => {
     return { type: RESET_APP_STATE, payload };
+};
+ /**
+ * Sets isRejoiningGame to true. Necessary to cover certain edge cases.
+ */
+export const prepareRejoiningGame = (): Action => {
+    return { type: PREPARE_REJOINING_GAME };
 };

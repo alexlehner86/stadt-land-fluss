@@ -46,7 +46,7 @@ import {
 import { NUMBER_OF_ROUNDS_LABEL, PLAYER_NAME_LABEL } from '../../constants/text.constant';
 import { EndRoundMode, GameConfigScoringOptions } from '../../models/game.interface';
 import { PlayerInfo } from '../../models/player.interface';
-import { AppAction, setDataForNewGame, SetDataForNewGamePayload } from '../../store/app.actions';
+import { AppAction, prepareRejoiningGame, setDataForNewGame, SetDataForNewGamePayload } from '../../store/app.actions';
 import { AppState } from '../../store/app.reducer';
 import {
     getInvalidNameError,
@@ -74,7 +74,8 @@ interface NewGamePropsFromStore {
     playerInfo: PlayerInfo | null;
 }
 interface NewGameDispatchProps {
-    onSetGameData: (payload: SetDataForNewGamePayload) => void
+    onPrepareRejoiningGame: () => void;
+    onSetGameData: (payload: SetDataForNewGamePayload) => void;
 }
 interface NewGameProps extends NewGamePropsFromStore, NewGameDispatchProps, RouteComponentProps { }
 interface NewGameState {
@@ -298,9 +299,15 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                 </div>
             </form>
         );
+        const rejoinRunningGameElement = (
+            <RejoinRunningGameHint
+                context={RejoinRunningGameHintContext.newgame}
+                rejoinRunningGame={this.rejoinRunningGame}
+            />
+        );
         return (
             <div className="main-content-wrapper">
-                {this.props.gameId ? <RejoinRunningGameHint context={RejoinRunningGameHintContext.newgame} /> : null}
+                {this.props.gameId ? rejoinRunningGameElement : null}
                 <div className="material-card-style">
                     <SectionHeader text="Neues Spiel" />
                     {newGameForm}
@@ -484,6 +491,11 @@ class NewGame extends Component<NewGameProps, NewGameState> {
         this.props.history.push('/play');
     }
 
+    private rejoinRunningGame = () => {
+        this.props.onPrepareRejoiningGame();
+        this.props.history.push('/play');
+    }
+
     private returnToDashboard = () => {
         this.props.history.push('/');
     }
@@ -498,6 +510,7 @@ const mapStateToProps = (state: AppState): NewGamePropsFromStore => {
 };
 const mapDispatchToProps = (dispatch: Dispatch<AppAction>): NewGameDispatchProps => {
     return {
+        onPrepareRejoiningGame: () => dispatch(prepareRejoiningGame()),
         onSetGameData: (payload: SetDataForNewGamePayload) => dispatch(setDataForNewGame(payload))
     };
 };

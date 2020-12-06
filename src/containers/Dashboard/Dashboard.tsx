@@ -4,11 +4,11 @@ import BrushIcon from '@material-ui/icons/Brush';
 import DirectionsRunIcon from '@material-ui/icons/DirectionsRun';
 import React, { Component, Dispatch } from 'react';
 import { connect } from 'react-redux';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, RouteComponentProps } from 'react-router-dom';
 
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
 import { AppTheme, AppThemes } from '../../constants/themes.constant';
-import { AppAction, setAppTheme } from '../../store/app.actions';
+import { AppAction, prepareRejoiningGame, setAppTheme } from '../../store/app.actions';
 import { AppState } from '../../store/app.reducer';
 import { setAppThemeIdInLocalStorage } from '../../utils/local-storage.utils';
 import styles from './Dashboard.module.css';
@@ -18,9 +18,10 @@ interface DashboardPropsFromStore {
     gameId: string | null;
 }
 interface DashboardDispatchProps {
+    onPrepareRejoiningGame: () => void;
     onSetAppTheme: (payload: AppTheme) => void;
 }
-interface DashboardProps extends DashboardPropsFromStore, DashboardDispatchProps { }
+interface DashboardProps extends DashboardPropsFromStore, DashboardDispatchProps, RouteComponentProps { }
 interface DashboardState {
     anchorEl: EventTarget | null;
 }
@@ -30,7 +31,11 @@ class Dashboard extends Component<DashboardProps, DashboardState> {
 
     public render() {
         const rejoinGameElement = (
-            <Link component={RouterLink} to="/play" className={styles.rejoin_game_link}>
+            <Link
+                component="button"
+                className={styles.rejoin_game_button}
+                onClick={this.rejoinRunningGame}
+            >
                 <DirectionsRunIcon />
                 Zurück ins laufende Spiel
             </Link>
@@ -99,6 +104,11 @@ class Dashboard extends Component<DashboardProps, DashboardState> {
         this.props.onSetAppTheme(selectedTheme);
         setAppThemeIdInLocalStorage(selectedTheme.id);
     };
+
+    private rejoinRunningGame = () => {
+        this.props.onPrepareRejoiningGame();
+        this.props.history.push('/play');
+    }
 }
 
 const mapStateToProps = (state: AppState): DashboardPropsFromStore => {
@@ -109,6 +119,7 @@ const mapStateToProps = (state: AppState): DashboardPropsFromStore => {
 };
 const mapDispatchToProps = (dispatch: Dispatch<AppAction>): DashboardDispatchProps => {
     return {
+        onPrepareRejoiningGame: () => dispatch(prepareRejoiningGame()),
         onSetAppTheme: (payload: AppTheme) => dispatch(setAppTheme(payload)),
     };
 };

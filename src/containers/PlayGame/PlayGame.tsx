@@ -592,7 +592,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             });
         } else {
             console.log('Error: Can\'t restore game session because data is missing in local storage!');
-            this.navigateToJoinGamePage('Rückkehr in laufendes Spiel ist aufgrund korrumpierter Daten nicht möglich!');
+            this.navigateToJoinGamePage('Die Rückkehr in das laufende Spiel ist nicht möglich, da die Daten nicht wiederhergestellt werden konnten!');
         }
     }
 }

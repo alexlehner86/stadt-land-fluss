@@ -1,6 +1,7 @@
 import { Link } from '@material-ui/core';
+import DirectionsRunIcon from '@material-ui/icons/DirectionsRun';
 import React from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+
 import styles from './RejoinRunningGameHint.module.css';
 
 export enum RejoinRunningGameHintContext {
@@ -10,6 +11,7 @@ export enum RejoinRunningGameHintContext {
 
 interface RejoinRunningGameHintProps {
     context: RejoinRunningGameHintContext;
+    rejoinRunningGame: () => void;
 }
 export const RejoinRunningGameHint: React.FunctionComponent<RejoinRunningGameHintProps> = props => {
     const condition = props.context === 'newgame' ? 'ein neues Spiel erstellst' : 'einem anderen Spiel beitrittst';
@@ -22,7 +24,14 @@ export const RejoinRunningGameHint: React.FunctionComponent<RejoinRunningGameHin
                 <span className="rejoin-running-game-hint-highlighted">Achtung: </span>
                 {hintText}
             </p>
-            <Link component={RouterLink} to="/play" className={styles.link}>⇒ Zurück ins laufende Spiel</Link>
+            <Link
+                component="button"
+                className={styles.rejoin_game_button}
+                onClick={props.rejoinRunningGame}
+            >
+                <DirectionsRunIcon />
+                Zurück ins laufende Spiel
+            </Link>
         </div>
     );
 };

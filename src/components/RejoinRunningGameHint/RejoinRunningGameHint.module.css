@@ -3,8 +3,20 @@
     margin-block-end: 0.5rem;
 }
 
-.link {
-    background-color: white !important;
-    color: black !important;
+.rejoin_game_button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin: 0;
+    padding: 1rem 0.8rem;
+    border: 5px solid rgba(255,255,255,0.5);
+    border-radius: 5px;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-size: 1rem;
     font-weight: bold;
+    opacity: 0.9;
+}
+.rejoin_game_button svg {
+    margin-right: 0.5rem;
 }

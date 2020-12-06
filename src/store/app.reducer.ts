@@ -5,6 +5,7 @@ import { StoredRunningGameInfo } from './../models/game.interface';
 import { StoredPlayerInfo } from './../models/player.interface';
 import {
     AppAction,
+    PREPARE_REJOINING_GAME,
     RESET_APP_STATE,
     ResetAppStateAction,
     ResetAppStatePayload,
@@ -96,6 +97,11 @@ export const appReducer = (state: AppState = initialState, action: AppAction): A
                 gameConfig: null,
                 gameRounds: null,
                 joinGameErrorMessage: resetAppStatePayload ? resetAppStatePayload.joinGameErrorMessage : null
+            };
+        case PREPARE_REJOINING_GAME:
+            return {
+                ...state,
+                isRejoiningGame: true
             };
         default:
             return state;

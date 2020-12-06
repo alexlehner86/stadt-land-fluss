@@ -14,7 +14,7 @@ import ToDashboardButton from '../../components/ToDashboardButton/ToDashboardBut
 import { PLAYER_NAME_MAX_LENGTH } from '../../constants/app.constant';
 import { GAME_ID_LABEL, PLAYER_NAME_LABEL } from '../../constants/text.constant';
 import { PlayerInfo } from '../../models/player.interface';
-import { AppAction, setDataForNewGame, SetDataForNewGamePayload } from '../../store/app.actions';
+import { AppAction, prepareRejoiningGame, setDataForNewGame, SetDataForNewGamePayload } from '../../store/app.actions';
 import { AppState } from '../../store/app.reducer';
 import { getInvalidGameIdError, getInvalidNameError } from '../../utils/error-text.util';
 import { convertDateToUnixTimestamp } from '../../utils/general.utils';
@@ -32,6 +32,7 @@ interface JoinGamePropsFromStore {
     playerInfo: PlayerInfo | null;
 }
 interface JoinGameDispatchProps {
+    onPrepareRejoiningGame: () => void;
     onSetGameData: (payload: SetDataForNewGamePayload) => void
 }
 interface JoinGameProps extends JoinGamePropsFromStore, JoinGameDispatchProps, RouteComponentProps { }
@@ -40,6 +41,7 @@ interface JoinGameState {
     idInput: string;
     isSnackbarOpen: boolean;
     nameInput: string;
+    snackBarDuration: number;
     snackBarMessage: string;
     validateInputs: boolean;
 }
@@ -50,6 +52,7 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
         idInput: '',
         isSnackbarOpen: false,
         nameInput: this.props.playerInfo ? this.props.playerInfo.name : '',
+        snackBarDuration: 3000,
         snackBarMessage: '',
         validateInputs: false
     };
@@ -105,9 +108,15 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
                 </div>
             </form>
         );
+        const rejoinRunningGameElement = (
+            <RejoinRunningGameHint
+                context={RejoinRunningGameHintContext.joingame}
+                rejoinRunningGame={this.rejoinRunningGame}
+            />
+        );
         return (
             <div className="main-content-wrapper">
-                {this.props.gameId ? <RejoinRunningGameHint context={RejoinRunningGameHintContext.joingame} /> : null}
+                {this.props.gameId ? rejoinRunningGameElement : null}
                 <div className="material-card-style">
                     <SectionHeader text="Spiel beitreten"></SectionHeader>
                     {joinGameForm}
@@ -116,7 +125,7 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
                 <Snackbar
                     anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                     open={this.state.isSnackbarOpen}
-                    autoHideDuration={3000}
+                    autoHideDuration={this.state.snackBarDuration}
                     onClose={this.handleSnackBarClose}
                 >
                     <SnackbarContent
@@ -138,8 +147,9 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
         if (query.has('id')) {
             this.setState({ idInput: query.get('id') as string });
         }
-        // TODO: Show snackbar!
-        console.log('error message', this.props.joinGameErrorMessage);
+        if (this.props.joinGameErrorMessage) {
+            this.alertUser(this.props.joinGameErrorMessage, 10000);
+        }
     }
 
     public componentDidUpdate(prevProps: JoinGameProps) {
@@ -164,8 +174,8 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
         }
     }
 
-    private alertUser = (message: string) => this.setState(
-        { a11yMessageAssertive: message, isSnackbarOpen: true, snackBarMessage: message }
+    private alertUser = (message: string, snackBarDuration = 3000) => this.setState(
+        { a11yMessageAssertive: message, isSnackbarOpen: true, snackBarDuration, snackBarMessage: message }
     );
 
     private handleSnackBarClose = () => this.setState({ isSnackbarOpen: false });
@@ -190,6 +200,11 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
         this.props.history.push('/play');
     }
 
+    private rejoinRunningGame = () => {
+        this.props.onPrepareRejoiningGame();
+        this.props.history.push('/play');
+    }
+
     private returnToDashboard = () => {
         this.props.history.push('/');
     }
@@ -205,6 +220,7 @@ const mapStateToProps = (state: AppState): JoinGamePropsFromStore => {
 };
 const mapDispatchToProps = (dispatch: Dispatch<AppAction>): JoinGameDispatchProps => {
     return {
+        onPrepareRejoiningGame: () => dispatch(prepareRejoiningGame()),
         onSetGameData: (payload: SetDataForNewGamePayload) => dispatch(setDataForNewGame(payload))
     };
 };
