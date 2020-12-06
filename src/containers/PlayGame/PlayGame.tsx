@@ -257,6 +257,8 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     }
 
     private callbackWhenAnimationDone = () => {
+        const currentLetter = this.state.gameConfig?.letters[this.state.currentRound - 1];
+        this.informScreenReaderUser(`Runde ${this.state.currentRound}: Buchstabe (${currentLetter})`);
         this.setState({ showLetterAnimation: false });
     }
 
@@ -305,6 +307,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                 this.startGame();
                 break;
             case PubNubMessageType.roundFinished:
+                const endRoundPlayer = this.state.allPlayers.get(event.publisher);
                 if (gameConfig.endRoundMode === EndRoundMode.allPlayersSubmit) {
                     const playersThatFinishedRound = cloneDeep(this.state.playersThatFinishedRound);
                     playersThatFinishedRound.set(event.publisher, true);
@@ -312,11 +315,14 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                     if (event.publisher === this.props.playerInfo.id) {
                         this.stopRoundAndSendInputs();
                     } else {
-                        const player = this.state.allPlayers.get(event.publisher);
-                        this.informScreenReaderUser(`${player?.name} hat Antworten abgeschickt.`);
+                        this.informScreenReaderUser(`${endRoundPlayer?.name} hat Antworten abgeschickt.`);
                     }
                 } else {
                     // In game modes "countdown" and "fastet player", the round ends for all players right away.
+                    const message = gameConfig.endRoundMode === EndRoundMode.countdownEnds
+                        ? `Der Countdown ist abgelaufen. Die Auswertung von Runde ${this.state.currentRound} beginnt.`
+                        : `${endRoundPlayer?.name} hat Runde ${this.state.currentRound} beendet. Die Auswertung beginnt.`;
+                    this.informScreenReaderUser(message);
                     this.stopRoundAndSendInputs();
                 }
                 break;
@@ -387,6 +393,9 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
      * Gets called when the user ends the current round.
      */
     private finishRoundOnUserAction = () => {
+        if (this.state.gameConfig?.endRoundMode === EndRoundMode.allPlayersSubmit) {
+            this.informScreenReaderUser('Du hast deine Antworten abgeschickt. Warte auf Mitspieler.');
+        }
         const playersThatFinishedRound = cloneDeep(this.state.playersThatFinishedRound);
         playersThatFinishedRound.set(this.props.playerInfo.id, true);
         this.setState({ playersThatFinishedRound, showLoadingScreen: true });
@@ -450,14 +459,27 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     private processEvaluationOfPlayerInput = (evaluatingPlayerId: string, newEvaluation: EvaluationOfPlayerInput) => {
         if (!this.state.allPlayers.has(evaluatingPlayerId)) { return; }
         const { categoryIndex, evaluatedPlayerId, markedAsValid } = newEvaluation;
+
+        // Update data with evaluation
         const currentRoundEvaluation = cloneDeep(this.state.currentRoundEvaluation);
         const playerInputEvaluations = currentRoundEvaluation.get(evaluatedPlayerId) as PlayerInputEvaluation[];
         playerInputEvaluations[categoryIndex].set(evaluatingPlayerId, markedAsValid);
         const gameRounds = cloneDeep(this.state.gameRounds);
         const isInputValid = getNumberOfInvalids(playerInputEvaluations[categoryIndex]) < getMinNumberOfInvalids(this.state.allPlayers.size);
         const finishedRound = gameRounds[this.state.currentRound - 1];
-        (finishedRound.get(evaluatedPlayerId) as PlayerInput[])[categoryIndex].valid = isInputValid;
+        const playerInput = (finishedRound.get(evaluatedPlayerId) as PlayerInput[])[categoryIndex];
+        playerInput.valid = isInputValid;
         calculatePointsForCategory((this.state.gameConfig as GameConfig).scoringOptions, finishedRound, categoryIndex);
+
+        // Inform screen reader users
+        const evaluatingPlayerName = this.state.allPlayers.get(evaluatingPlayerId)?.name;
+        const evaluatedPlayerName = this.state.allPlayers.get(evaluatedPlayerId)?.name;
+        const action = markedAsValid ? 'akzeptiert' : 'abgelehnt';
+        const category = this.state.gameConfig?.categories[categoryIndex];
+        this.informScreenReaderUser(
+            `${evaluatingPlayerName} hat Antwort ${playerInput.text} von ${evaluatedPlayerName} in Kategorie ${category} ${action}.`
+        );
+
         this.setState({ currentRoundEvaluation, gameRounds });
     }
 
@@ -476,9 +498,21 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
      */
     private processIsPlayerInputVeryCreativeStatus = (newStatus: IsPlayerInputVeryCreativeStatus) => {
         const { categoryIndex, evaluatedPlayerId, markedAsCreative } = newStatus;
+
+        // Update data with new status
         const gameRounds = cloneDeep(this.state.gameRounds);
         const finishedRound = gameRounds[this.state.currentRound - 1];
-        (finishedRound.get(evaluatedPlayerId) as PlayerInput[])[categoryIndex].star = markedAsCreative;
+        const playerInput = (finishedRound.get(evaluatedPlayerId) as PlayerInput[])[categoryIndex];
+        playerInput.star = markedAsCreative;
+        
+        // Inform screen reader users
+        const evaluatedPlayerName = this.state.allPlayers.get(evaluatedPlayerId)?.name;
+        const action = markedAsCreative ? 'bewertet' : 'abgelehnt';
+        const category = this.state.gameConfig?.categories[categoryIndex];
+        this.informScreenReaderUser(
+            `Antwort ${playerInput.text} von ${evaluatedPlayerName} in Kategorie ${category} wurde als besonders kreativ ${action}.`
+        );
+
         this.setState({ gameRounds });
     }
 
@@ -497,6 +531,10 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         if (playersThatFinishedEvaluation.size === this.state.allPlayers.size) {
             this.processEvaluationsAndStartNextRoundOrFinishGame();
         } else {
+            if (evaluatingPlayerId !== this.props.playerInfo.id) {
+                const evaluatingPlayerName = this.state.allPlayers.get(evaluatingPlayerId)?.name;
+                this.informScreenReaderUser(`${evaluatingPlayerName} hat die Auswertung der Antworten bestätigt.`);
+            }
             this.setState({ playersThatFinishedEvaluation });
         }
     }
@@ -514,11 +552,13 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         } else {
             // Save finished game round in local storage and start next round of the game.
             setRunningGameRoundInLocalStorage(this.state.currentRound, gameRounds[currentRound - 1]);
+            const nextRound = currentRound + 1;
+            this.informScreenReaderUser(`Auswertung beendet. Buchstabe für Runde ${nextRound} wird ermittelt.`);
             this.setState({
                 currentPhase: GamePhase.fillOutTextfields,
                 currentRoundEvaluation: createGameRoundEvaluation(allPlayers, gameConfig.categories),
                 currentRoundInputs: getEmptyRoundInputs(gameConfig.categories.length),
-                currentRound: currentRound + 1,
+                currentRound: nextRound,
                 gameRounds: [...gameRounds, new Map<string, PlayerInput[]>()],
                 playersThatFinishedEvaluation: new Map<string, boolean>(),
                 playersThatFinishedRound: new Map<string, boolean>(),

@@ -72,6 +72,7 @@ const PhaseFillOutTextfields: React.FunctionComponent<PhaseFillOutTextfieldsProp
             <GameRoundChip
                 currentLetter={currentLetter}
                 currentRound={currentRound}
+                isEvaluationPhase={false}
                 numberOfRounds={gameConfig.numberOfRounds}
             />
             <form className="app-form" noValidate autoComplete="off">

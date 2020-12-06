@@ -266,6 +266,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
             <GameRoundChip
                 currentLetter={currentLetter}
                 currentRound={currentRound}
+                isEvaluationPhase={true}
                 numberOfRounds={gameConfig.numberOfRounds}
             />
             {gameConfig.categories.map(createCategorySection)}
