@@ -111,15 +111,17 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
             <Tooltip
                 key={`slf-evaluation-tooltip-${categoryIndex}-${indexInSortedPlayers}`}
                 title={tooltipText}
+                arrow
             >
                 <IconButton
                     className="slf-evaluation-button"
                     color={isInputAcceptedByUser ? 'default' : 'secondary'}
                     size="small"
+                    aria-label={isInputAcceptedByUser ? 'Antwort ablehnen' : 'Antwort akzeptieren'}
                     onClick={() => handleEvaluationButtonClick(categoryIndex, evaluatedPlayer.id, isInputAcceptedByUser)}
                 >
                     <StyledBadge badgeContent={rejectingPlayers.length} color="secondary">
-                        <ThumbDownRoundedIcon fontSize="small" />
+                        <ThumbDownRoundedIcon />
                     </StyledBadge>
                 </IconButton>
             </Tooltip>
@@ -129,7 +131,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                 key={`slf-evaluation-tooltip-${categoryIndex}-${indexInSortedPlayers}`}
                 title="Automatisch abgelehnt"
             >
-                <ThumbDownRoundedIcon color="secondary" className={styles.auto_reject_icon} fontSize="small" />
+                <ThumbDownRoundedIcon color="secondary" className={styles.auto_reject_icon} />
             </Tooltip>
         );
         return hasPlayerTypedText ? evaluationButtonForTypedText : autoRejectIconForMissingText;
@@ -154,7 +156,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                     title="Begriff nachschlagen"
                     placement="bottom"
                 >
-                    <SearchIcon color="primary" fontSize="small" />
+                    <SearchIcon color="primary" />
                 </Tooltip>
             </a>
         );
@@ -184,7 +186,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
         const playerInput = (finishedRound.get(evaluatedPlayer.id) as PlayerInput[])[categoryIndex];
         return (
             <Tooltip
-                title={playerInput.star ? 'Besonders kreativ? Nope!' : 'Als besonders kreativ markieren'}
+                title={playerInput.star ? 'Kreativ-Markierung aufheben' : 'Als besonders kreativ markieren'}
                 placement="bottom"
             >
                 <IconButton
@@ -207,6 +209,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
         return (
             <div className={styles.points_wrapper}>
                 <Chip label={label} color={color} classes={{ root: styles.points }} />
+                <span className="sr-only">Punkte</span>
             </div>
         );
     };
@@ -220,24 +223,45 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
         const hasPlayerTypedText = !!evaluatedPlayerInput.text;
         const isInputValid = evaluatedPlayerInput.valid;
         const isCreativeAnswer = isInputValid && evaluatedPlayerInput.star;
+        const emptyAnswerHint = <span className="sr-only">Leere Antwort wurde automatisch abgelehnt.</span>;
+        const answerRejectedHint = <span className="sr-only">Antwort wurde abgelehnt.</span>;
+        const markedCreativeHint = <span className="sr-only">Antwort wurde als besonders kreativ markiert.</span>;
         return (
-            <Box
-                key={`slf-evaluation-textfield-wrapper-${categoryIndex}-${indexInSortedPlayers}`}
-                boxShadow={1}
-                className={isCreativeAnswer ? styles.textfield_wrapper_creative : styles.textfield_wrapper}
+            <div
+                key={`slf-answer-box-wrapper-${categoryIndex}-${indexInSortedPlayers}`}
+                role="listitem"
+                className={styles.answer_box_wrapper}
             >
-                <h4 className={styles.player_name}>{evaluatedPlayer.name}</h4>
-                <Divider light />
-                <p className={isInputValid ? styles.answer : styles.invalid_answer}>
-                    {hasPlayerTypedText ? evaluatedPlayerInput.text : '(leer)'}
-                </p>
+                <Box
+                    boxShadow={1}
+                    tabIndex={0}
+                    className={isCreativeAnswer ? styles.answer_box_creative : styles.answer_box}
+                >
+
+                    <p className={styles.player_name}>
+                        <span className="sr-only">Antwort von</span>
+                        {evaluatedPlayer.name}
+                        <span className="sr-only">:</span>
+                    </p>
+                    <Divider light aria-hidden="true" />
+                    <p
+                        className={isInputValid ? styles.answer : styles.invalid_answer}
+                        aria-hidden={!hasPlayerTypedText}
+                    >
+                        {hasPlayerTypedText ? evaluatedPlayerInput.text : '(leer)'}
+                        <span className="sr-only">.</span>
+                    </p>
+                    {!hasPlayerTypedText ? emptyAnswerHint : null}
+                    {hasPlayerTypedText && !isInputValid ? answerRejectedHint : null}
+                    {isCreativeAnswer ? markedCreativeHint : null}
+                    {createPointsChip(evaluatedPlayerInput)}
+                </Box>
                 <div className={styles.button_wrapper}>
                     {hasPlayerTypedText ? createSearchLink(categoryIndex, indexInSortedPlayers) : null}
                     {isInputValid ? createMarkAsCreativeAnswerToggle(categoryIndex, indexInSortedPlayers) : null}
                     {createEvaluationButton(categoryIndex, indexInSortedPlayers)}
                 </div>
-                {createPointsChip(evaluatedPlayerInput)}
-            </Box>
+            </div>
         );
     };
     /**
@@ -251,7 +275,12 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
             className="material-card-style"
         >
             <h3 className="section-header">{category}</h3>
-            {sortedPlayers.map((_, indexInSortedPlayers) => playerEvaluationElements(categoryIndex, indexInSortedPlayers))}
+            <div
+                key={'slf-answers-for-category-no-' + categoryIndex}
+                role="list"
+            >
+                {sortedPlayers.map((_, indexInSortedPlayers) => playerEvaluationElements(categoryIndex, indexInSortedPlayers))}
+            </div>
         </div>
     );
     const onAcceptEvaluationButtonClick = () => {

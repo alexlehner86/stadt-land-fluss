@@ -1,6 +1,8 @@
-.textfield_wrapper,
-.textfield_wrapper_creative {
+.answer_box_wrapper {
     position: relative;
+}
+.answer_box,
+.answer_box_creative {
     border: 1px solid rgba(0, 0, 0, 0.23);
     border-radius: 4px;
     padding: 0.5rem;
@@ -8,13 +10,20 @@
     font-size: 1rem;
     letter-spacing: 0.00938em;
 }
-.textfield_wrapper:not(:last-child),
-.textfield_wrapper_creative:not(:last-child) {
+.answer_box:not(:last-child),
+.answer_box_creative:not(:last-child) {
     margin-bottom: 1rem;
 }
-.textfield_wrapper_creative {
-    background-color: rgba(0, 0, 0, 0.1);
+.answer_box_creative {
+    background-color: rgba(50, 50, 50, 0.1);
 }
+.answer_box:focus,
+.answer_box_creative:focus {
+    border: 1px solid #333;
+    box-shadow: 0 0 4px 2px #333;
+    outline: none;
+}
+
 .player_name {
     margin-block-end: 0.3rem;
     margin-block-start: 0.5rem;
@@ -42,8 +51,8 @@
 }
 .points_wrapper {
     position: absolute;
-    bottom: -1px;
-    right: -1px;
+    bottom: 0;
+    right: 0;
 }
 .points {
     border: 1px solid rgba(0, 0, 0, 0.23);
@@ -63,9 +72,9 @@
     outline: none;
 }
 .search_link:focus {
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: rgba(0, 0, 0, 0.15);
     border-radius: 50%;
 }
 .auto_reject_icon {
-    padding: 5px 3px;
+    padding: 3px;
 }

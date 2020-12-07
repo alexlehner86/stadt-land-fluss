@@ -373,11 +373,9 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
      * Gets called when the user ends the current round.
      */
     private finishRoundOnUserAction = () => {
-        const a11yMessagePolite = this.state.gameConfig?.endRoundMode === EndRoundMode.allPlayersSubmit
-            ? 'Du hast deine Antworten abgeschickt. Warte auf Mitspieler.' : '';
         const playersThatFinishedRound = cloneDeep(this.state.playersThatFinishedRound);
         playersThatFinishedRound.set(this.props.playerInfo.id, true);
-        this.setState({ a11yMessagePolite, playersThatFinishedRound, showLoadingScreen: true });
+        this.setState({ playersThatFinishedRound, showLoadingScreen: true });
         this.sendPubNubMessage({ type: PubNubMessageType.roundFinished });
     }
 
@@ -425,9 +423,10 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         // Did we collect the inputs from all players?
         if (gameRounds[roundIndex].size === this.state.allPlayers.size) {
             // If yes, then calculate points and start the evaluation of the finished round.
+            const a11yMessagePolite = `Die ${this.state.currentRound}. Runde ist zu Ende. Wertet nun die Antworten aus.`;
             calculatePointsForRound((this.state.gameConfig as GameConfig).scoringOptions, gameRounds[roundIndex]);
             setRunningGameRoundInLocalStorage(this.state.currentRound, gameRounds[roundIndex]);
-            this.setState({ currentPhase: GamePhase.evaluateRound, gameRounds, showLoadingScreen: false });
+            this.setState({ a11yMessagePolite, currentPhase: GamePhase.evaluateRound, gameRounds, showLoadingScreen: false });
         } else {
             // If no, then only store the updated gameRounds object in state.
             this.setState({ gameRounds });
