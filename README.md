@@ -2,6 +2,11 @@ This project is an online version of the popular European game "Stadt-Land-Fluss
 
 ## Release Notes
 
+### v1.6.0
+
+- Major accessibility improvements of the whole app (keyboard interaction, screen reader optimization, etc.)
+- Added "About" and "Accessibility Statement" pages
+
 ### v1.5.8
 
 - Add game option: End round after all players submitted answers

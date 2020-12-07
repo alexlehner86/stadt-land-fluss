@@ -1,15 +1,4 @@
-import {
-    Badge,
-    Box,
-    Chip,
-    createStyles,
-    Divider,
-    IconButton,
-    Snackbar,
-    Theme,
-    Tooltip,
-    withStyles,
-} from '@material-ui/core';
+import { Badge, Box, Chip, createStyles, Divider, IconButton, Theme, Tooltip, withStyles } from '@material-ui/core';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import SearchIcon from '@material-ui/icons/Search';
@@ -59,8 +48,6 @@ interface PhaseEvaluateRoundProps {
 }
 const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = props => {
     const [hasFinishedEvaluation, setHasFinishedEvaluation] = useState(props.playersThatFinishedEvaluation.has(props.playerInfo.id));
-    const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
-    const [snackBarMessage, setSnackBarMessage] = useState('');
     const { allPlayers, currentRound, currentRoundEvaluation, gameConfig, playerInfo, playersThatFinishedEvaluation } = props;
     // Retrieve data for finished round; e.g. if current round is 1, then data is at index 0.
     const finishedRound = props.gameRounds[currentRound - 1];
@@ -73,11 +60,6 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
         }
     });
 
-    const showSnackBar = (message: string) => {
-        setSnackBarMessage(message);
-        setIsSnackbarOpen(true);
-    };
-    const handleSnackBarClose = () => setIsSnackbarOpen(false);
     /**
       * Toggles the user's evaluation of a player's input for a category,
       * but only if the user hasn't accepted the round evaluation yet.
@@ -85,11 +67,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
     const handleEvaluationButtonClick = (
         categoryIndex: number, evaluatedPlayerId: string, currentEvaluation: boolean
     ) => {
-        if (hasFinishedEvaluation) {
-            showSnackBar('Du hast bereits die Bewertung der Runde bestätigt!');
-        } else {
-            props.updateEvaluationOfPlayerInput({ categoryIndex, evaluatedPlayerId, markedAsValid: !currentEvaluation });
-        }
+        props.updateEvaluationOfPlayerInput({ categoryIndex, evaluatedPlayerId, markedAsValid: !currentEvaluation });
     };
     /**
      * Displays a button that allows the user to reject a player's input for a category.
@@ -118,6 +96,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                     color={isInputAcceptedByUser ? 'default' : 'secondary'}
                     size="small"
                     aria-label={isInputAcceptedByUser ? 'Antwort ablehnen' : 'Antwort akzeptieren'}
+                    disabled={hasFinishedEvaluation}
                     onClick={() => handleEvaluationButtonClick(categoryIndex, evaluatedPlayer.id, isInputAcceptedByUser)}
                 >
                     <StyledBadge badgeContent={rejectingPlayers.length} color="secondary">
@@ -168,15 +147,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
     const handleMarkAsCreativeAnswerToggleClick = (
         categoryIndex: number, evaluatedPlayerId: string, isMarkedAsCreative: boolean
     ) => {
-        if (hasFinishedEvaluation) {
-            showSnackBar('Du hast bereits die Bewertung der Runde bestätigt!');
-        } else {
-            if (props.playerInfo.id === evaluatedPlayerId) {
-                showSnackBar('Nice try! Ob deine eigene Antwort sehr kreativ oder lustig ist, sollen die anderen beurteilen.');
-            } else {
-                props.updateIsPlayerInputVeryCreativeStatus({ categoryIndex, evaluatedPlayerId, markedAsCreative: !isMarkedAsCreative });
-            }
-        }
+        props.updateIsPlayerInputVeryCreativeStatus({ categoryIndex, evaluatedPlayerId, markedAsCreative: !isMarkedAsCreative });
     };
     /**
      * Creates a "mark as creative answer" toggle button for a specific category and player input.
@@ -192,6 +163,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                 <IconButton
                     color="primary"
                     size="small"
+                    disabled={hasFinishedEvaluation || evaluatedPlayer.id === props.playerInfo.id}
                     onClick={() => handleMarkAsCreativeAnswerToggleClick(categoryIndex, evaluatedPlayer.id, playerInput.star)}
                 >
                     {playerInput.star ? <StarIcon /> : <StarBorderIcon />}
@@ -312,13 +284,6 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
             >
                 {hasFinishedEvaluation ? <CheckCircleIcon /> : <RadioButtonUncheckedIcon />}
             </IconButton>
-            <Snackbar
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-                open={isSnackbarOpen}
-                autoHideDuration={3000}
-                onClose={handleSnackBarClose}
-                message={snackBarMessage}
-            />
         </React.Fragment>
     );
 };

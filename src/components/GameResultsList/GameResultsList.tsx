@@ -3,8 +3,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import FaceIcon from '@material-ui/icons/Face';
 import InsertEmoticonIcon from '@material-ui/icons/InsertEmoticon';
 import React from 'react';
+
 import { GameResultForPlayer } from '../../models/game.interface';
-import { makePluralIfCountIsNotOne } from '../../utils/general.utils';
 
 const useStyles = makeStyles({
     listItem: {
@@ -37,7 +37,7 @@ const GameResultsList: React.FunctionComponent<GameResultsListProps> = props => 
                     <ListItemText
                         className={classes.listItemText}
                         primary={result.playerName}
-                        secondary={`${result.points} ${makePluralIfCountIsNotOne(result.points, 'Punkt', 'Punkte')}`}
+                        secondary={`${result.points} Punkte`}
                     />
                 </ListItem>
             ))}

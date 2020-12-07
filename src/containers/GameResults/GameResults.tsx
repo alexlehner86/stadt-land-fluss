@@ -43,6 +43,9 @@ class GameResults extends Component<GameResultsProps, GameResultsState> {
             <div className="main-content-wrapper">
                 <div className="material-card-style">
                     <SectionHeader text="Ergebnis"></SectionHeader>
+                    <p className="sr-only" role="alert">
+                        Das Spiel ist zu Ende. Die Ergebnisse werden angezeigt.
+                    </p>
                     <GameResultsList gameResults={gameResults} />
                     <Divider />
                     <div className={styles.button_wrapper}>

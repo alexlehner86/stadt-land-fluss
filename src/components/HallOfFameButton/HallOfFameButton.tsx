@@ -87,7 +87,10 @@ const HallOfFameButton: React.FunctionComponent<HallOfFameButtonProps> = props =
                 startIcon={<StarIcon />}
                 disabled={props.hallOfFameData.length === 0}
                 onClick={() => setOpen(true)}
-            >Hall of Fame</Button>
+            >
+                <span lang="en">Hall of Fame</span>
+                <span className="sr-only">(Liste der besonders kreativen Antworten)</span>
+            </Button>
             <HallOfFameDialog
                 hallOfFameData={props.hallOfFameData}
                 open={open}
