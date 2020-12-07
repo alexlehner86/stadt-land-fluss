@@ -298,34 +298,13 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
      * PubNubEventHandler calls this method when it receives a PubNub message with attribute 'type'.
      */
     private processPubNubMessage = (event: Pubnub.MessageEvent) => {
-        const gameConfig = this.state.gameConfig as GameConfig;
         const message = event.message as PubNubMessage;
-        let endRoundPlayer: PlayerInfo | undefined;
         switch (message.type) {
             case PubNubMessageType.startGame:
                 this.startGame();
                 break;
             case PubNubMessageType.roundFinished:
-                // TODO: Move this to private method
-                endRoundPlayer = this.state.allPlayers.get(event.publisher);
-                if (gameConfig.endRoundMode === EndRoundMode.allPlayersSubmit) {
-                    const playersThatFinishedRound = cloneDeep(this.state.playersThatFinishedRound);
-                    playersThatFinishedRound.set(event.publisher, true);
-                    if (event.publisher === this.props.playerInfo.id) {
-                        this.setState({ playersThatFinishedRound });
-                        this.stopRoundAndSendInputs();
-                    } else {
-                        const a11yMessagePolite = `${endRoundPlayer?.name} hat Antworten abgeschickt.`;
-                        this.setState({ a11yMessagePolite, playersThatFinishedRound });
-                    }
-                } else {
-                    // In game modes "countdown" and "fastet player", the round ends for all players right away.
-                    const message = gameConfig.endRoundMode === EndRoundMode.countdownEnds
-                        ? `Der Countdown ist abgelaufen. Die Auswertung von Runde ${this.state.currentRound} beginnt.`
-                        : `${endRoundPlayer?.name} hat Runde ${this.state.currentRound} beendet. Die Auswertung beginnt.`;
-                    this.informScreenReaderUser(message);
-                    this.stopRoundAndSendInputs();
-                }
+                this.onRoundFinishedMessage(event.publisher);
                 break;
             case PubNubMessageType.currentRoundInputs:
                 this.addPlayerInputForFinishedRound(event.publisher, message.payload);
@@ -405,8 +384,33 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     /**
      * This method is called when the PubNub message 'roundFinished' is received.
      */
+    private onRoundFinishedMessage = (playerId: string) => {
+        const gameConfig = this.state.gameConfig as GameConfig;
+        const endRoundPlayer = this.state.allPlayers.get(playerId);
+        if (gameConfig.endRoundMode === EndRoundMode.allPlayersSubmit) {
+            const playersThatFinishedRound = cloneDeep(this.state.playersThatFinishedRound);
+            playersThatFinishedRound.set(playerId, true);
+            if (playerId === this.props.playerInfo.id) {
+                this.setState({ playersThatFinishedRound });
+                this.stopRoundAndSendInputs();
+            } else {
+                const a11yMessagePolite = `${endRoundPlayer?.name} hat Antworten abgeschickt.`;
+                this.setState({ a11yMessagePolite, playersThatFinishedRound });
+            }
+        } else {
+            // In game modes "countdown" and "fastet player", the round ends for all players right away.
+            const message = gameConfig.endRoundMode === EndRoundMode.countdownEnds
+                ? `Der Countdown ist abgelaufen. Die Auswertung von Runde ${this.state.currentRound} beginnt.`
+                : `${endRoundPlayer?.name} hat Runde ${this.state.currentRound} beendet. Die Auswertung beginnt.`;
+            this.informScreenReaderUser(message);
+            this.stopRoundAndSendInputs();
+        }
+    }
+
+    /**
+     * Send this player's text inputs of current round to other players (and themselves).
+     */
     private stopRoundAndSendInputs = () => {
-        // Send this player's text inputs of current round to other players (and herself/himself).
         const message = new PubNubCurrentRoundInputsMessage(markEmptyPlayerInputsAsInvalid(this.state.currentRoundInputs));
         this.sendPubNubMessage(message.toPubNubMessage());
     }
