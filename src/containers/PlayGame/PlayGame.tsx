@@ -190,8 +190,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             // and we can hide the loading screen and show PhaseWaitingToStart component right away.
             if (playerInfo.isAdmin) {
                 setRunningGameConfigInLocalStorage(gameConfig as GameConfig);
-                this.setState({ allPlayers, gameConfig, showLoadingScreen: false });
-                this.informScreenReaderUser(CREATED_GAME_ADMIN_MESSAGE);
+                this.setState({ a11yMessagePolite: CREATED_GAME_ADMIN_MESSAGE, allPlayers, gameConfig, showLoadingScreen: false });
             } else {
                 this.setState({ allPlayers });
             }
@@ -258,8 +257,8 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
 
     private callbackWhenAnimationDone = () => {
         const currentLetter = this.state.gameConfig?.letters[this.state.currentRound - 1];
-        this.informScreenReaderUser(`Runde ${this.state.currentRound}: Buchstabe (${currentLetter})`);
-        this.setState({ showLetterAnimation: false });
+        const a11yMessagePolite = `Runde ${this.state.currentRound}: Buchstabe (${currentLetter})`;
+        this.setState({ a11yMessagePolite, showLetterAnimation: false });
     }
 
     private navigateToJoinGamePage = (errorMessage: string) => {
@@ -289,8 +288,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         // and render the PhaseWaitingToStart component instead.
         if (gameConfig) {
             setRunningGameConfigInLocalStorage(gameConfig);
-            this.setState({ allPlayers, gameConfig, showLoadingScreen: false });
-            this.informScreenReaderUser(JOINED_GAME_MESSAGE);
+            this.setState({ a11yMessagePolite: JOINED_GAME_MESSAGE, allPlayers, gameConfig, showLoadingScreen: false });
         } else {
             this.setState({ allPlayers });
         }
@@ -302,20 +300,23 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     private processPubNubMessage = (event: Pubnub.MessageEvent) => {
         const gameConfig = this.state.gameConfig as GameConfig;
         const message = event.message as PubNubMessage;
+        let endRoundPlayer: PlayerInfo | undefined;
         switch (message.type) {
             case PubNubMessageType.startGame:
                 this.startGame();
                 break;
             case PubNubMessageType.roundFinished:
-                const endRoundPlayer = this.state.allPlayers.get(event.publisher);
+                // TODO: Move this to private method
+                endRoundPlayer = this.state.allPlayers.get(event.publisher);
                 if (gameConfig.endRoundMode === EndRoundMode.allPlayersSubmit) {
                     const playersThatFinishedRound = cloneDeep(this.state.playersThatFinishedRound);
                     playersThatFinishedRound.set(event.publisher, true);
-                    this.setState({ playersThatFinishedRound });
                     if (event.publisher === this.props.playerInfo.id) {
+                        this.setState({ playersThatFinishedRound });
                         this.stopRoundAndSendInputs();
                     } else {
-                        this.informScreenReaderUser(`${endRoundPlayer?.name} hat Antworten abgeschickt.`);
+                        const a11yMessagePolite = `${endRoundPlayer?.name} hat Antworten abgeschickt.`;
+                        this.setState({ a11yMessagePolite, playersThatFinishedRound });
                     }
                 } else {
                     // In game modes "countdown" and "fastet player", the round ends for all players right away.
@@ -366,12 +367,12 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         const gameConfig = this.state.gameConfig as GameConfig;
         const currentRoundEvaluation = createGameRoundEvaluation(this.state.allPlayers, gameConfig.categories);
         this.setState({
+            a11yMessagePolite: `Spiel beginnt. ${this.state.currentRound}. Buchstabe wird ermittelt.`,
             currentPhase: GamePhase.fillOutTextfields,
             currentRoundEvaluation,
             currentRoundInputs: getEmptyRoundInputs(gameConfig.categories.length),
             showLetterAnimation: true
         });
-        this.informScreenReaderUser(`Spiel beginnt. ${this.state.currentRound}. Buchstabe wird ermittelt.`);
     }
 
     private updateCurrentRoundInputs = (newCurrentRoundInputs: PlayerInput[]) => {
@@ -393,12 +394,11 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
      * Gets called when the user ends the current round.
      */
     private finishRoundOnUserAction = () => {
-        if (this.state.gameConfig?.endRoundMode === EndRoundMode.allPlayersSubmit) {
-            this.informScreenReaderUser('Du hast deine Antworten abgeschickt. Warte auf Mitspieler.');
-        }
+        const a11yMessagePolite = this.state.gameConfig?.endRoundMode === EndRoundMode.allPlayersSubmit
+            ? 'Du hast deine Antworten abgeschickt. Warte auf Mitspieler.' : '';
         const playersThatFinishedRound = cloneDeep(this.state.playersThatFinishedRound);
         playersThatFinishedRound.set(this.props.playerInfo.id, true);
-        this.setState({ playersThatFinishedRound, showLoadingScreen: true });
+        this.setState({ a11yMessagePolite, playersThatFinishedRound, showLoadingScreen: true });
         this.sendPubNubMessage({ type: PubNubMessageType.roundFinished });
     }
 
@@ -456,14 +456,14 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
      * This method is called when the PubNub message 'evaluationOfPlayerInput' is received.
      * It processes the new evaluation and changes data in currentRoundEvaluation and gameRounds accordingly.
      */
-    private processEvaluationOfPlayerInput = (evaluatingPlayerId: string, newEvaluation: EvaluationOfPlayerInput) => {
-        if (!this.state.allPlayers.has(evaluatingPlayerId)) { return; }
+    private processEvaluationOfPlayerInput = (evaluatorId: string, newEvaluation: EvaluationOfPlayerInput) => {
+        if (!this.state.allPlayers.has(evaluatorId)) { return; }
         const { categoryIndex, evaluatedPlayerId, markedAsValid } = newEvaluation;
 
         // Update data with evaluation
         const currentRoundEvaluation = cloneDeep(this.state.currentRoundEvaluation);
         const playerInputEvaluations = currentRoundEvaluation.get(evaluatedPlayerId) as PlayerInputEvaluation[];
-        playerInputEvaluations[categoryIndex].set(evaluatingPlayerId, markedAsValid);
+        playerInputEvaluations[categoryIndex].set(evaluatorId, markedAsValid);
         const gameRounds = cloneDeep(this.state.gameRounds);
         const isInputValid = getNumberOfInvalids(playerInputEvaluations[categoryIndex]) < getMinNumberOfInvalids(this.state.allPlayers.size);
         const finishedRound = gameRounds[this.state.currentRound - 1];
@@ -472,15 +472,13 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         calculatePointsForCategory((this.state.gameConfig as GameConfig).scoringOptions, finishedRound, categoryIndex);
 
         // Inform screen reader users
-        const evaluatingPlayerName = this.state.allPlayers.get(evaluatingPlayerId)?.name;
-        const evaluatedPlayerName = this.state.allPlayers.get(evaluatedPlayerId)?.name;
+        const evaluatorName = this.state.allPlayers.get(evaluatorId)?.name;
+        const evaluatedName = this.state.allPlayers.get(evaluatedPlayerId)?.name;
         const action = markedAsValid ? 'akzeptiert' : 'abgelehnt';
         const category = this.state.gameConfig?.categories[categoryIndex];
-        this.informScreenReaderUser(
-            `${evaluatingPlayerName} hat Antwort ${playerInput.text} von ${evaluatedPlayerName} in Kategorie ${category} ${action}.`
-        );
+        const a11yMessagePolite = `${evaluatorName} hat Antwort ${playerInput.text} von ${evaluatedName} in Kategorie ${category} ${action}.`;
 
-        this.setState({ currentRoundEvaluation, gameRounds });
+        this.setState({ a11yMessagePolite, currentRoundEvaluation, gameRounds });
     }
 
     /**
@@ -509,11 +507,9 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         const evaluatedPlayerName = this.state.allPlayers.get(evaluatedPlayerId)?.name;
         const action = markedAsCreative ? 'bewertet' : 'abgelehnt';
         const category = this.state.gameConfig?.categories[categoryIndex];
-        this.informScreenReaderUser(
-            `Antwort ${playerInput.text} von ${evaluatedPlayerName} in Kategorie ${category} wurde als besonders kreativ ${action}.`
-        );
+        const a11yMessagePolite = `Antwort ${playerInput.text} von ${evaluatedPlayerName} in Kategorie ${category} wurde als besonders kreativ ${action}.`;
 
-        this.setState({ gameRounds });
+        this.setState({ a11yMessagePolite, gameRounds });
     }
 
     /**
@@ -525,17 +521,14 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     /**
      * This method is called when the PubNub message 'evaluationFinished' is received.
      */
-    private countPlayerAsEvaluationFinished = (evaluatingPlayerId: string) => {
+    private countPlayerAsEvaluationFinished = (playerId: string) => {
         const playersThatFinishedEvaluation = cloneDeep(this.state.playersThatFinishedEvaluation);
-        playersThatFinishedEvaluation.set(evaluatingPlayerId, true);
+        playersThatFinishedEvaluation.set(playerId, true);
         if (playersThatFinishedEvaluation.size === this.state.allPlayers.size) {
             this.processEvaluationsAndStartNextRoundOrFinishGame();
         } else {
-            if (evaluatingPlayerId !== this.props.playerInfo.id) {
-                const evaluatingPlayerName = this.state.allPlayers.get(evaluatingPlayerId)?.name;
-                this.informScreenReaderUser(`${evaluatingPlayerName} hat die Auswertung der Antworten bestätigt.`);
-            }
-            this.setState({ playersThatFinishedEvaluation });
+            const a11yMessagePolite = `${this.state.allPlayers.get(playerId)?.name} hat die Auswertung der Antworten bestätigt.`;
+            this.setState({ a11yMessagePolite, playersThatFinishedEvaluation });
         }
     }
 
@@ -553,8 +546,8 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             // Save finished game round in local storage and start next round of the game.
             setRunningGameRoundInLocalStorage(this.state.currentRound, gameRounds[currentRound - 1]);
             const nextRound = currentRound + 1;
-            this.informScreenReaderUser(`Auswertung beendet. Buchstabe für Runde ${nextRound} wird ermittelt.`);
             this.setState({
+                a11yMessagePolite: `Auswertung beendet. Buchstabe für ${nextRound}. Runde wird ermittelt.`,
                 currentPhase: GamePhase.fillOutTextfields,
                 currentRoundEvaluation: createGameRoundEvaluation(allPlayers, gameConfig.categories),
                 currentRoundInputs: getEmptyRoundInputs(gameConfig.categories.length),
