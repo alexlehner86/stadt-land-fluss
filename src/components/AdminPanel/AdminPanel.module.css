@@ -1,0 +1,33 @@
+.adminPanel {
+    position: fixed;
+    top: 7rem;
+    right: 1.5rem;
+}
+
+.menuButton {
+    background: rgba(250, 250, 250, 0.9);
+}
+.menuButton:focus,
+.menuButton:hover {
+    background: white;
+}
+.menuIcon {
+    height: 3rem;
+    width: 3rem;
+}
+
+.dialogContent {
+    max-width: 23rem;
+}
+.dialogContentText {
+    color: black;
+}
+
+@media only screen and (max-width: 800px) {
+    .adminPanel {
+        position: absolute;
+        top: unset;
+        bottom: 1rem;
+        left: 1rem;
+    }
+}

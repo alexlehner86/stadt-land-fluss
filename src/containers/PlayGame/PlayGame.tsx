@@ -158,6 +158,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                         addPlayers={this.addPlayers}
                         processPubNubMessage={this.processPubNubMessage}
                     />
+                    {this.props.playerInfo.isAdmin && allPlayers.size > 1 ? adminPanel : null}
                     {showLetterAnimation ? letterAnimationElement : null}
                     {showLoadingScreen ? loadingScreenElement : null}
                     {!showLoadingScreen && !showLetterAnimation ? (
@@ -165,7 +166,6 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                             {this.createCurrentPhaseElement()}
                         </div>
                     ) : null}
-                    {this.props.playerInfo.isAdmin && this.state.allPlayers.size > 1 ? adminPanel : null}
                 </PubNubProvider>
                 <LiveMessage
                     message={this.state.a11yMessagePolite}

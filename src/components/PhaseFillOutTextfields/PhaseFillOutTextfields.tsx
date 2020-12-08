@@ -57,7 +57,7 @@ const PhaseFillOutTextfields: React.FunctionComponent<PhaseFillOutTextfieldsProp
             aria-label="Abschicken"
             onClick={props.finishRoundOnUserAction}
         >
-            <EmailIcon />
+            <EmailIcon fontSize="large" />
         </IconButton>
     );
     const countdownElement = (

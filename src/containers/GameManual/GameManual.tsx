@@ -127,7 +127,7 @@ class GameManual extends Component<RouteComponentProps> {
                         sie oder er über den <span>Zurück ins laufende Spiel-Button</span> wieder ins Spiel zurückkehren. Dieser findet
                         sich auf der Startseite. Darüber hinaus hat der Administrator in einem laufenden Spiel die Möglichkeit, über
                         den <SettingsIcon fontSize="small" className={styles.inline_icon} />
-                        <span className="sr-only">Admin-Panel</span>-Button (rechts oben, unterhalb des Headers)
+                        <span className="sr-only">Administrator-Optionen</span>-Button (rechts oben, unterhalb des Headers)
                         andere Spieler aus dem Spiel zu werfen. Natürlich nur in Notfällen ;)
                     </p>
                     <h3>Spielende</h3>

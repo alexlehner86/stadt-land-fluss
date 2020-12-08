@@ -16,23 +16,7 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import React, { useState } from 'react';
 import { PlayerInfo } from '../../models/player.interface';
 import { getPlayersInAlphabeticalOrder } from '../../utils/game.utils';
-
-const useStyles = makeStyles({
-    adminPanel: {
-        position: 'absolute',
-        top: '1rem',
-        right: '1rem'
-    },
-    menuButton: {
-        background: 'radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,0.5) 35%, rgba(255,255,255,0) 60%);'
-    },
-    dialogContent: {
-        maxWidth: '23rem'
-    },
-    dialogContentText: {
-        color: 'black'
-    }
-});
+import styles from './AdminPanel.module.css';
 
 export interface KickUserDialogProps {
     open: boolean;
@@ -40,14 +24,13 @@ export interface KickUserDialogProps {
     onClose: (kickPlayer: boolean) => void;
 }
 const KickUserDialog: React.FunctionComponent<KickUserDialogProps> = props => {
-    const classes = useStyles();
     const { onClose, open } = props;
 
     return (
         <Dialog onClose={() => onClose(false)} open={open}>
-            <DialogContent classes={{ root: classes.dialogContent }}>
+            <DialogContent classes={{ root: styles.dialogContent }}>
                 {props.playerToBeKicked ? (
-                    <DialogContentText classes={{ root: classes.dialogContentText }}>
+                    <DialogContentText classes={{ root: styles.dialogContentText }}>
                         &quot;With great power comes great responsibility&quot; – Willst du {props.playerToBeKicked.name} wirklich aus dem Spiel werfen?
                     </DialogContentText>
                 ) : null}
@@ -72,7 +55,6 @@ interface AdminPanelProps {
     kickPlayer: (playerId: string) => void;
 }
 const AdminPanel: React.FunctionComponent<AdminPanelProps> = props => {
-    const classes = useStyles();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [openDialog, setOpenDialog] = useState(false);
     const [playerToBeKicked, setPlayerToBeKicked] = useState<PlayerInfo | null>(null);
@@ -101,16 +83,17 @@ const AdminPanel: React.FunctionComponent<AdminPanelProps> = props => {
     });
     const sortedPlayers = getPlayersInAlphabeticalOrder(otherPlayers);
     return (
-        <div className={classes.adminPanel}>
+        <div className={styles.adminPanel}>
             <IconButton
-                className={classes.menuButton}
-                title="Admin-Panel"
-                aria-label="Admin-Panel"
+                className={styles.menuButton}
+                title="Mitspieler verwalten"
+                aria-label="Mitspieler verwalten"
                 aria-controls="admin-panel"
                 aria-haspopup="true"
+                color="primary" 
                 onClick={handleClick}
             >
-                <SettingsIcon color="primary" />
+                <SettingsIcon className={styles.menuIcon} fontSize="large" />
             </IconButton>
             <Menu
                 id="admin-panel"
@@ -122,13 +105,12 @@ const AdminPanel: React.FunctionComponent<AdminPanelProps> = props => {
                 {sortedPlayers.map((playerInfo, playerIndex) => (
                     <MenuItem
                         key={`menu-item-delete-player-${playerIndex}`}
-                        title={`${playerInfo.name} aus dem Spiel werfen`}
                         onClick={() => handleMenuItemClick(playerInfo)}
                     >
                         <ListItemIcon>
                             <CancelIcon color="secondary" />
                         </ListItemIcon>
-                        <ListItemText primary={playerInfo.name} />
+                        <ListItemText primary={`${playerInfo.name} rauswerfen`} />
                     </MenuItem>
                 ))}
             </Menu>

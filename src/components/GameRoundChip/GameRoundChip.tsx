@@ -29,16 +29,14 @@ interface GameRoundChipProps {
 const GameRoundChip: React.FunctionComponent<GameRoundChipProps> = props => {
     const classes = useStyles();
     const { currentLetter, currentRound, isEvaluationPhase, numberOfRounds } = props;
-    const label = isEvaluationPhase
-        ? `Auswertung von Runde ${currentRound} von ${numberOfRounds}: „${currentLetter}“`
-        : `Runde ${currentRound} von ${numberOfRounds}: „${currentLetter}“`;
+    // TODO: Show "Auswertung" in p-Tag
     return (
         <div className={classes.centerContent}>
             <Chip
                 color="primary"
                 component="h2"
                 icon={<EmojiObjectsIcon />}
-                label={label}
+                label={`Runde ${currentRound} von ${numberOfRounds}: „${currentLetter}“`}
                 className={classes.chip}
             />
         </div>

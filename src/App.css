@@ -185,8 +185,8 @@ li:not(.MuiListItem-root) {
     background-color: white;
 }
 .fixed-bottom-right-button .MuiSvgIcon-root {
-    height: 2em;
-    width: 2em;
+    height: 3rem;
+    width: 3rem;
 }
 
 .MuiFormLabel-root.MuiInputLabel-root,
@@ -253,6 +253,10 @@ li:not(.MuiListItem-root) {
     }
     .main-content-wrapper {
         padding-bottom: 6rem;
+    }
+    .fixed-bottom-right-button.MuiIconButton-root {
+        position: absolute;
+        right: 1rem;
     }
 }
 @media only screen and (min-width: 480px) {

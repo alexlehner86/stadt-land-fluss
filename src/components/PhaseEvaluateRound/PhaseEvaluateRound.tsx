@@ -305,7 +305,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                 aria-label={hasFinishedEvaluation ? 'Du hast bereits bestätigt' : 'Bestätigen'}
                 onClick={onAcceptEvaluationButtonClick}
             >
-                {hasFinishedEvaluation ? <CheckCircleIcon /> : <RadioButtonUncheckedIcon />}
+                {hasFinishedEvaluation ? <CheckCircleIcon fontSize="large" /> : <RadioButtonUncheckedIcon fontSize="large" />}
             </IconButton>
         </React.Fragment>
     );
