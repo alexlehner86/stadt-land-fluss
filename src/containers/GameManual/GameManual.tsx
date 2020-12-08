@@ -123,12 +123,21 @@ class GameManual extends Component<RouteComponentProps> {
                         </li>
                     </ol>
                     <p>
-                        Hinweis: Falls ein Mitspieler aus irgendeinem Grund (Browserabsturz, Akku leer etc.) aus dem Spiel fliegt, kann
+                        Hinweis für Screenreader-Nutzer: Das Spiel ist so gestaltet, dass man mithilfe der Tabulatortaste schnell
+                        navigieren und die wichtigsten Elemente erreichen kann. Das trifft einerseits auf die Eingabefelder und
+                        Schaltflächen zu, aber auch auf die einzelnen Antworten in der Auswertungsphase einer Runde. Wenn ein
+                        Nutzer mit der Tabulatortaste zu einer Antwort springt, wird der Spielername, die Antwort, ihr aktueller
+                        Status (akzeptiert oder abgelehnt) sowie die Punktezahl vorgelesen.
+                    </p>
+                    <h3>Weitere Optionen</h3>
+                    <p>
+                        Falls ein Mitspieler aus irgendeinem Grund (Browserabsturz, Akku leer etc.) aus dem Spiel fliegt, kann
                         sie oder er über den <span>Zurück ins laufende Spiel-Button</span> wieder ins Spiel zurückkehren. Dieser findet
                         sich auf der Startseite. Darüber hinaus hat der Administrator in einem laufenden Spiel die Möglichkeit, über
                         den <SettingsIcon fontSize="small" className={styles.inline_icon} />
-                        <span className="sr-only">Administrator-Optionen</span>-Button (rechts oben, unterhalb des Headers)
-                        andere Spieler aus dem Spiel zu werfen. Natürlich nur in Notfällen ;)
+                        <span className="sr-only">Administrator-Optionen</span>-Button (rechts oben bzw. auf Mobilgeräten ganz unten)
+                        andere Spieler aus dem Spiel zu werfen. Das ist natürlich nur als letztes Mittel gedacht, um ein begonnenes
+                        Spiel beenden zu können.
                     </p>
                     <h3>Spielende</h3>
                     <p>

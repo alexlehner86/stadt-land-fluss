@@ -27,7 +27,7 @@ export const joinWithAnd = (items: string[], andWord: string): string => {
     const lastItemIndex = items.length - 1;
     const itemsWithoutLast = items.slice(0, lastItemIndex);
     return `${itemsWithoutLast.join(', ')} ${andWord} ${items[lastItemIndex]}`;
-}
+};
 
 export const convertDateToUnixTimestamp = (dateToConvert: Date): number => dateToConvert.getTime() / 1000 | 0;
 
