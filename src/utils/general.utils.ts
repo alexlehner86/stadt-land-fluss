@@ -20,6 +20,15 @@ export const makePluralIfCountIsNotOne = (count: number, singular: string, plura
     return count === 1 ? singular : plural;
 };
 
+export const joinWithAnd = (items: string[], andWord: string): string => {
+    if (items.length <= 1) {
+        return items.length === 0 ? '' : items[0];
+    }
+    const lastItemIndex = items.length - 1;
+    const itemsWithoutLast = items.slice(0, lastItemIndex);
+    return `${itemsWithoutLast.join(', ')} ${andWord} ${items[lastItemIndex]}`;
+}
+
 export const convertDateToUnixTimestamp = (dateToConvert: Date): number => dateToConvert.getTime() / 1000 | 0;
 
 export const convertCollectionToMap = <T>(collectionToConvert: Collection<T>): Map<string, T> => {

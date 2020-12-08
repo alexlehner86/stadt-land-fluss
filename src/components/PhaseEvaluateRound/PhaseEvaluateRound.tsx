@@ -19,6 +19,7 @@ import {
 } from '../../models/game.interface';
 import { PlayerInfo } from '../../models/player.interface';
 import { getPlayersInAlphabeticalOrder, getRejectingPlayers } from '../../utils/game.utils';
+import { joinWithAnd } from '../../utils/general.utils';
 import GameRoundChip from '../GameRoundChip/GameRoundChip';
 import styles from './PhaseEvaluateRound.module.css';
 
@@ -82,7 +83,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
         const isInputAcceptedByUser = evaluationForCategory.get(playerInfo.id) as boolean;
         const rejectingPlayers = getRejectingPlayers(evaluationForCategory, allPlayers);
         const tooltipText = rejectingPlayers.length === 0 ? 'Keine Ablehnungen' :
-            'Abgelehnt von ' + rejectingPlayers.map(p => p.name).join(', ');
+            'Abgelehnt von ' + joinWithAnd(rejectingPlayers.map(p => p.name), 'und');
         const hasPlayerTypedText = !!(finishedRound.get(evaluatedPlayer.id) as PlayerInput[])[categoryIndex].text;
 
         const createEvaluationButton = () => {
