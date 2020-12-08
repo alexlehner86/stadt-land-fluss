@@ -10,9 +10,10 @@ interface PhaseFillOutTextfieldsProps {
     currentRound: number;
     gameConfig: GameConfig;
     gameRoundInputs: PlayerInput[];
-    updateCurrentRoundInputs: (newCurrentRoundInputs: PlayerInput[]) => void;
+    alertOnTenSecondsRemaining: () => void;
     finishRoundOnCountdownComplete: () => void;
     finishRoundOnUserAction: () => void;
+    updateCurrentRoundInputs: (newCurrentRoundInputs: PlayerInput[]) => void;
 }
 
 const PhaseFillOutTextfields: React.FunctionComponent<PhaseFillOutTextfieldsProps> = props => {
@@ -57,13 +58,14 @@ const PhaseFillOutTextfields: React.FunctionComponent<PhaseFillOutTextfieldsProp
             aria-label="Abschicken"
             onClick={props.finishRoundOnUserAction}
         >
-            <EmailIcon fontSize="large" />
+            <EmailIcon />
         </IconButton>
     );
     const countdownElement = (
         <RoundCountdown
             duration={props.gameConfig.durationOfCountdown}
             onComplete={props.finishRoundOnCountdownComplete}
+            onTenSecondsRemaining={props.alertOnTenSecondsRemaining}
         />
     );
 

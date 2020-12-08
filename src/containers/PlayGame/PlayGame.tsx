@@ -158,13 +158,15 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                         addPlayers={this.addPlayers}
                         processPubNubMessage={this.processPubNubMessage}
                     />
-                    {this.props.playerInfo.isAdmin && allPlayers.size > 1 ? adminPanel : null}
                     {showLetterAnimation ? letterAnimationElement : null}
                     {showLoadingScreen ? loadingScreenElement : null}
                     {!showLoadingScreen && !showLetterAnimation ? (
-                        <div className="main-content-wrapper">
-                            {this.createCurrentPhaseElement()}
-                        </div>
+                        <React.Fragment>
+                            {this.props.playerInfo.isAdmin && allPlayers.size > 1 ? adminPanel : null}
+                            <div className="main-content-wrapper">
+                                {this.createCurrentPhaseElement()}
+                            </div>
+                        </React.Fragment>
                     ) : null}
                 </PubNubProvider>
                 <LiveMessage
@@ -200,20 +202,6 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         }
     }
 
-    private informScreenReaderUser = (message: string) => this.setState({ a11yMessagePolite: message });
-
-    private sendPubNubMessage = (message: PubNubMessage) => {
-        this.pubNubClient.publish(
-            {
-                channel: this.props.gameId as string,
-                message,
-                storeInHistory: true,
-                ttl: 1 // time to live (in hours)
-            },
-            (status: any, response: any) => console.log('PubNub Publish:', status, response)
-        );
-    };
-
     private createCurrentPhaseElement = (): JSX.Element | null => {
         switch (this.state.currentPhase) {
             case GamePhase.waitingToStart:
@@ -233,9 +221,10 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                         currentRound={this.state.currentRound}
                         gameConfig={this.state.gameConfig as GameConfig}
                         gameRoundInputs={this.state.currentRoundInputs}
-                        updateCurrentRoundInputs={this.updateCurrentRoundInputs}
+                        alertOnTenSecondsRemaining={this.alertOnTenSecondsRemaining}
                         finishRoundOnCountdownComplete={this.finishRoundOnCountdownComplete}
                         finishRoundOnUserAction={this.finishRoundOnUserAction}
+                        updateCurrentRoundInputs={this.updateCurrentRoundInputs}
                     />
                 );
             case GamePhase.evaluateRound:
@@ -271,6 +260,23 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         this.props.onResetAppState({ joinGameErrorMessage: errorMessage });
         this.props.history.push('/joingame');
     }
+
+    private alertOnTenSecondsRemaining = () => this.informScreenReaderUser('Noch 10 Sekunden');
+
+    private informScreenReaderUser = (message: string) => this.setState({ a11yMessagePolite: message });
+
+    //#region PubNub message handling
+    private sendPubNubMessage = (message: PubNubMessage) => {
+        this.pubNubClient.publish(
+            {
+                channel: this.props.gameId as string,
+                message,
+                storeInHistory: true,
+                ttl: 1 // time to live (in hours)
+            },
+            (status: any, response: any) => console.log('PubNub Publish:', status, response)
+        );
+    };
 
     /**
      * Called by PubNubEventHandler when it receives user data via a hereNow call or a PubNub presence event
@@ -396,7 +402,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             playersThatFinishedRound.set(playerId, true);
             if (playerId === this.props.playerInfo.id) {
                 this.setState({ playersThatFinishedRound });
-                this.stopRoundAndSendInputs();
+                this.sendCurrentRoundInputs();
             } else {
                 const message = `${endRoundPlayer?.name} hat Antworten abgeschickt.`;
                 this.props.enqueueSnackbar(message, { 'aria-live': 'off' });
@@ -405,17 +411,16 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         } else {
             // In game modes "countdown" and "fastet player", the round ends for all players right away.
             const message = gameConfig.endRoundMode === EndRoundMode.countdownEnds
-                ? `Der Countdown ist abgelaufen. Die Auswertung von Runde ${this.state.currentRound} beginnt.`
-                : `${endRoundPlayer?.name} hat Runde ${this.state.currentRound} beendet. Die Auswertung beginnt.`;
+                ? 'Der Countdown ist abgelaufen.' : `${endRoundPlayer?.name} hat Antworten abgeschickt.`;
             this.informScreenReaderUser(message);
-            this.stopRoundAndSendInputs();
+            this.sendCurrentRoundInputs();
         }
     }
 
     /**
      * Send this player's text inputs of current round to other players (and themselves).
      */
-    private stopRoundAndSendInputs = () => {
+    private sendCurrentRoundInputs = () => {
         const message = new PubNubCurrentRoundInputsMessage(markEmptyPlayerInputsAsInvalid(this.state.currentRoundInputs));
         this.sendPubNubMessage(message.toPubNubMessage());
     }
@@ -512,7 +517,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         const finishedRound = gameRounds[this.state.currentRound - 1];
         const playerInput = (finishedRound.get(evaluatedPlayerId) as PlayerInput[])[categoryIndex];
         playerInput.star = markedAsCreative;
-        
+
         // Inform screen reader users
         const evaluatedPlayerName = this.state.allPlayers.get(evaluatedPlayerId)?.name;
         const action = markedAsCreative ? 'bewertet' : 'abgelehnt';
@@ -667,6 +672,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             this.navigateToJoinGamePage('Die Rückkehr in das laufende Spiel ist nicht möglich, da die Daten nicht wiederhergestellt werden konnten!');
         }
     }
+    //#endregion
 }
 
 const mapStateToProps = (state: AppState): PlayGamePropsFromStore => {

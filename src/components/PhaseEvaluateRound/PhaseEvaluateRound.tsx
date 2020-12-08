@@ -279,10 +279,8 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
     );
 
     const onAcceptEvaluationButtonClick = () => {
-        if (!hasFinishedEvaluation) {
-            setHasFinishedEvaluation(true);
-            props.sendEvaluationFinishedMessage();
-        }
+        setHasFinishedEvaluation(true);
+        props.sendEvaluationFinishedMessage();
     };
 
     return (
@@ -300,12 +298,12 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
             <IconButton
                 type="button"
                 className="fixed-bottom-right-button"
-                color="secondary"
                 title="Bestätigen"
-                aria-label={hasFinishedEvaluation ? 'Du hast bereits bestätigt' : 'Bestätigen'}
+                aria-label="Bestätigen"
+                disabled={hasFinishedEvaluation}
                 onClick={onAcceptEvaluationButtonClick}
             >
-                {hasFinishedEvaluation ? <CheckCircleIcon fontSize="large" /> : <RadioButtonUncheckedIcon fontSize="large" />}
+                {hasFinishedEvaluation ? <CheckCircleIcon color="secondary" /> : <RadioButtonUncheckedIcon color="secondary" />}
             </IconButton>
         </React.Fragment>
     );

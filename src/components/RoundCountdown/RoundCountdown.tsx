@@ -1,5 +1,5 @@
 import React from 'react';
-import Countdown, { zeroPad } from 'react-countdown';
+import Countdown, { CountdownTimeDelta, zeroPad } from 'react-countdown';
 import { makeStyles, Theme, createStyles } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -23,10 +23,17 @@ interface RoundCountdownProps {
     duration: number;
     /** The method to be called when countdown reaches zero */
     onComplete: () => void;
+    /** The method to be called when countdown reaches 10  */
+    onTenSecondsRemaining: () => void;
 }
 
 const RoundCountdown: React.FunctionComponent<RoundCountdownProps> = props => {
     const classes = useStyles();
+    const onTick = (timeDelta: CountdownTimeDelta) => {
+        if (timeDelta.seconds === 10) {
+            props.onTenSecondsRemaining();
+        }
+    };
     return (
         <Countdown
             date={Date.now() + (props.duration * 1000)}
@@ -35,6 +42,7 @@ const RoundCountdown: React.FunctionComponent<RoundCountdownProps> = props => {
                     {zeroPad(props.minutes)}:{zeroPad(props.seconds)}
                 </div>
             )}
+            onTick={onTick}
             onComplete={props.onComplete}
         />
     );

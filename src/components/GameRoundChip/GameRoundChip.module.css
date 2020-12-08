@@ -1,0 +1,20 @@
+.centerContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 0.75rem;
+}
+
+.chip, .chipEvaluation {
+    height: 3rem;
+    margin-bottom: 0;
+    margin-top: 1rem;
+    border-radius: 5px;
+    font-weight: normal;
+    font-size: 1.2rem;
+    letter-spacing: 0.00938em;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.501961);
+}
+.chipEvaluation {
+    margin-top: 0.5rem;
+}

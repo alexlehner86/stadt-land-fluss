@@ -90,10 +90,9 @@ const AdminPanel: React.FunctionComponent<AdminPanelProps> = props => {
                 aria-label="Mitspieler verwalten"
                 aria-controls="admin-panel"
                 aria-haspopup="true"
-                color="primary" 
                 onClick={handleClick}
             >
-                <SettingsIcon className={styles.menuIcon} fontSize="large" />
+                <SettingsIcon className={styles.menuIcon} />
             </IconButton>
             <Menu
                 id="admin-panel"

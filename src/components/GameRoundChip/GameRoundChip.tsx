@@ -1,23 +1,8 @@
 import Chip from '@material-ui/core/Chip';
-import { makeStyles } from '@material-ui/core/styles';
 import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects';
 import React from 'react';
 
-const useStyles = makeStyles({
-    centerContent: {
-        display: 'flex',
-        justifyContent: 'center'
-    },
-    chip: {
-        height: '3rem',
-        marginBottom: '0',
-        marginTop: '1rem',
-        borderRadius: '5px',
-        fontWeight: 'normal',
-        fontSize: '1.2rem',
-        boxShadow: '0 2px 4px rgba(0,0,0,.501961)'
-    }
-});
+import styles from './GameRoundChip.module.css';
 
 interface GameRoundChipProps {
     currentLetter: string;
@@ -27,18 +12,23 @@ interface GameRoundChipProps {
 }
 
 const GameRoundChip: React.FunctionComponent<GameRoundChipProps> = props => {
-    const classes = useStyles();
     const { currentLetter, currentRound, isEvaluationPhase, numberOfRounds } = props;
-    // TODO: Show "Auswertung" in p-Tag
     return (
-        <div className={classes.centerContent}>
+        <div className={styles.centerContent}>
             <Chip
                 color="primary"
                 component="h2"
                 icon={<EmojiObjectsIcon />}
                 label={`Runde ${currentRound} von ${numberOfRounds}: „${currentLetter}“`}
-                className={classes.chip}
+                className={styles.chip}
             />
+            {isEvaluationPhase ? (
+                <Chip
+                    color="primary"
+                    label="Auswertung"
+                    className={styles.chipEvaluation}
+                />
+            ) : null}
         </div>
     );
 };

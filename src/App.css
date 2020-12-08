@@ -235,7 +235,7 @@ li:not(.MuiListItem-root) {
 }
 /**************************************/
 
-@media only screen and (max-width: 800px) {
+@media only screen and (max-width: 50rem) {
     .app-main.green-theme {
         background-size: 45% !important;
     }
@@ -254,12 +254,13 @@ li:not(.MuiListItem-root) {
     .main-content-wrapper {
         padding-bottom: 6rem;
     }
+}
+@media only screen and (max-width: 45rem) {
     .fixed-bottom-right-button.MuiIconButton-root {
         position: absolute;
-        right: 1rem;
     }
 }
-@media only screen and (min-width: 480px) {
+@media only screen and (min-width: 45rem) {
     .app-main {
         overflow-y: auto;
     }
