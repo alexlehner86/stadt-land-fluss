@@ -314,7 +314,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                 </div>
                 <ToDashboardButton onReturnToDashboard={this.returnToDashboard} />
                 <Snackbar
-                    anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
                     open={this.state.isSnackbarOpen}
                     autoHideDuration={3000}
                     onClose={this.handleSnackBarClose}

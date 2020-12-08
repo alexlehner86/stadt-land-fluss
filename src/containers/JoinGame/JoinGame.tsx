@@ -123,7 +123,7 @@ class JoinGame extends Component<JoinGameProps, JoinGameState> {
                 </div>
                 <ToDashboardButton onReturnToDashboard={this.returnToDashboard} />
                 <Snackbar
-                    anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
                     open={this.state.isSnackbarOpen}
                     autoHideDuration={this.state.snackBarDuration}
                     onClose={this.handleSnackBarClose}

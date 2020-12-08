@@ -1,10 +1,12 @@
 import { cloneDeep } from 'lodash';
+import { ProviderContext, withSnackbar } from 'notistack';
 import Pubnub from 'pubnub';
 import { PubNubProvider } from 'pubnub-react';
-import React, { Component, Dispatch } from 'react';
+import React, { Component, ComponentClass, Dispatch } from 'react';
 import { LiveMessage } from 'react-aria-live';
 import { connect } from 'react-redux';
 import { RouterProps } from 'react-router';
+import { compose } from 'redux';
 
 import AdminPanel from '../../components/AdminPanel/AdminPanel';
 import { LetterAnimation } from '../../components/LetterAnimation/LetterAnimation';
@@ -85,7 +87,7 @@ interface PlayGameDispatchProps {
     onSetDataOfFinishedGame: (payload: SetDataOfFinishedGamePayload) => void;
     onResetAppState: (payload?: ResetAppStatePayload) => void;
 }
-interface PlayGameProps extends PlayGamePropsFromStore, PlayGameDispatchProps, RouterProps { }
+interface PlayGameProps extends PlayGamePropsFromStore, PlayGameDispatchProps, RouterProps, ProviderContext { }
 export interface PlayGameState {
     a11yMessagePolite: string;
     allPlayers: Map<string, PlayerInfo>;
@@ -268,11 +270,11 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     }
 
     /**
-     * Called by PubNubEventHandler when it receives a PubNub presence event with action 'state-change'.
-     * It processes information about players that had already joined the game before this user joined
-     * (hereNow result) or about a player that joins the game after this user joined.
+     * Called by PubNubEventHandler when it receives user data via a hereNow call or a PubNub presence event
+     * with action 'state-change'. It processes information about players that had already joined the game
+     * before this user joined (hereNow response) or about a player that joins the game after this user joined.
      */
-    private addPlayers = (...newPlayers: PubNubUserState[]) => {
+    private addPlayers = (fromPresenceEvent: boolean, ...newPlayers: PubNubUserState[]) => {
         // Ignore information about players that try to join after the game has already started.
         if (this.state.currentPhase !== GamePhase.waitingToStart) { return; }
         let gameConfig: GameConfig | null = null;
@@ -280,7 +282,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         newPlayers.forEach(newPlayer => {
             allPlayers.set(newPlayer.playerInfo.id, newPlayer.playerInfo);
             // If we are not the game admin, we obtain the game config from the admin's PubNubUserState.
-            if (newPlayer.gameConfig && !this.state.gameConfig) {
+            if (!this.state.gameConfig && newPlayer.gameConfig) {
                 gameConfig = newPlayer.gameConfig;
             }
         });
@@ -290,7 +292,8 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             setRunningGameConfigInLocalStorage(gameConfig);
             this.setState({ a11yMessagePolite: JOINED_GAME_MESSAGE, allPlayers, gameConfig, showLoadingScreen: false });
         } else {
-            this.setState({ allPlayers });
+            const a11yMessagePolite = fromPresenceEvent ? `${newPlayers[0].playerInfo.name} ist dem Spiel beigetreten.` : '';
+            this.setState({ a11yMessagePolite, allPlayers });
         }
     }
 
@@ -392,8 +395,9 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                 this.setState({ playersThatFinishedRound });
                 this.stopRoundAndSendInputs();
             } else {
-                const a11yMessagePolite = `${endRoundPlayer?.name} hat Antworten abgeschickt.`;
-                this.setState({ a11yMessagePolite, playersThatFinishedRound });
+                const message = `${endRoundPlayer?.name} hat Antworten abgeschickt.`;
+                this.props.enqueueSnackbar(message, { 'aria-live': 'off' });
+                this.setState({ a11yMessagePolite: message, playersThatFinishedRound });
             }
         } else {
             // In game modes "countdown" and "fastet player", the round ends for all players right away.
@@ -423,7 +427,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         // Did we collect the inputs from all players?
         if (gameRounds[roundIndex].size === this.state.allPlayers.size) {
             // If yes, then calculate points and start the evaluation of the finished round.
-            const a11yMessagePolite = `Die ${this.state.currentRound}. Runde ist zu Ende. Wertet nun die Antworten aus.`;
+            const a11yMessagePolite = `Runde ${this.state.currentRound} ist zu Ende. Wertet nun die Antworten aus.`;
             calculatePointsForRound((this.state.gameConfig as GameConfig).scoringOptions, gameRounds[roundIndex]);
             setRunningGameRoundInLocalStorage(this.state.currentRound, gameRounds[roundIndex]);
             this.setState({ a11yMessagePolite, currentPhase: GamePhase.evaluateRound, gameRounds, showLoadingScreen: false });
@@ -550,7 +554,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             setRunningGameRoundInLocalStorage(this.state.currentRound, gameRounds[currentRound - 1]);
             const nextRound = currentRound + 1;
             this.setState({
-                a11yMessagePolite: `Auswertung beendet. Buchstabe für ${nextRound}. Runde wird ermittelt.`,
+                a11yMessagePolite: 'Auswertung beendet. Der nächste Buchstabe wird ermittelt.',
                 currentPhase: GamePhase.fillOutTextfields,
                 currentRoundEvaluation: createGameRoundEvaluation(allPlayers, gameConfig.categories),
                 currentRoundInputs: getEmptyRoundInputs(gameConfig.categories.length),
@@ -676,4 +680,7 @@ const mapDispatchToProps = (dispatch: Dispatch<AppAction>): PlayGameDispatchProp
         onResetAppState: (payload?: ResetAppStatePayload) => dispatch(resetAppState(payload))
     };
 };
-export default connect(mapStateToProps, mapDispatchToProps)(PlayGame);
+export default compose(
+    withSnackbar,
+    connect(mapStateToProps, mapDispatchToProps)
+)(PlayGame) as ComponentClass;

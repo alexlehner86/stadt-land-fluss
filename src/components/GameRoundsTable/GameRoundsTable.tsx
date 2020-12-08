@@ -9,6 +9,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import StarIcon from '@material-ui/icons/Star';
 import React from 'react';
+
 import { GameConfig, GameRound, PlayerInput } from '../../models/game.interface';
 import { PlayerInfo } from '../../models/player.interface';
 
@@ -65,12 +66,13 @@ const useStyles = makeStyles({
 
 interface GameRoundsTableProps {
     gameConfig: GameConfig;
-    round: GameRound;
+    gameRound: GameRound;
+    roundNo: number;
     sortedPlayers: PlayerInfo[];
 }
 const GameRoundsTable: React.FunctionComponent<GameRoundsTableProps> = props => {
     const classes = useStyles();
-    const { gameConfig, round, sortedPlayers } = props;
+    const { gameConfig, gameRound, roundNo, sortedPlayers } = props;
 
     const veryCreativeAnswer = (playerInput: PlayerInput): JSX.Element => (
         <React.Fragment>
@@ -88,7 +90,7 @@ const GameRoundsTable: React.FunctionComponent<GameRoundsTableProps> = props => 
             <StyledTableRow key={`slf-table-row-for-category-${categoryIndex}`}>
                 <StyledTableCell component="th" scope="row" className={classes.firstColumn}>{category}</StyledTableCell>
                 {sortedPlayers.map((player, playerIndex) => {
-                    const playerInput = (round.get(player.id) as PlayerInput[])[categoryIndex];
+                    const playerInput = (gameRound.get(player.id) as PlayerInput[])[categoryIndex];
                     return (
                         <StyledTableCell
                             key={`slf-table-cell-for-category-${categoryIndex}-player-${playerIndex}`}
@@ -107,7 +109,7 @@ const GameRoundsTable: React.FunctionComponent<GameRoundsTableProps> = props => 
     };
     return (
         <TableContainer component={Paper} className={classes.tableContainer}>
-            <Table className={classes.table} aria-label="Die Spielrunde im Detail">
+            <Table className={classes.table} aria-label={`Runde ${roundNo} im Detail`}>
                 <TableHead>
                     <TableRow>
                         <StyledTableCell>Kategorie</StyledTableCell>

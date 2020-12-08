@@ -12,7 +12,7 @@ interface PubNubEventHandlerProps {
     isRejoiningGame: boolean;
     playerInfo: PlayerInfo;
     navigateToJoinGamePage: (errorMessage: string) => void;
-    addPlayers: (...newPlayers: PubNubUserState[]) => void;
+    addPlayers: (fromPresenceEvent: boolean, ...newPlayers: PubNubUserState[]) => void;
     processPubNubMessage: (event: Pubnub.MessageEvent) => void;
 }
 
@@ -89,7 +89,7 @@ const PubNubEventHandler: React.FunctionComponent<PubNubEventHandlerProps> = pro
                 // Only process the information of players that joined before if user isn't rejoining the game.
                 // If user is rejoining game, then this information is received via the PubNubDataForCurrentGameMessage.
                 if (!props.isRejoiningGame && userStatesOfOtherPlayers.length > 0) {
-                    props.addPlayers(...userStatesOfOtherPlayers);
+                    props.addPlayers(false, ...userStatesOfOtherPlayers);
                 }
             }
         );
@@ -110,7 +110,7 @@ const PubNubEventHandler: React.FunctionComponent<PubNubEventHandlerProps> = pro
                 if (presenceEvent.action === 'state-change') {
                     const userState = presenceEvent.state as PubNubUserState;
                     if (userState.playerInfo.id !== props.playerInfo.id) {
-                        props.addPlayers(userState);
+                        props.addPlayers(true, userState);
                     }
                 }
             },

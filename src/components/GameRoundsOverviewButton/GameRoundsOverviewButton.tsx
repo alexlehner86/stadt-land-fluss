@@ -82,7 +82,12 @@ const GameRoundsOverviewDialog: React.FunctionComponent<GameRoundsOverviewDialog
                         value={tabValue}
                         index={index}
                     >
-                        <GameRoundsTable gameConfig={gameConfig} round={round} sortedPlayers={sortedPlayers} />
+                        <GameRoundsTable
+                            gameConfig={gameConfig}
+                            gameRound={round}
+                            roundNo={index + 1}
+                            sortedPlayers={sortedPlayers}
+                        />
                     </TabPanel>
                 ))}
             </DialogContent>

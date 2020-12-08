@@ -30,7 +30,7 @@ const GameRoundChip: React.FunctionComponent<GameRoundChipProps> = props => {
     const classes = useStyles();
     const { currentLetter, currentRound, isEvaluationPhase, numberOfRounds } = props;
     const label = isEvaluationPhase
-        ? `Auswertung von Runde ${currentRound}: „${currentLetter}“`
+        ? `Auswertung von Runde ${currentRound} von ${numberOfRounds}: „${currentLetter}“`
         : `Runde ${currentRound} von ${numberOfRounds}: „${currentLetter}“`;
     return (
         <div className={classes.centerContent}>

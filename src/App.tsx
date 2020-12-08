@@ -33,12 +33,12 @@ import {
 } from './utils/local-storage.utils';
 
 // Preload all routes available from the dashboard in the background.
-const a11yStatementPromise = import('./containers/AccessibilityStatement/AccessibilityStatement');
-const aboutTheGamePromise = import('./containers/AboutTheGame/AboutTheGame');
-const gameManualPromise = import('./containers/GameManual/GameManual');
-const joinGamePromise = import('./containers/JoinGame/JoinGame');
-const newGamePromise = import('./containers/NewGame/NewGame');
-const playGamePromise = import('./containers/PlayGame/PlayGame');
+export const a11yStatementPromise = import('./containers/AccessibilityStatement/AccessibilityStatement');
+export const aboutTheGamePromise = import('./containers/AboutTheGame/AboutTheGame');
+export const gameManualPromise = import('./containers/GameManual/GameManual');
+export const joinGamePromise = import('./containers/JoinGame/JoinGame');
+export const newGamePromise = import('./containers/NewGame/NewGame');
+export const playGamePromise = import('./containers/PlayGame/PlayGame');
 
 // Use lazy loading of routes to speed up time to FCP (first contentful paint)
 const AboutTheGame = lazy(() => aboutTheGamePromise);
