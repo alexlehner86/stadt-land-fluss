@@ -17,6 +17,7 @@ import PhaseWaitingToStart from '../../components/PhaseWaitingToStart/PhaseWaiti
 import PubNubEventHandler from '../../components/PubNubEventHandler/PubNubEventHandler';
 import { PUBNUB_CONFIG } from '../../config/pubnub.config';
 import { GamePhase } from '../../constants/game.constant';
+import { GERMAN_PHONETIC_ALPHABET } from '../../constants/phonetic-alphabet.constant';
 import { CREATED_GAME_ADMIN_MESSAGE, JOINED_GAME_MESSAGE } from '../../constants/sr-message.constant';
 import {
     EndRoundMode,
@@ -258,8 +259,10 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     }
 
     private callbackWhenAnimationDone = () => {
-        const currentLetter = this.state.gameConfig?.letters[this.state.currentRound - 1];
-        const a11yMessagePolite = `Runde ${this.state.currentRound}: Buchstabe (${currentLetter})`;
+        const { currentRound, gameConfig } = this.state;
+        const currentLetter = gameConfig?.letters[this.state.currentRound - 1] as string;
+        const phoneticText = GERMAN_PHONETIC_ALPHABET[currentLetter];
+        const a11yMessagePolite = `Runde ${currentRound}: Buchstabe ${currentLetter} wie ${phoneticText}.`;
         this.setState({ a11yMessagePolite, showLetterAnimation: false });
     }
 
