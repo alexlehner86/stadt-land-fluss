@@ -61,21 +61,21 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
     });
 
     /**
-      * Toggles the user's evaluation of a player's input for a category,
-      * but only if the user hasn't accepted the round evaluation yet.
+      * Toggles the user's evaluation of a player's input for a category.
       */
     const handleEvaluationButtonClick = (
         categoryIndex: number, evaluatedPlayerId: string, currentEvaluation: boolean
     ) => {
         props.updateEvaluationOfPlayerInput({ categoryIndex, evaluatedPlayerId, markedAsValid: !currentEvaluation });
     };
+
     /**
      * Displays a button that allows the user to reject a player's input for a category.
      * A badge attached to the button shows the total number of rejections. If the player
      * didn't type any text, then a not clickable thumb down icon is shown instead,
      * which indicates that the input was automatically rejected by the application.
      */
-    const createEvaluationButton = (categoryIndex: number, indexInSortedPlayers: number): JSX.Element => {
+    const createEvaluationButtonOrIcon = (categoryIndex: number, indexInSortedPlayers: number): JSX.Element => {
         const evaluatedPlayer = sortedPlayers[indexInSortedPlayers];
         const allEvaluationsForPlayer = currentRoundEvaluation.get(evaluatedPlayer.id) as PlayerInputEvaluation[];
         const evaluationForCategory = allEvaluationsForPlayer[categoryIndex];
@@ -85,12 +85,8 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
             'Abgelehnt von ' + rejectingPlayers.map(p => p.name).join(', ');
         const hasPlayerTypedText = !!(finishedRound.get(evaluatedPlayer.id) as PlayerInput[])[categoryIndex].text;
 
-        const evaluationButtonForTypedText = (
-            <Tooltip
-                key={`slf-evaluation-tooltip-${categoryIndex}-${indexInSortedPlayers}`}
-                title={tooltipText}
-                arrow
-            >
+        const createEvaluationButton = () => {
+            const evaluationButton = (
                 <IconButton
                     className="slf-evaluation-button"
                     color={isInputAcceptedByUser ? 'default' : 'secondary'}
@@ -103,18 +99,68 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                         <ThumbDownRoundedIcon />
                     </StyledBadge>
                 </IconButton>
-            </Tooltip>
-        );
-        const autoRejectIconForMissingText = (
+            );
+            return hasFinishedEvaluation ? evaluationButton
+                : (
+                    <Tooltip
+                        key={`slf-evaluation-tooltip-${categoryIndex}-${indexInSortedPlayers}`}
+                        title={tooltipText}
+                        arrow
+                    >
+                        {evaluationButton}
+                    </Tooltip>
+                );
+        };
+        const createAutoRejectIcon = () => (
             <Tooltip
                 key={`slf-evaluation-tooltip-${categoryIndex}-${indexInSortedPlayers}`}
                 title="Automatisch abgelehnt"
+                arrow
             >
-                <ThumbDownRoundedIcon color="secondary" className={styles.auto_reject_icon} />
+                <ThumbDownRoundedIcon color={hasFinishedEvaluation ? 'disabled' : 'secondary'} className={styles.auto_reject_icon} />
             </Tooltip>
         );
-        return hasPlayerTypedText ? evaluationButtonForTypedText : autoRejectIconForMissingText;
+        return hasPlayerTypedText ? createEvaluationButton() : createAutoRejectIcon();
     };
+
+    /**
+      * Toggles the "marked as very creative" status of a player's input for a category.
+      */
+    const handleMarkAsCreativeAnswerToggleClick = (
+        categoryIndex: number, evaluatedPlayerId: string, isMarkedAsCreative: boolean
+    ) => {
+        props.updateIsPlayerInputVeryCreativeStatus({ categoryIndex, evaluatedPlayerId, markedAsCreative: !isMarkedAsCreative });
+    };
+
+    /**
+     * Creates a "mark as creative answer" toggle button for a specific category and player input.
+     */
+    const createMarkAsCreativeAnswerToggle = (categoryIndex: number, indexInSortedPlayers: number): JSX.Element => {
+        const evaluatedPlayer = sortedPlayers[indexInSortedPlayers];
+        const playerInput = (finishedRound.get(evaluatedPlayer.id) as PlayerInput[])[categoryIndex];
+        const isDisabled = hasFinishedEvaluation || evaluatedPlayer.id === props.playerInfo.id;
+        const iconColor = hasFinishedEvaluation ? 'disabled' : 'primary';
+        const createButton = () => (
+            <IconButton
+                color="primary"
+                size="small"
+                disabled={isDisabled}
+                onClick={() => handleMarkAsCreativeAnswerToggleClick(categoryIndex, evaluatedPlayer.id, playerInput.star)}
+            >
+                {playerInput.star ? <StarIcon color={iconColor} /> : <StarBorderIcon color={iconColor} />}
+            </IconButton>
+        );
+        return isDisabled ? createButton() : (
+            <Tooltip
+                title={playerInput.star ? 'Kreativ-Markierung aufheben' : 'Als besonders kreativ markieren'}
+                placement="bottom"
+                arrow
+            >
+                {createButton()}
+            </Tooltip>
+        );
+    };
+
     /**
      * Creates a search link for a specific category and player input.
      */
@@ -134,43 +180,14 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                 <Tooltip
                     title="Begriff nachschlagen"
                     placement="bottom"
+                    arrow
                 >
                     <SearchIcon color="primary" />
                 </Tooltip>
             </a>
         );
     };
-    /**
-      * Toggles the "marked as very creative" status of a player's input for a category,
-      * but only if the user hasn't accepted the round evaluation yet and isn't trying to mark their own answer as "very creative".
-      */
-    const handleMarkAsCreativeAnswerToggleClick = (
-        categoryIndex: number, evaluatedPlayerId: string, isMarkedAsCreative: boolean
-    ) => {
-        props.updateIsPlayerInputVeryCreativeStatus({ categoryIndex, evaluatedPlayerId, markedAsCreative: !isMarkedAsCreative });
-    };
-    /**
-     * Creates a "mark as creative answer" toggle button for a specific category and player input.
-     */
-    const createMarkAsCreativeAnswerToggle = (categoryIndex: number, indexInSortedPlayers: number): JSX.Element => {
-        const evaluatedPlayer = sortedPlayers[indexInSortedPlayers];
-        const playerInput = (finishedRound.get(evaluatedPlayer.id) as PlayerInput[])[categoryIndex];
-        return (
-            <Tooltip
-                title={playerInput.star ? 'Kreativ-Markierung aufheben' : 'Als besonders kreativ markieren'}
-                placement="bottom"
-            >
-                <IconButton
-                    color="primary"
-                    size="small"
-                    disabled={hasFinishedEvaluation || evaluatedPlayer.id === props.playerInfo.id}
-                    onClick={() => handleMarkAsCreativeAnswerToggleClick(categoryIndex, evaluatedPlayer.id, playerInput.star)}
-                >
-                    {playerInput.star ? <StarIcon /> : <StarBorderIcon />}
-                </IconButton>
-            </Tooltip>
-        );
-    };
+
     const calculatePoints = (evaluatedPlayerInput: PlayerInput): number => {
         return gameConfig.scoringOptions.creativeAnswersExtraPoints && evaluatedPlayerInput.star
             ? evaluatedPlayerInput.points + EXTRA_POINTS : evaluatedPlayerInput.points;
@@ -185,6 +202,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
             </div>
         );
     };
+
     /**
      * Shows the player's input for a category. If the player input isn't an empty string, then on the right upper
      * side of the textfield a search link, "mark as creative" button and evaluation button are displayed.
@@ -231,11 +249,12 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                 <div className={styles.button_wrapper}>
                     {hasPlayerTypedText ? createSearchLink(categoryIndex, indexInSortedPlayers) : null}
                     {isInputValid ? createMarkAsCreativeAnswerToggle(categoryIndex, indexInSortedPlayers) : null}
-                    {createEvaluationButton(categoryIndex, indexInSortedPlayers)}
+                    {createEvaluationButtonOrIcon(categoryIndex, indexInSortedPlayers)}
                 </div>
             </div>
         );
     };
+
     /**
      * Creates a section for each category of the current game. It displays the category in the header,
      * followed by one textfield for each player showing their input for the finished round.
@@ -246,15 +265,19 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
             key={'slf-evaluation-for-category-no-' + categoryIndex}
             className="material-card-style"
         >
-            <h3 className="section-header">{category}</h3>
+            <h3
+                id={'slf-category-no-' + categoryIndex}
+                className="section-header"
+            >{category}</h3>
             <div
-                key={'slf-answers-for-category-no-' + categoryIndex}
                 role="list"
+                aria-labelledby={'slf-category-no-' + categoryIndex}
             >
                 {sortedPlayers.map((_, indexInSortedPlayers) => playerEvaluationElements(categoryIndex, indexInSortedPlayers))}
             </div>
         </div>
     );
+
     const onAcceptEvaluationButtonClick = () => {
         if (!hasFinishedEvaluation) {
             setHasFinishedEvaluation(true);
@@ -279,7 +302,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                 className="fixed-bottom-right-button"
                 color="secondary"
                 title="Bestätigen"
-                aria-label="Bestätigen"
+                aria-label={hasFinishedEvaluation ? 'Du hast bereits bestätigt' : 'Bestätigen'}
                 onClick={onAcceptEvaluationButtonClick}
             >
                 {hasFinishedEvaluation ? <CheckCircleIcon /> : <RadioButtonUncheckedIcon />}
