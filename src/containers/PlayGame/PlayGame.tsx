@@ -136,12 +136,20 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             />
         );
         const { allPlayers, currentPhase, gameConfig, showLetterAnimation, showLoadingScreen } = this.state;
-        const adminPanel = <AdminPanel allPlayers={allPlayers} kickPlayer={this.sendKickPlayerMessage} />;
         const showWaitingForPlayers = currentPhase === GamePhase.fillOutTextfields
             && (gameConfig && gameConfig.endRoundMode === EndRoundMode.allPlayersSubmit)
             && this.state.playersThatFinishedRound.size !== allPlayers.size;
         const loadingScreenElement = !showWaitingForPlayers ? <LoadingScreen />
             : <LoadingScreen waitingForPlayers={this.getWaitingForPlayers()} />;
+        const showAdminPanel = this.props.playerInfo.isAdmin && allPlayers.size > 1;
+        const createAdminPanel = (isForMobileView: boolean) => (
+            <AdminPanel
+                allPlayers={allPlayers}
+                currentPhase={currentPhase}
+                isForMobileView={isForMobileView}
+                kickPlayer={this.sendKickPlayerMessage}
+            />
+        );
 
         return (
             <React.Fragment>
@@ -162,10 +170,11 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                     {showLoadingScreen ? loadingScreenElement : null}
                     {!showLoadingScreen && !showLetterAnimation ? (
                         <React.Fragment>
-                            {this.props.playerInfo.isAdmin && allPlayers.size > 1 ? adminPanel : null}
+                            {showAdminPanel ? createAdminPanel(false) : null}
                             <div className="main-content-wrapper">
                                 {this.createCurrentPhaseElement()}
                             </div>
+                            {showAdminPanel ? createAdminPanel(true) : null}
                         </React.Fragment>
                     ) : null}
                 </PubNubProvider>
