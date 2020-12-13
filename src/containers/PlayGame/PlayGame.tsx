@@ -256,6 +256,10 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         }
     }
 
+    private alertOnTenSecondsRemaining = () => this.informScreenReaderUser('Noch 10 Sekunden');
+
+    private informScreenReaderUser = (message: string) => this.setState({ a11yMessagePolite: message });
+
     private callbackWhenAnimationDone = () => {
         const { currentRound, gameConfig } = this.state;
         const currentLetter = gameConfig?.letters[this.state.currentRound - 1] as string;
@@ -264,17 +268,82 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         this.setState({ a11yMessagePolite, showLetterAnimation: false });
     }
 
+    /**
+     * Returns the names of the players that haven't submitted their answers yet.
+     */
+    private getWaitingForPlayers = (): string[] => {
+        const waitingForPlayers: string[] = [];
+        getPlayersInAlphabeticalOrder(this.state.allPlayers).forEach(player => {
+            if (!this.state.playersThatFinishedRound.has(player.id)) {
+                waitingForPlayers.push(player.name);
+            }
+        });
+        return waitingForPlayers;
+    }
+
     private navigateToJoinGamePage = (errorMessage: string) => {
         removeAllDataOfRunningGameFromLocalStorage();
         this.props.onResetAppState({ joinGameErrorMessage: errorMessage });
         this.props.history.push('/joingame');
     }
 
-    private alertOnTenSecondsRemaining = () => this.informScreenReaderUser('Noch 10 Sekunden');
+    //#region Process user actions
+    private updateCurrentRoundInputs = (newCurrentRoundInputs: PlayerInput[]) => {
+        this.setState({ currentRoundInputs: newCurrentRoundInputs });
+    }
 
-    private informScreenReaderUser = (message: string) => this.setState({ a11yMessagePolite: message });
+    /**
+     * Gets called when the countdown reaches zero.
+     */
+    private finishRoundOnCountdownComplete = () => {
+        this.setState({ showLoadingScreen: true });
+        // We only want the game admin to send the "roundFinished" message once.
+        if (this.props.playerInfo.isAdmin) {
+            this.sendPubNubMessage({ type: PubNubMessageType.roundFinished });
+        }
+    }
 
-    //#region PubNub message handling
+    /**
+     * Gets called when the user ends the current round.
+     */
+    private finishRoundOnUserAction = () => {
+        const playersThatFinishedRound = cloneDeep(this.state.playersThatFinishedRound);
+        playersThatFinishedRound.set(this.props.playerInfo.id, true);
+        this.setState({ playersThatFinishedRound, showLoadingScreen: true });
+        this.sendPubNubMessage({ type: PubNubMessageType.roundFinished });
+    }
+
+    /**
+     * Is called by PhaseEvaluateRound component in order to communicate a player input evaluation via a
+     * PubNub message. This message is then processed by all players in the game (including the user who sent it).
+     */
+    private updateEvaluationOfPlayerInput = (newEvaluation: EvaluationOfPlayerInput) => {
+        const message = new PubNubEvaluationOfPlayerInputMessage(newEvaluation);
+        this.sendPubNubMessage(message.toPubNubMessage());
+    }
+
+    /**
+     * Is called by PhaseEvaluateRound component in order to communicate the "marked as very creative" status of a player input
+     * via a PubNub message. This message is then processed by all players in the game (including the user who sent it).
+     */
+    private updateIsPlayerInputVeryCreativeStatus = (newStatus: IsPlayerInputVeryCreativeStatus) => {
+        const message = new PubNubIsPlayerInputVeryCreativeMessage(newStatus);
+        this.sendPubNubMessage(message.toPubNubMessage());
+    }
+
+    /**
+     * Is called by PhaseEvaluateRound component in order to communicate to all players
+     * that the user of this instance of the game has finished evaluating the current round.
+     */
+    private sendEvaluationFinishedMessage = () => this.sendPubNubMessage({ type: PubNubMessageType.evaluationFinished });
+
+    private sendKickPlayerMessage = (playerId: string) => {
+        const message = new PubNubKickPlayerMessage(playerId);
+        this.sendPubNubMessage(message.toPubNubMessage());
+    }
+    //#endregion
+
+    //#region PubNub event and message handling
     private sendPubNubMessage = (message: PubNubMessage) => {
         this.pubNubClient.publish(
             {
@@ -375,31 +444,6 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         });
     }
 
-    private updateCurrentRoundInputs = (newCurrentRoundInputs: PlayerInput[]) => {
-        this.setState({ currentRoundInputs: newCurrentRoundInputs });
-    }
-
-    /**
-     * Gets called when the countdown reaches zero (isUserAction = false).
-     */
-    private finishRoundOnCountdownComplete = () => {
-        this.setState({ showLoadingScreen: true });
-        // We only want the game admin to send the "roundFinished" message once.
-        if (this.props.playerInfo.isAdmin) {
-            this.sendPubNubMessage({ type: PubNubMessageType.roundFinished });
-        }
-    }
-
-    /**
-     * Gets called when the user ends the current round.
-     */
-    private finishRoundOnUserAction = () => {
-        const playersThatFinishedRound = cloneDeep(this.state.playersThatFinishedRound);
-        playersThatFinishedRound.set(this.props.playerInfo.id, true);
-        this.setState({ playersThatFinishedRound, showLoadingScreen: true });
-        this.sendPubNubMessage({ type: PubNubMessageType.roundFinished });
-    }
-
     /**
      * This method is called when the PubNub message 'roundFinished' is received.
      */
@@ -455,28 +499,6 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     }
 
     /**
-     * Returns the names of the players that haven't submitted their answers yet.
-     */
-    private getWaitingForPlayers = (): string[] => {
-        const waitingForPlayers: string[] = [];
-        getPlayersInAlphabeticalOrder(this.state.allPlayers).forEach(player => {
-            if (!this.state.playersThatFinishedRound.has(player.id)) {
-                waitingForPlayers.push(player.name);
-            }
-        });
-        return waitingForPlayers;
-    }
-
-    /**
-     * Is called by PhaseEvaluateRound component in order to communicate a player input evaluation via a
-     * PubNub message. This message is then processed by all players in the game (including the user who sent it).
-     */
-    private updateEvaluationOfPlayerInput = (newEvaluation: EvaluationOfPlayerInput) => {
-        const message = new PubNubEvaluationOfPlayerInputMessage(newEvaluation);
-        this.sendPubNubMessage(message.toPubNubMessage());
-    }
-
-    /**
      * This method is called when the PubNub message 'evaluationOfPlayerInput' is received.
      * It processes the new evaluation and changes data in currentRoundEvaluation and gameRounds accordingly.
      */
@@ -506,15 +528,6 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     }
 
     /**
-     * Is called by PhaseEvaluateRound component in order to communicate the "marked as very creative" status of a player input
-     * via a PubNub message. This message is then processed by all players in the game (including the user who sent it).
-     */
-    private updateIsPlayerInputVeryCreativeStatus = (newStatus: IsPlayerInputVeryCreativeStatus) => {
-        const message = new PubNubIsPlayerInputVeryCreativeMessage(newStatus);
-        this.sendPubNubMessage(message.toPubNubMessage());
-    }
-
-    /**
      * This method is called when the PubNub message 'isPlayerInputVeryCreative' is received.
      * It processes the new status and changes data in gameRounds accordingly.
      */
@@ -535,12 +548,6 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
 
         this.setState({ a11yMessagePolite, gameRounds });
     }
-
-    /**
-     * Is called by PhaseEvaluateRound component in order to communicate to all players
-     * that the user of this instance of the game has finished evaluating the current round.
-     */
-    private sendEvaluationFinishedMessage = () => this.sendPubNubMessage({ type: PubNubMessageType.evaluationFinished });
 
     /**
      * This method is called when the PubNub message 'evaluationFinished' is received.
@@ -582,11 +589,6 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                 showLetterAnimation: true
             });
         }
-    }
-
-    private sendKickPlayerMessage = (playerId: string) => {
-        const message = new PubNubKickPlayerMessage(playerId);
-        this.sendPubNubMessage(message.toPubNubMessage());
     }
 
     /**

@@ -12,7 +12,7 @@ const useStyles = makeStyles((theme: Theme) =>
             color: theme.palette.primary.contrastText,
             padding: '0.5rem 1rem',
             fontSize: '1.5rem',
-            boxShadow: '0 2px 4px rgba(0, 0, 0, .401961)',
+            boxShadow: '0 0 6px 4px rgba(0, 0, 0, .401961)',
             borderRadius: '5px',
         },
     }),
