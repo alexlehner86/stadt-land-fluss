@@ -1,10 +1,10 @@
 import { GamePhase } from '../constants/game.constant';
 import { Collection } from './collection.interface';
 import {
+    EqualAnswersOfCategory,
     EvaluationOfPlayerInput,
     GameConfig,
     IsPlayerInputVeryCreativeStatus,
-    MarkEqualAnswersPayload,
     PlayerInput,
 } from './game.interface';
 import { PlayerInfo } from './player.interface';
@@ -66,7 +66,7 @@ export class PubNubIsPlayerInputVeryCreativeMessage {
 }
 
 export class PubNubMarkEqualAnswersMessage {
-    constructor(private payload: MarkEqualAnswersPayload) {}
+    constructor(private payload: EqualAnswersOfCategory) {}
 
     public toPubNubMessage(): PubNubMessage {
         return {
@@ -88,6 +88,7 @@ export class PubNubKickPlayerMessage {
 }
 
 export interface PubNubDataForCurrentGameMessagePayload {
+    compressedEqualAnswers?: EqualAnswersOfCategory[];
     compressedGameRoundEvaluation: boolean[][][];
     compressedMarkedAsCreativeFlags: boolean[][];
     currentPhase: GamePhase;

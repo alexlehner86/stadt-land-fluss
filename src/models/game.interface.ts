@@ -92,9 +92,11 @@ export interface IsPlayerInputVeryCreativeStatus {
     markedAsCreative: boolean;
 }
 
-export interface MarkEqualAnswersPayload {
-    categoryIndex: number;
-    equalAnswers: string[];
+export interface EqualAnswersOfCategory {
+    /** category index */
+    c: number;
+    /** value = equal answers */
+    v: string[];
 }
 
 export interface GameResultForPlayer {

@@ -21,12 +21,12 @@ import { GERMAN_PHONETIC_ALPHABET } from '../../constants/phonetic-alphabet.cons
 import { CREATED_GAME_ADMIN_MESSAGE, JOINED_GAME_MESSAGE } from '../../constants/sr-message.constant';
 import {
     EndRoundMode,
+    EqualAnswersOfCategory,
     EvaluationOfPlayerInput,
     GameConfig,
     GameRound,
     GameRoundEvaluation,
     IsPlayerInputVeryCreativeStatus,
-    MarkEqualAnswersPayload,
     PlayerInput,
     PlayerInputEvaluation,
 } from '../../models/game.interface';
@@ -53,8 +53,10 @@ import {
 import { AppState } from '../../store/app.reducer';
 import {
     applyMarkedAsCreativeFlags,
+    compressEqualAnswers,
     compressGameRoundEvaluation,
     compressMarkedAsCreativeFlags,
+    decompressEqualAnswers,
     decompressGameRoundEvaluation,
     restoreGameRoundsOfRunningGameFromLocalStorage,
     setPointsAndValidity,
@@ -96,6 +98,7 @@ export interface PlayGameState {
     allPlayers: Map<string, PlayerInfo>;
     currentPhase: GamePhase;
     currentRound: number;
+    currentRoundEqualAnswers: Map<number, string[]>;
     currentRoundEvaluation: GameRoundEvaluation;
     currentRoundInputs: PlayerInput[];
     gameConfig: GameConfig | null;
@@ -112,6 +115,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         allPlayers: new Map<string, PlayerInfo>(),
         currentPhase: GamePhase.waitingToStart,
         currentRound: 1,
+        currentRoundEqualAnswers: new Map<number, string[]>(),
         currentRoundEvaluation: new Map<string, PlayerInputEvaluation[]>(),
         currentRoundInputs: [],
         gameConfig: null,
@@ -342,7 +346,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     private sendEqualAnswersSelection = (categoryIndex: number, equalAnswers: string[]) => {
         const category = this.state.gameConfig?.categories[categoryIndex];
         this.informScreenReaderUser(`Auswahl für Kategorie ${category} wurde angewendet.`);
-        const message = new PubNubMarkEqualAnswersMessage({ categoryIndex, equalAnswers });
+        const message = new PubNubMarkEqualAnswersMessage({ c: categoryIndex, v: equalAnswers });
         this.sendPubNubMessage(message.toPubNubMessage());
     }
 
@@ -506,8 +510,9 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         // Did we collect the inputs from all players?
         if (gameRounds[roundIndex].size === this.state.allPlayers.size) {
             // If yes, then calculate points and start the evaluation of the finished round.
-            const a11yMessagePolite = `Runde ${this.state.currentRound} ist zu Ende. Wertet nun die Antworten aus.`;
-            calculatePointsForRound((this.state.gameConfig as GameConfig).scoringOptions, gameRounds[roundIndex]);
+            const { currentRound, currentRoundEqualAnswers, gameConfig } = this.state;
+            const a11yMessagePolite = `Runde ${currentRound} ist zu Ende. Wertet nun die Antworten aus.`;
+            calculatePointsForRound((gameConfig as GameConfig).scoringOptions, gameRounds[roundIndex], currentRoundEqualAnswers);
             setRunningGameRoundInLocalStorage(this.state.currentRound, gameRounds[roundIndex]);
             this.setState({ a11yMessagePolite, currentPhase: GamePhase.evaluateRound, gameRounds, showLoadingScreen: false });
         } else {
@@ -533,7 +538,8 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         const finishedRound = gameRounds[this.state.currentRound - 1];
         const playerInput = (finishedRound.get(evaluatedPlayerId) as PlayerInput[])[categoryIndex];
         playerInput.valid = isInputValid;
-        calculatePointsForCategory((this.state.gameConfig as GameConfig).scoringOptions, finishedRound, categoryIndex);
+        const scoringOptions = (this.state.gameConfig as GameConfig).scoringOptions;
+        calculatePointsForCategory(scoringOptions, finishedRound, categoryIndex, this.state.currentRoundEqualAnswers.get(categoryIndex));
 
         // Inform screen reader users
         const evaluatorName = this.state.allPlayers.get(evaluatorId)?.name;
@@ -570,9 +576,23 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     /**
      * This method is called when the PubNub message 'markEqualAnswers' is received.
      */
-    private processMarkEqualAnswersMessage = (payload: MarkEqualAnswersPayload) => {
-        console.log(payload);
-        // TODO: process payload
+    private processMarkEqualAnswersMessage = (payload: EqualAnswersOfCategory) => {
+        const categoryIndex = payload.c;
+        const equalAnswers = payload.v;
+
+        // Update data with answers marked as equal to at least one other answer
+        const currentRoundEqualAnswers = cloneDeep(this.state.currentRoundEqualAnswers);
+        currentRoundEqualAnswers.set(categoryIndex, equalAnswers);
+        const scoringOptions = (this.state.gameConfig as GameConfig).scoringOptions;
+        const gameRounds = cloneDeep(this.state.gameRounds);
+        calculatePointsForCategory(scoringOptions, gameRounds[this.state.currentRound - 1], categoryIndex, equalAnswers);
+
+        // Inform screen reader users
+        const category = this.state.gameConfig?.categories[categoryIndex];
+        const message = `Manuelle Markierung gleicher Antworten in der Kategorie ${category} wurde angewendet.`;
+        this.props.enqueueSnackbar(message, { 'aria-live': 'off' });
+
+        this.setState({ a11yMessagePolite: message, currentRoundEqualAnswers, gameRounds });
     }
 
     /**
@@ -606,6 +626,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             this.setState({
                 a11yMessagePolite: 'Auswertung beendet. Der nächste Buchstabe wird ermittelt.',
                 currentPhase: GamePhase.fillOutTextfields,
+                currentRoundEqualAnswers: new Map<number, string[]>(),
                 currentRoundEvaluation: createGameRoundEvaluation(allPlayers, gameConfig.categories),
                 currentRoundInputs: getEmptyRoundInputs(gameConfig.categories.length),
                 currentRound: nextRound,
@@ -649,11 +670,14 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     private sendDataForCurrentGame = (requestingPlayerId: string) => {
         const { allPlayers, currentPhase, currentRound, currentRoundEvaluation, gameRounds } = this.state;
         const sortedPlayers = getPlayersInAlphabeticalOrder(allPlayers);
+        const compressedGameRoundEqualAnswers = currentPhase === GamePhase.evaluateRound
+            ? compressEqualAnswers(this.state.currentRoundEqualAnswers) : [];
         const compressedGameRoundEvaluation = currentPhase === GamePhase.evaluateRound
             ? compressGameRoundEvaluation(currentRoundEvaluation, sortedPlayers) : [];
         const compressedMarkedAsCreativeFlags = currentPhase === GamePhase.evaluateRound
             ? compressMarkedAsCreativeFlags(gameRounds[currentRound - 1], sortedPlayers) : [];
         const message = new PubNubDataForCurrentGameMessage({
+            compressedEqualAnswers: compressedGameRoundEqualAnswers,
             compressedGameRoundEvaluation,
             compressedMarkedAsCreativeFlags,
             currentPhase,
@@ -680,13 +704,15 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         if (gameConfig && gameRounds.length === numberOfRoundsToRestore) {
             const allPlayers = new Map<string, PlayerInfo>();
             payload.sortedPlayers.forEach(player => allPlayers.set(player.id, player));
+            const currentRoundEqualAnswers = decompressEqualAnswers(payload.compressedEqualAnswers || []);
             let currentRoundEvaluation: GameRoundEvaluation;
             // If we are in evaluation phase, then we received the current evaluations and the
             // "marked as very creative" data, which we need to apply to the player inputs.
             if (payload.currentPhase === GamePhase.evaluateRound) {
                 const round = gameRounds[payload.currentRound - 1];
                 currentRoundEvaluation = decompressGameRoundEvaluation(payload.compressedGameRoundEvaluation, payload.sortedPlayers);
-                setPointsAndValidity(gameConfig.scoringOptions, currentRoundEvaluation, getMinNumberOfInvalids(allPlayers.size), round);
+                const min = getMinNumberOfInvalids(allPlayers.size);
+                setPointsAndValidity(gameConfig.scoringOptions, currentRoundEvaluation, currentRoundEqualAnswers, min, round);
                 applyMarkedAsCreativeFlags(payload.compressedMarkedAsCreativeFlags, payload.sortedPlayers, round);
             } else {
                 // If not in evaluation phase, we need to prepare a GameRound and GameRoundEvaluation object for the current round.
@@ -697,6 +723,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                 allPlayers,
                 currentPhase: payload.currentPhase,
                 currentRound: payload.currentRound,
+                currentRoundEqualAnswers,
                 currentRoundEvaluation,
                 currentRoundInputs: getEmptyRoundInputs(gameConfig.categories.length),
                 gameConfig,

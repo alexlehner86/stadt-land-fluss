@@ -133,11 +133,15 @@ class GameManual extends Component<RouteComponentProps> {
                     <p>
                         Falls ein Mitspieler aus irgendeinem Grund (Browserabsturz, Akku leer etc.) aus dem Spiel fliegt, kann
                         sie oder er über den <span>Zurück ins laufende Spiel-Button</span> wieder ins Spiel zurückkehren. Dieser findet
-                        sich auf der Startseite. Darüber hinaus hat der Administrator in einem laufenden Spiel die Möglichkeit, über
+                        sich auf der Startseite.
+                        </p>
+                    <p>
+                        Der oder die Administrator/in hat in einem laufenden Spiel die Möglichkeit, über
                         den <SettingsIcon fontSize="small" className={styles.inline_icon} />
                         <span className="sr-only">Administrator-Optionen</span>-Button (rechts oben bzw. auf Mobilgeräten ganz unten)
                         andere Spieler aus dem Spiel zu werfen. Das ist natürlich nur als letztes Mittel gedacht, um ein begonnenes
-                        Spiel beenden zu können.
+                        Spiel beenden zu können. Darüber hinaus kann über die Menü-Option &bdquo;Gleiche Antworten markieren&rdquo;
+                        ein Dialog geöffnet werden, der die manuelle Markierung von gleichen Antworten pro Kategorie ermöglicht.
                     </p>
                     <h3>Spielende</h3>
                     <p>

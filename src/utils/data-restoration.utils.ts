@@ -1,4 +1,5 @@
 import { cloneDeep } from 'lodash';
+
 import {
     GameConfigScoringOptions,
     GameRound,
@@ -7,6 +8,7 @@ import {
     PlayerInputEvaluation,
 } from '../models/game.interface';
 import { PlayerInfo } from '../models/player.interface';
+import { EqualAnswersOfCategory } from './../models/game.interface';
 import { calculatePointsForRound, getNumberOfInvalids } from './game.utils';
 import { getRunningGameRoundFromLocalStorage } from './local-storage.utils';
 
@@ -79,6 +81,18 @@ export const compressMarkedAsCreativeFlags = (round: GameRound, sortedPlayers: P
     return markedAsCreativeArrays;
 };
 
+export const compressEqualAnswers = (equalAnswers: Map<number, string[]>): EqualAnswersOfCategory[] => {
+    const compressedEqualAnswers: EqualAnswersOfCategory[] = [];
+    equalAnswers.forEach((answers, index) => compressedEqualAnswers.push({ c: index, v: answers }));
+    return compressedEqualAnswers;
+};
+
+export const decompressEqualAnswers = (compressedEqualAnswers: EqualAnswersOfCategory[]): Map<number, string[]>  => {
+    const equalAnswers = new Map<number, string[]>();
+    compressedEqualAnswers.forEach(item => equalAnswers.set(item.c, item.v));
+    return equalAnswers;
+};
+
 export const restoreGameRoundsOfRunningGameFromLocalStorage = (numberOfRoundsToRestore: number): GameRound[] => {
     const gameRounds: GameRound[] = [];
     for (let round = 1; round <= numberOfRoundsToRestore; round++) {
@@ -94,20 +108,22 @@ export const restoreGameRoundsOfRunningGameFromLocalStorage = (numberOfRoundsToR
  * Sets points and validity of player inputs for a player who is rejoining the game in evaluation phase.
  */
 export const setPointsAndValidity = (
-    scoringOptions: GameConfigScoringOptions, gameRoundEvaluation: GameRoundEvaluation, minNumberOfInvalids: number, round: GameRound
+    scoringOptions: GameConfigScoringOptions,
+    gameRoundEvaluation: GameRoundEvaluation,
+    gameRoundEqualAnswers: Map<number, string[]>,
+    minNumberOfInvalids: number,
+    round: GameRound
 ): void => {
     // First evaluate validity
     round.forEach((playerInputs, playerId) => {
         const evaluations = gameRoundEvaluation.get(playerId) as PlayerInputEvaluation[];
         playerInputs.forEach((input, categoryIndex) => {
             // Only evaluate validity for originally valid inputs (not empty text inputs).
-            if (input.valid) {
-                input.valid = getNumberOfInvalids(evaluations[categoryIndex]) < minNumberOfInvalids;
-            }
+            input.valid = input.valid && getNumberOfInvalids(evaluations[categoryIndex]) < minNumberOfInvalids;
         });
     });
     // Second calculate points
-    calculatePointsForRound(scoringOptions, round);
+    calculatePointsForRound(scoringOptions, round, gameRoundEqualAnswers);
 };
 
 /**

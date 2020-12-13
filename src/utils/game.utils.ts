@@ -96,21 +96,27 @@ export const createGameRoundEvaluation = (players: Map<string, PlayerInfo>, cate
 
 /**
  * Calculates the points for the round's inputs according to the active scoring options.
+ * `equalAnswers`: The answers manually marked equal by the admin for each category (key = index).
  */
-export const calculatePointsForRound = (scoringOptions: GameConfigScoringOptions, round: GameRound): void => {
+export const calculatePointsForRound = (
+    scoringOptions: GameConfigScoringOptions, round: GameRound, equalAnswers: Map<number, string[]>
+): void => {
     if (!scoringOptions.checkForDuplicates && !scoringOptions.onlyPlayerWithValidAnswer) { return; }
     const playerId = round.keys().next().value;
     const playerInputsOfPlayer1 = round.get(playerId) as PlayerInput[];
     // Loop through all categories.
     for (let categoryIndex = 0; categoryIndex < playerInputsOfPlayer1.length; categoryIndex++) {
-        calculatePointsForCategory(scoringOptions, round, categoryIndex);
+        calculatePointsForCategory(scoringOptions, round, categoryIndex, equalAnswers.get(categoryIndex));
     }
 };
 
 /**
  * Calculates the points for the round's inputs for one category according to the active scoring options.
+ * `equalAnswersForCategory`: The answers manually marked equal by the admin.
  */
-export const calculatePointsForCategory = (scoringOptions: GameConfigScoringOptions, round: GameRound, categoryIndex: number): void => {
+export const calculatePointsForCategory = (
+    scoringOptions: GameConfigScoringOptions, round: GameRound, categoryIndex: number, equalAnswersForCategory: string[] = []
+): void => {
     if (!scoringOptions.checkForDuplicates && !scoringOptions.onlyPlayerWithValidAnswer) { return; }
     Array.from(round.keys()).forEach(playerId => {
         const playerInputs = round.get(playerId) as PlayerInput[];
@@ -119,7 +125,8 @@ export const calculatePointsForCategory = (scoringOptions: GameConfigScoringOpti
             if (scoringOptions.onlyPlayerWithValidAnswer && isOnlyPlayerWithValidAnswer(playerId, round, categoryIndex)) {
                 playerInputs[categoryIndex].points = ONLY_ANSWER_POINTS;
             } else {
-                const awardSameWordPoints = scoringOptions.checkForDuplicates && isDuplicateOfOtherPlayersInput(playerId, round, categoryIndex);
+                const awardSameWordPoints = scoringOptions.checkForDuplicates
+                    && isDuplicateOfOtherPlayersInput(playerId, round, categoryIndex, equalAnswersForCategory);
                 playerInputs[categoryIndex].points = awardSameWordPoints ? SAME_WORD_POINTS : STANDARD_POINTS;
             }
         }
@@ -135,11 +142,14 @@ export const isOnlyPlayerWithValidAnswer = (playerId: string, round: GameRound, 
 
 /**
  * Returns true if a duplicate for playerId's input was found.
+ * `equalAnswers`: The answers manually marked equal by the admin.
  */
-export const isDuplicateOfOtherPlayersInput = (playerId: string, round: GameRound, categoryIndex: number): boolean => {
-    const otherPlayersIds = Array.from(round.keys()).filter(id => id !== playerId);
+export const isDuplicateOfOtherPlayersInput = (
+    playerId: string, round: GameRound, categoryIndex: number, equalAnswers: string[]
+): boolean => {
     const playerInputText = getCleanText((round.get(playerId) as PlayerInput[])[categoryIndex].text);
-    return some(otherPlayersIds, id => {
+    const otherPlayersIds = Array.from(round.keys()).filter(id => id !== playerId);
+    return equalAnswers.includes(playerInputText) || some(otherPlayersIds, id => {
         const otherPlayersInput = (round.get(id) as PlayerInput[])[categoryIndex];
         return otherPlayersInput.valid && playerInputText === getCleanText(otherPlayersInput.text);
     });
