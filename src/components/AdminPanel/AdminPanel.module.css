@@ -27,13 +27,6 @@
     border-bottom: 1px solid #555555;
 }
 
-.dialogContent {
-    max-width: 23rem;
-}
-.dialogContentText {
-    color: black;
-}
-
 @media only screen and (max-width: 45rem) {
     .adminPanel {
         display: none;

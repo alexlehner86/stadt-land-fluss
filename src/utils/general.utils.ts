@@ -42,3 +42,6 @@ export const convertMapToCollection = <T>(mapToConvert: Map<string, T>): Collect
     mapToConvert.forEach((data, key) => dataAsCollection[key] = data);
     return dataAsCollection;
 };
+
+/** Converts text to lower case and removes all non-alphanumeric characters for comparison */
+export const getCleanText = (text: string): string => text.toLowerCase().replace(/[^0-9a-z]/gi, '');

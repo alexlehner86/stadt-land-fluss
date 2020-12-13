@@ -1,12 +1,19 @@
 import { some } from 'lodash';
 import randomnItem from 'random-item';
+
 import { ONLY_ANSWER_POINTS, SAME_WORD_POINTS, STANDARD_POINTS } from '../constants/game.constant';
 import { Collection } from '../models/collection.interface';
-import { GameConfigScoringOptions, PlayerInput, HallOfFameEntry } from '../models/game.interface';
+import { GameConfigScoringOptions, HallOfFameEntry, PlayerInput } from '../models/game.interface';
 import { PlayerInfo } from '../models/player.interface';
 import { EXTRA_POINTS } from './../constants/game.constant';
-import { GameResultForPlayer, GameRound, GameRoundEvaluation, PlayerInputEvaluation, GameConfig } from './../models/game.interface';
-import { createAndFillArray } from './general.utils';
+import {
+    GameConfig,
+    GameResultForPlayer,
+    GameRound,
+    GameRoundEvaluation,
+    PlayerInputEvaluation,
+} from './../models/game.interface';
+import { createAndFillArray, getCleanText } from './general.utils';
 
 /**
 * Returns an array of randomly selected, unique letters.
@@ -109,11 +116,8 @@ export const calculatePointsForCategory = (scoringOptions: GameConfigScoringOpti
             if (scoringOptions.onlyPlayerWithValidAnswer && isOnlyPlayerWithValidAnswer(playerId, round, categoryIndex)) {
                 playerInputs[categoryIndex].points = ONLY_ANSWER_POINTS;
             } else {
-                if (scoringOptions.checkForDuplicates && isDuplicateOfOtherPlayersInput(playerId, round, categoryIndex)) {
-                    playerInputs[categoryIndex].points = SAME_WORD_POINTS;
-                } else {
-                    playerInputs[categoryIndex].points = STANDARD_POINTS;
-                }
+                const awardSameWordPoints = scoringOptions.checkForDuplicates && isDuplicateOfOtherPlayersInput(playerId, round, categoryIndex);
+                playerInputs[categoryIndex].points = awardSameWordPoints ? SAME_WORD_POINTS : STANDARD_POINTS;
             }
         }
     });
@@ -127,14 +131,14 @@ export const isOnlyPlayerWithValidAnswer = (playerId: string, round: GameRound, 
 };
 
 /**
- * Returns true if a duplicate (removes all non-alphanumeric characters for comparison) for playerId's input was found.
+ * Returns true if a duplicate for playerId's input was found.
  */
 export const isDuplicateOfOtherPlayersInput = (playerId: string, round: GameRound, categoryIndex: number): boolean => {
     const otherPlayersIds = Array.from(round.keys()).filter(id => id !== playerId);
-    const playerInputText = (round.get(playerId) as PlayerInput[])[categoryIndex].text.toLowerCase().replace(/[^0-9a-z]/gi, '');
+    const playerInputText = getCleanText((round.get(playerId) as PlayerInput[])[categoryIndex].text);
     return some(otherPlayersIds, id => {
         const otherPlayersInput = (round.get(id) as PlayerInput[])[categoryIndex];
-        return otherPlayersInput.valid && playerInputText === otherPlayersInput.text.toLowerCase().replace(/[^0-9a-z]/gi, '');
+        return otherPlayersInput.valid && playerInputText === getCleanText(otherPlayersInput.text);
     });
 };
 
@@ -142,9 +146,7 @@ export const isDuplicateOfOtherPlayersInput = (playerId: string, round: GameRoun
  * Determines the minimum number of players that need to mark a player's input as invalid
  * for the input text to be set to invalid and not count as a point for the player.
  */
-export const getMinNumberOfInvalids = (numberOfPlayers: number): number => {
-    return numberOfPlayers <= 3 ? 1 : 2;
-};
+export const getMinNumberOfInvalids = (numberOfPlayers: number): number => numberOfPlayers <= 3 ? 1 : 2;
 
 /**
  * Returns how many players marked the input as invalid.

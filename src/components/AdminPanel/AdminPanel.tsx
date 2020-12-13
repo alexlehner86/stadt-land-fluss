@@ -1,15 +1,4 @@
-import {
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    IconButton,
-    ListItemIcon,
-    ListItemText,
-    Menu,
-    MenuItem,
-} from '@material-ui/core';
+import { IconButton, ListItemIcon, ListItemText, Menu, MenuItem } from '@material-ui/core';
 import CancelIcon from '@material-ui/icons/Cancel';
 import SettingsIcon from '@material-ui/icons/Settings';
 import React, { useRef, useState } from 'react';
@@ -17,68 +6,40 @@ import React, { useRef, useState } from 'react';
 import { GamePhase } from '../../constants/game.constant';
 import { PlayerInfo } from '../../models/player.interface';
 import { getPlayersInAlphabeticalOrder } from '../../utils/game.utils';
+import KickUserDialog from '../KickUserDialog/KickUserDialog';
+import MarkEqualAnswersDialog from '../MarkEqualAnswersDialog/MarkEqualAnswersDialog';
 import styles from './AdminPanel.module.css';
-
-export interface KickUserDialogProps {
-    open: boolean;
-    playerToBeKicked: PlayerInfo | null;
-    onClose: (kickPlayer: boolean) => void;
-}
-const KickUserDialog: React.FunctionComponent<KickUserDialogProps> = props => {
-    const { onClose, open } = props;
-    const submitButton = useRef<HTMLButtonElement>(null);
-    const onDialogEntered = () => submitButton.current?.focus();
-
-    return (
-        <Dialog onEntered={onDialogEntered} onClose={() => onClose(false)} open={open}>
-            <DialogContent classes={{ root: styles.dialogContent }}>
-                {props.playerToBeKicked ? (
-                    <DialogContentText classes={{ root: styles.dialogContentText }}>
-                        <span lang="en">&quot;With great power comes great responsibility&quot;</span>
-                        – Willst du {props.playerToBeKicked.name} wirklich aus dem Spiel werfen?
-                    </DialogContentText>
-                ) : null}
-            </DialogContent>
-            <DialogActions>
-                <Button
-                    type="button"
-                    onClick={() => onClose(false)}
-                >Abbrechen</Button>
-                <Button
-                    type="button"
-                    color="primary"
-                    ref={submitButton}
-                    onClick={() => onClose(true)}
-                >Rauswerfen</Button>
-            </DialogActions>
-        </Dialog>
-    );
-};
 
 interface AdminPanelProps {
     allPlayers: Map<string, PlayerInfo>;
-    currentPhase: GamePhase;
     isForMobileView: boolean;
+    isMarkEqualAnswersItemDisabled: boolean;
     kickPlayer: (playerId: string) => void;
 }
 const AdminPanel: React.FunctionComponent<AdminPanelProps> = props => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const [openDialog, setOpenDialog] = useState(false);
+    const [isMarkEqualAnswersDialogOpen, setIsMarkEqualAnswersDialogOpen] = useState(false);
+    const [isKickUserDialogOpen, setIsKickUserDialogOpen] = useState(false);
     const [playerToBeKicked, setPlayerToBeKicked] = useState<PlayerInfo | null>(null);
     const firstMenuItem = useRef<any>(null);
 
-    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
-    const handleMenuItemClick = (selectedPlayer: PlayerInfo) => {
-        setAnchorEl(null);
-        setPlayerToBeKicked(selectedPlayer);
-        setOpenDialog(true);
-    };
+    const handleMenuButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => setAnchorEl(event.currentTarget);
     const handleAdminPanelClose = () => setAnchorEl(null);
     const handleAdminPanelEntered = () => firstMenuItem.current?.focus();
+
+    const handleMarkEqualAnswersClick = () => {
+        setAnchorEl(null);
+        setIsMarkEqualAnswersDialogOpen(true);
+    };
+    const handleMarkEqualAnswersDialogClose = () => setIsMarkEqualAnswersDialogOpen(false);
+
+    const handleKickUserMenuItemClick = (selectedPlayer: PlayerInfo) => {
+        setAnchorEl(null);
+        setPlayerToBeKicked(selectedPlayer);
+        setIsKickUserDialogOpen(true);
+    };
     const handleKickUserDialogClose = (kickPlayer: boolean) => {
-        setOpenDialog(false);
+        setIsKickUserDialogOpen(false);
         if (kickPlayer && playerToBeKicked) {
             props.kickPlayer(playerToBeKicked.id);
         }
@@ -98,7 +59,7 @@ const AdminPanel: React.FunctionComponent<AdminPanelProps> = props => {
                 aria-label="Administrator-Optionen"
                 aria-controls="admin-panel"
                 aria-haspopup="true"
-                onClick={handleClick}
+                onClick={handleMenuButtonClick}
             >
                 <SettingsIcon className={styles.menuIcon} />
             </IconButton>
@@ -110,18 +71,20 @@ const AdminPanel: React.FunctionComponent<AdminPanelProps> = props => {
                 onClose={handleAdminPanelClose}
                 onEntered={handleAdminPanelEntered}
             >
-                {/** TODO: Implement mark equal answers dialog */}
                 <MenuItem
                     ref={firstMenuItem}
                     classes={{ root: styles.equalAnswersMenuItem }}
                     dense
-                    disabled={props.currentPhase !== GamePhase.evaluateRound}
-                >Gleichwertige Antworten markieren</MenuItem>
+                    disabled={props.isMarkEqualAnswersItemDisabled}
+                    onClick={handleMarkEqualAnswersClick}
+                >
+                    Gleiche Antworten markieren
+                </MenuItem>
                 {sortedPlayers.map((playerInfo, playerIndex) => (
                     <MenuItem
                         key={`menu-item-delete-player-${playerIndex}`}
                         dense
-                        onClick={() => handleMenuItemClick(playerInfo)}
+                        onClick={() => handleKickUserMenuItemClick(playerInfo)}
                     >
                         <ListItemIcon>
                             <CancelIcon color="secondary" />
@@ -130,8 +93,12 @@ const AdminPanel: React.FunctionComponent<AdminPanelProps> = props => {
                     </MenuItem>
                 ))}
             </Menu>
+            <MarkEqualAnswersDialog
+                open={isMarkEqualAnswersDialogOpen}
+                onClose={handleMarkEqualAnswersDialogClose}
+            />
             <KickUserDialog
-                open={openDialog}
+                open={isKickUserDialogOpen}
                 playerToBeKicked={playerToBeKicked}
                 onClose={handleKickUserDialogClose}
             />
