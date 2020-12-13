@@ -26,6 +26,7 @@ import {
     GameRound,
     GameRoundEvaluation,
     IsPlayerInputVeryCreativeStatus,
+    MarkEqualAnswersPayload,
     PlayerInput,
     PlayerInputEvaluation,
 } from '../../models/game.interface';
@@ -37,6 +38,7 @@ import {
     PubNubEvaluationOfPlayerInputMessage,
     PubNubIsPlayerInputVeryCreativeMessage,
     PubNubKickPlayerMessage,
+    PubNubMarkEqualAnswersMessage,
     PubNubMessage,
     PubNubMessageType,
     PubNubUserState,
@@ -150,6 +152,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                 isForMobileView={isForMobileView}
                 isMarkEqualAnswersItemDisabled={currentPhase !== GamePhase.evaluateRound || !gameConfig?.scoringOptions.checkForDuplicates}
                 kickPlayer={this.sendKickPlayerMessage}
+                submitEqualAnswers={this.sendEqualAnswersSelection}
             />
         );
 
@@ -334,6 +337,16 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     }
 
     /**
+     * Is called by AdminPanel component when admin user manually marks equal answers for a category.
+     */
+    private sendEqualAnswersSelection = (categoryIndex: number, equalAnswers: string[]) => {
+        const category = this.state.gameConfig?.categories[categoryIndex];
+        this.informScreenReaderUser(`Auswahl für Kategorie ${category} wurde angewendet.`);
+        const message = new PubNubMarkEqualAnswersMessage({ categoryIndex, equalAnswers });
+        this.sendPubNubMessage(message.toPubNubMessage());
+    }
+
+    /**
      * Is called by PhaseEvaluateRound component in order to communicate to all players
      * that the user of this instance of the game has finished evaluating the current round.
      */
@@ -406,6 +419,9 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                 break;
             case PubNubMessageType.isPlayerInputVeryCreative:
                 this.processIsPlayerInputVeryCreativeStatus(message.payload);
+                break;
+            case PubNubMessageType.markEqualAnswers:
+                this.processMarkEqualAnswersMessage(message.payload);
                 break;
             case PubNubMessageType.evaluationFinished:
                 this.countPlayerAsEvaluationFinished(event.publisher);
@@ -549,6 +565,14 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         const a11yMessagePolite = `Antwort ${playerInput.text} von ${evaluatedPlayerName} in Kategorie ${category} wurde als besonders kreativ ${action}.`;
 
         this.setState({ a11yMessagePolite, gameRounds });
+    }
+
+    /**
+     * This method is called when the PubNub message 'markEqualAnswers' is received.
+     */
+    private processMarkEqualAnswersMessage = (payload: MarkEqualAnswersPayload) => {
+        console.log(payload);
+        // TODO: process payload
     }
 
     /**

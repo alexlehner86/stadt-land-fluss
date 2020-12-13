@@ -13,7 +13,7 @@ import {
 } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { cloneDeep } from 'lodash';
-import React, { useRef, useState } from 'react';
+import React, { FormEvent, useRef, useState } from 'react';
 
 import { SAME_WORD_POINTS } from '../../constants/game.constant';
 import { GameRound, PlayerInput } from '../../models/game.interface';
@@ -25,11 +25,14 @@ export interface MarkEqualAnswersDialogProps {
     gameRoundToEvaluate: GameRound;
     open: boolean;
     onClose: () => void;
+    onSubmitEqualAnswers: (categoryIndex: number, equalAnswers: string[]) => void;
 }
 const MarkEqualAnswersDialog: React.FunctionComponent<MarkEqualAnswersDialogProps> = props => {
     const { gameRoundToEvaluate, open, onClose } = props;
     const [equalAnswers, setEqualAnswers] = useState(new Map<number, string[]>());
+    const [equalAnswersSentForCategories, setEqualAnswersSentForCategories] = useState<number[]>([]);
     const helpText = useRef<any>(null);
+    const onDialogEnter = () => setEqualAnswersSentForCategories([]);
     const onDialogEntered = () => helpText.current?.focus();
 
     const handleCheckboxChange = (categoryIndex: number, answer: string) => {
@@ -43,6 +46,12 @@ const MarkEqualAnswersDialog: React.FunctionComponent<MarkEqualAnswersDialogProp
         const newEqualAnswers = cloneDeep(equalAnswers);
         newEqualAnswers.set(categoryIndex, equalAnswersOfCategory);
         setEqualAnswers(newEqualAnswers);
+    };
+    const handleSubmit = (event: FormEvent, categoryIndex: number) => {
+        event.preventDefault();
+        setEqualAnswersSentForCategories([...equalAnswersSentForCategories, categoryIndex]);
+        const equalAnswersOfCategory = equalAnswers.get(categoryIndex) || [];
+        props.onSubmitEqualAnswers(categoryIndex, equalAnswersOfCategory);
     };
 
     const createAccordionWithEvaluationForm = (category: string, categoryIndex: number): JSX.Element => {
@@ -78,10 +87,17 @@ const MarkEqualAnswersDialog: React.FunctionComponent<MarkEqualAnswersDialogProp
                     {category}
                 </AccordionSummary>
                 <AccordionDetails>
-                    <form>
+                    <form onSubmit={event => handleSubmit(event, categoryIndex)}>
                         <FormGroup>
                             {answers.map(createFormLabel)}
                         </FormGroup>
+                        <Button
+                            type="submit"
+                            color="primary"
+                        >Auswahl anwenden</Button>
+                        {equalAnswersSentForCategories.includes(categoryIndex) ? (
+                            <p>Auswahl wurde angewendet.</p>
+                        ) : null}
                     </form>
                 </AccordionDetails>
             </Accordion>
@@ -89,7 +105,12 @@ const MarkEqualAnswersDialog: React.FunctionComponent<MarkEqualAnswersDialogProp
     };
 
     return (
-        <Dialog onEntered={onDialogEntered} onClose={onClose} open={open}>
+        <Dialog
+            onEnter={onDialogEnter}
+            onEntered={onDialogEntered}
+            onClose={onClose}
+            open={open}
+        >
             <DialogContent classes={{ root: styles.dialogContent }}>
                 <DialogContentText
                     classes={{ root: styles.dialogContentText }}

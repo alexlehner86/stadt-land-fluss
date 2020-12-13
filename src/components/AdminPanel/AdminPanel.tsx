@@ -18,6 +18,7 @@ interface AdminPanelProps {
     isForMobileView: boolean;
     isMarkEqualAnswersItemDisabled: boolean;
     kickPlayer: (playerId: string) => void;
+    submitEqualAnswers: (categoryIndex: number, equalAnswers: string[]) => void;
 }
 const AdminPanel: React.FunctionComponent<AdminPanelProps> = props => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -101,6 +102,7 @@ const AdminPanel: React.FunctionComponent<AdminPanelProps> = props => {
                 gameRoundToEvaluate={props.gameRound}
                 open={isMarkEqualAnswersDialogOpen}
                 onClose={handleMarkEqualAnswersDialogClose}
+                onSubmitEqualAnswers={props.submitEqualAnswers}
             />
             <KickUserDialog
                 open={isKickUserDialogOpen}

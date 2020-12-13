@@ -1,6 +1,12 @@
 import { GamePhase } from '../constants/game.constant';
 import { Collection } from './collection.interface';
-import { EvaluationOfPlayerInput, GameConfig, IsPlayerInputVeryCreativeStatus, PlayerInput } from './game.interface';
+import {
+    EvaluationOfPlayerInput,
+    GameConfig,
+    IsPlayerInputVeryCreativeStatus,
+    MarkEqualAnswersPayload,
+    PlayerInput,
+} from './game.interface';
 import { PlayerInfo } from './player.interface';
 
 export interface PubNubUserState {
@@ -15,6 +21,7 @@ export enum PubNubMessageType {
     evaluationOfPlayerInput = 'evaluationOfPlayerInput',
     isPlayerInputVeryCreative = 'isPlayerInputVeryCreative',
     kickPlayer = 'kickPlayer',
+    markEqualAnswers = 'markEqualAnswers',
     requestGameData = 'requestGameData',
     roundFinished = 'roundFinished',
     startGame = 'startGame'
@@ -53,6 +60,17 @@ export class PubNubIsPlayerInputVeryCreativeMessage {
     public toPubNubMessage(): PubNubMessage {
         return {
             type: PubNubMessageType.isPlayerInputVeryCreative,
+            payload: this.payload
+        };
+    }
+}
+
+export class PubNubMarkEqualAnswersMessage {
+    constructor(private payload: MarkEqualAnswersPayload) {}
+
+    public toPubNubMessage(): PubNubMessage {
+        return {
+            type: PubNubMessageType.markEqualAnswers,
             payload: this.payload
         };
     }
