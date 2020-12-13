@@ -1,6 +1,14 @@
 .dialogContent {
-    max-width: 23rem;
+    max-width: 80vw;
 }
+
 .dialogContentText {
     color: black;
+}
+.dialogContentText:focus {
+    outline: 2px solid black;
+}
+
+.category_accordion:last-of-type {
+    margin-bottom: 1rem !important;
 }

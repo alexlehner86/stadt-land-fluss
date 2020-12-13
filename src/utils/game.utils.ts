@@ -71,7 +71,10 @@ export const getEmptyRoundInputs = (numberOfInputs: number): PlayerInput[] => {
 * The text is also trimmed in order to support correct scoring (finding duplicates).
 */
 export const markEmptyPlayerInputsAsInvalid = (playerInputs: PlayerInput[]): PlayerInput[] => {
-    return playerInputs.map(input => ({ ...input, text: input.text.trim(), valid: !!input.text }));
+    return playerInputs.map(input => {
+        const trimmedText = input.text.trim();
+        return { ...input, text: trimmedText, valid: trimmedText !== '' };
+    });
 };
 
 export const createGameRoundEvaluation = (players: Map<string, PlayerInfo>, categories: string[]): GameRoundEvaluation => {

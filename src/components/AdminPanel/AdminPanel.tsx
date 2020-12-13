@@ -4,6 +4,7 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import React, { useRef, useState } from 'react';
 
 import { GamePhase } from '../../constants/game.constant';
+import { GameRound } from '../../models/game.interface';
 import { PlayerInfo } from '../../models/player.interface';
 import { getPlayersInAlphabeticalOrder } from '../../utils/game.utils';
 import KickUserDialog from '../KickUserDialog/KickUserDialog';
@@ -12,6 +13,8 @@ import styles from './AdminPanel.module.css';
 
 interface AdminPanelProps {
     allPlayers: Map<string, PlayerInfo>;
+    categories: string[];
+    gameRound: GameRound;
     isForMobileView: boolean;
     isMarkEqualAnswersItemDisabled: boolean;
     kickPlayer: (playerId: string) => void;
@@ -94,6 +97,8 @@ const AdminPanel: React.FunctionComponent<AdminPanelProps> = props => {
                 ))}
             </Menu>
             <MarkEqualAnswersDialog
+                categories={props.categories}
+                gameRoundToEvaluate={props.gameRound}
                 open={isMarkEqualAnswersDialogOpen}
                 onClose={handleMarkEqualAnswersDialogClose}
             />

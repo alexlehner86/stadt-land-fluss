@@ -145,6 +145,8 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         const createAdminPanel = (isForMobileView: boolean) => (
             <AdminPanel
                 allPlayers={allPlayers}
+                categories={this.state.gameConfig?.categories || []}
+                gameRound={this.state.gameRounds[this.state.currentRound - 1]}
                 isForMobileView={isForMobileView}
                 isMarkEqualAnswersItemDisabled={currentPhase !== GamePhase.evaluateRound || !gameConfig?.scoringOptions.checkForDuplicates}
                 kickPlayer={this.sendKickPlayerMessage}
