@@ -106,7 +106,16 @@ class AboutTheGame extends Component<RouteComponentProps> {
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >
-                                Design „Schwarz/Goth“ von angyee – www.vecteezy.com
+                                Design „Schwarz/Goth“ von Patipat Paipew – www.vecteezy.com
+                            </a>
+                        </li>
+                        <li>
+                            <a
+                                href="https://www.vecteezy.com/vector-art/92765-first-place-trophy-vector-icons"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                Spielergebnis/Pokal-Illustrationen von Miguel Angel – www.vecteezy.com
                             </a>
                         </li>
                     </ul>
