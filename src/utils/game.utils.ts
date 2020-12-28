@@ -1,4 +1,4 @@
-import { some } from 'lodash';
+import { some, uniq } from 'lodash';
 import randomnItem from 'random-item';
 
 import { ONLY_ANSWER_POINTS, SAME_WORD_POINTS, STANDARD_POINTS } from '../constants/game.constant';
@@ -8,7 +8,7 @@ import { PlayerInfo } from '../models/player.interface';
 import { EXTRA_POINTS } from './../constants/game.constant';
 import {
     GameConfig,
-    GameResultForPlayer,
+    GameResultsGroup,
     GameRound,
     GameRoundEvaluation,
     PlayerInputEvaluation,
@@ -205,20 +205,30 @@ export const applyValidFlagAndStarFlagToPoints = (scoringOptions: GameConfigScor
 };
 
 /**
- * Calculates game results and sorts them by points in descending order.
+ * Calculates game results, groups them by points and sorts them in descending order.
  */
-export const calculateGameResults = (allPlayers: Map<string, PlayerInfo>, gameRounds: GameRound[]): GameResultForPlayer[] => {
-    const gameResults: GameResultForPlayer[] = [];
-    const pointsPerPlayer: Collection<GameResultForPlayer> = {};
-    allPlayers.forEach((playerInfo, playerId) => pointsPerPlayer[playerId] = { playerName: playerInfo.name, points: 0 });
+export const calculateGameResults = (allPlayers: Map<string, PlayerInfo>, gameRounds: GameRound[]): GameResultsGroup[] => {
+    // 1. Calculate the points for each player.
+    const gameResultForPlayer: Collection<{ name: string, points: number }> = {};
+    allPlayers.forEach((playerInfo, playerId) => gameResultForPlayer[playerId] = { name: playerInfo.name, points: 0 });
     gameRounds.forEach(round => {
-        round.forEach((playerInputs, playerId) => {
-            const points = playerInputs.reduce((total, input) => total + input.points, 0);
-            pointsPerPlayer[playerId].points += points;
-        });
+        round.forEach((inputs, playerId) => gameResultForPlayer[playerId].points += inputs.reduce((total, item) => total + item.points, 0));
     });
-    Object.keys(pointsPerPlayer).forEach(playerId => gameResults.push(pointsPerPlayer[playerId]));
-    return gameResults.sort((a, b) => b.points - a.points);
+    // 2. Group the results by points.
+    const allPoints: number[] = [];
+    const gameResultsMap = new Map<number, string[]>();
+    Object.keys(gameResultForPlayer).forEach(playerId => {
+        const { name, points } = gameResultForPlayer[playerId];
+        allPoints.push(points);
+        const playerNames = gameResultsMap.get(points) || [];
+        gameResultsMap.set(points, [...playerNames, name]);
+    });
+    // 3. Return the results groups sorted in descending order.
+    const groupedGameResults: GameResultsGroup[] = [];
+    uniq(allPoints)
+        .sort((a, b) => b - a)
+        .forEach(points => groupedGameResults.push({ playerNames: (gameResultsMap.get(points) as string[]).sort(), points }));
+    return groupedGameResults;
 };
 
 /**

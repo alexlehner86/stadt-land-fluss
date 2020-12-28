@@ -99,8 +99,11 @@ export interface EqualAnswersOfCategory {
     v: string[];
 }
 
-export interface GameResultForPlayer {
-    playerName: string;
+/**
+ * Contains the names of the players with the same number of points.
+ */
+export interface GameResultsGroup {
+    playerNames: string[];
     points: number;
 }
 

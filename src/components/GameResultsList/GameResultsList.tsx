@@ -1,43 +1,40 @@
 import { List, ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
 import FaceIcon from '@material-ui/icons/Face';
-import InsertEmoticonIcon from '@material-ui/icons/InsertEmoticon';
 import React from 'react';
 
-import { GameResultForPlayer } from '../../models/game.interface';
-
-const useStyles = makeStyles({
-    listItem: {
-        flex: '0 0 auto',
-        justifyContent: 'center',
-        margin: 0,
-    },
-    listItemText: {
-        flex: '0 0 auto',
-        minWidth: '6rem',
-    },
-});
+import { GameResultsGroup } from '../../models/game.interface';
+import { joinWithAnd } from '../../utils/general.utils';
+import styles from './GameResultsList.module.css';
 
 interface GameResultsListProps {
-    gameResults: GameResultForPlayer[];
+    /** The game results groups sorted in descending order */
+    gameResults: GameResultsGroup[];
 }
 const GameResultsList: React.FunctionComponent<GameResultsListProps> = props => {
-    const classes = useStyles();
-    const mostPoints = Math.max(...props.gameResults.map(result => result.points));
-    const getResultIcon = (isWinner: boolean): JSX.Element => {
-        return isWinner ? <InsertEmoticonIcon color="primary" fontSize="large" /> : <FaceIcon fontSize="large" />;
+    const getIconForPlace = (place: number): JSX.Element => {
+        const baseUrl = process.env.PUBLIC_URL + '/assets';
+        switch (place) {
+            case 1:
+                return <img src={`${baseUrl}/first_place_trophy.svg`} className={styles.first_place_trophy} alt="1. Platz" />;
+            case 2:
+                return <img src={`${baseUrl}/second_place_trophy.svg`} className={styles.second_place_trophy} alt="2. Platz" />;
+            case 3:
+                return <img src={`${baseUrl}/third_place_trophy.svg`} className={styles.third_place_trophy} alt="3. Platz" />;
+            default:
+                return <FaceIcon fontSize="large" />;
+        }
     };
     return (
-        <List>
-            {props.gameResults.map((result, index) => (
-                <ListItem key={'results-for-player-' + index} className={classes.listItem}>
-                    <ListItemIcon>
-                        {getResultIcon(result.points === mostPoints)}
+        <List component="ol">
+            {props.gameResults.map((resultsGroup, index) => (
+                <ListItem key={'results-for-player-' + index} className={styles.game_results_item}>
+                    <ListItemIcon className={styles.game_results_icon}>
+                        {getIconForPlace(index + 1)}
                     </ListItemIcon>
                     <ListItemText
-                        className={classes.listItemText}
-                        primary={result.playerName}
-                        secondary={`${result.points} Punkte`}
+                        className={styles.game_results_text}
+                        primary={joinWithAnd(resultsGroup.playerNames, 'und')}
+                        secondary={`${resultsGroup.points} Punkte`}
                     />
                 </ListItem>
             ))}

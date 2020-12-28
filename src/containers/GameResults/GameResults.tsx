@@ -2,13 +2,14 @@ import { Divider } from '@material-ui/core';
 import React, { Component, Dispatch } from 'react';
 import { connect } from 'react-redux';
 import { RouterProps } from 'react-router';
+
 import GameResultsList from '../../components/GameResultsList/GameResultsList';
 import GameRoundsOverviewButton from '../../components/GameRoundsOverviewButton/GameRoundsOverviewButton';
 import HallOfFameButton from '../../components/HallOfFameButton/HallOfFameButton';
 import ScoringOptionsList from '../../components/ScoringOptionsList/ScoringOptionsList';
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
 import ToDashboardButton from '../../components/ToDashboardButton/ToDashboardButton';
-import { GameConfig, GameResultForPlayer, HallOfFameEntry, GameRound } from '../../models/game.interface';
+import { GameConfig, GameResultsGroup, GameRound, HallOfFameEntry } from '../../models/game.interface';
 import { PlayerInfo } from '../../models/player.interface';
 import { AppAction, resetAppState } from '../../store/app.actions';
 import { AppState } from '../../store/app.reducer';
@@ -21,7 +22,7 @@ interface GameResultsDispatchProps {
 interface GameResultsProps extends AppState, GameResultsDispatchProps, RouterProps { }
 interface GameResultsState {
     gameConfig: GameConfig | null;
-    gameResults: GameResultForPlayer[];
+    gameResults: GameResultsGroup[];
     gameRounds: GameRound[];
     hallOfFameData: HallOfFameEntry[];
     sortedPlayers: PlayerInfo[];
