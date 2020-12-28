@@ -103,6 +103,7 @@ export interface PlayGameState {
     currentRoundInputs: PlayerInput[];
     gameConfig: GameConfig | null;
     gameRounds: GameRound[];
+    isCountdownAlarmActive: boolean;
     playersThatFinishedEvaluation: Map<string, boolean>;
     playersThatFinishedRound: Map<string, boolean>;
     showLetterAnimation: boolean;
@@ -120,6 +121,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         currentRoundInputs: [],
         gameConfig: null,
         gameRounds: [new Map<string, PlayerInput[]>()],
+        isCountdownAlarmActive: false,
         playersThatFinishedEvaluation: new Map<string, boolean>(),
         playersThatFinishedRound: new Map<string, boolean>(),
         showLetterAnimation: false,
@@ -239,6 +241,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                         currentRound={this.state.currentRound}
                         gameConfig={this.state.gameConfig as GameConfig}
                         gameRoundInputs={this.state.currentRoundInputs}
+                        isCountdownAlarmActive={this.state.isCountdownAlarmActive}
                         alertOnTenSecondsRemaining={this.alertOnTenSecondsRemaining}
                         finishRoundOnCountdownComplete={this.finishRoundOnCountdownComplete}
                         finishRoundOnUserAction={this.finishRoundOnUserAction}
@@ -265,7 +268,9 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         }
     }
 
-    private alertOnTenSecondsRemaining = () => this.informScreenReaderUser('Noch 10 Sekunden');
+    private alertOnTenSecondsRemaining = () => {
+        this.setState({ a11yMessagePolite: 'Noch 10 Sekunden', isCountdownAlarmActive: true });
+    }
 
     private informScreenReaderUser = (message: string) => this.setState({ a11yMessagePolite: message });
 
@@ -631,6 +636,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                 currentRoundInputs: getEmptyRoundInputs(gameConfig.categories.length),
                 currentRound: nextRound,
                 gameRounds: [...gameRounds, new Map<string, PlayerInput[]>()],
+                isCountdownAlarmActive: false,
                 playersThatFinishedEvaluation: new Map<string, boolean>(),
                 playersThatFinishedRound: new Map<string, boolean>(),
                 showLetterAnimation: true

@@ -1,19 +1,13 @@
 import React from 'react';
 import Countdown, { CountdownTimeDelta, zeroPad } from 'react-countdown';
 import { makeStyles, Theme, createStyles } from '@material-ui/core';
+import styles from './RoundCountdown.module.css';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        countdown: {
-            position: 'fixed',
-            right: '1.5rem',
-            bottom: '1rem',
+        countdownTheme: {
             backgroundColor: theme.palette.primary.main,
             color: theme.palette.primary.contrastText,
-            padding: '0.5rem 1rem',
-            fontSize: '1.5rem',
-            boxShadow: '0 0 6px 4px rgba(0, 0, 0, .401961)',
-            borderRadius: '5px',
         },
     }),
 );
@@ -38,7 +32,7 @@ const RoundCountdown: React.FunctionComponent<RoundCountdownProps> = props => {
         <Countdown
             date={Date.now() + (props.duration * 1000)}
             renderer={props => (
-                <div className={classes.countdown}>
+                <div className={styles.countdown + ' ' + classes.countdownTheme}>
                     {zeroPad(props.minutes)}:{zeroPad(props.seconds)}
                 </div>
             )}

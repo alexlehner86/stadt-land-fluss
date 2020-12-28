@@ -1,0 +1,20 @@
+@keyframes countdown_alarm {
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(1.1);
+    }
+}
+
+.round_countdown,
+.round_countdown_alarm {
+    position: fixed;
+    right: 1.5rem;
+    bottom: 1rem;
+}
+
+/* Apply animation to the div rendered by the RoundCountdown component */
+.round_countdown_alarm div {
+    animation: countdown_alarm 0.4s ease-in-out 0.2s infinite alternate;
+}

@@ -5,11 +5,13 @@ import React, { ChangeEvent } from 'react';
 import { EndRoundMode, GameConfig, PlayerInput } from '../../models/game.interface';
 import GameRoundChip from '../GameRoundChip/GameRoundChip';
 import RoundCountdown from '../RoundCountdown/RoundCountdown';
+import styles from './PhaseFillOutTextfields.module.css';
 
 interface PhaseFillOutTextfieldsProps {
     currentRound: number;
     gameConfig: GameConfig;
     gameRoundInputs: PlayerInput[];
+    isCountdownAlarmActive: boolean;
     alertOnTenSecondsRemaining: () => void;
     finishRoundOnCountdownComplete: () => void;
     finishRoundOnUserAction: () => void;
@@ -62,11 +64,13 @@ const PhaseFillOutTextfields: React.FunctionComponent<PhaseFillOutTextfieldsProp
         </IconButton>
     );
     const countdownElement = (
-        <RoundCountdown
-            duration={props.gameConfig.durationOfCountdown}
-            onComplete={props.finishRoundOnCountdownComplete}
-            onTenSecondsRemaining={props.alertOnTenSecondsRemaining}
-        />
+        <div className={props.isCountdownAlarmActive ? styles.round_countdown_alarm : styles.round_countdown }>
+            <RoundCountdown
+                duration={props.gameConfig.durationOfCountdown}
+                onComplete={props.finishRoundOnCountdownComplete}
+                onTenSecondsRemaining={props.alertOnTenSecondsRemaining}
+            />
+        </div>
     );
 
     return (
