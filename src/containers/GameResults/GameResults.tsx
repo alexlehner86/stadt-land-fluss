@@ -3,6 +3,7 @@ import React, { Component, Dispatch } from 'react';
 import { connect } from 'react-redux';
 import { RouterProps } from 'react-router';
 
+import FireworksAnimation from '../../components/FireworksAnimation/FireworksAnimation';
 import GameResultsList from '../../components/GameResultsList/GameResultsList';
 import GameRoundsOverviewButton from '../../components/GameRoundsOverviewButton/GameRoundsOverviewButton';
 import HallOfFameButton from '../../components/HallOfFameButton/HallOfFameButton';
@@ -38,40 +39,49 @@ class GameResults extends Component<GameResultsProps, GameResultsState> {
     };
 
     public render() {
+        if (this.state.gameConfig === null) { return null; }
         const { gameConfig, gameResults, gameRounds, hallOfFameData, sortedPlayers } = this.state;
-        if (gameConfig === null) { return null; }
-        return (
-            <div className="main-content-wrapper">
-                <div className="material-card-style">
-                    <SectionHeader text="Ergebnis"></SectionHeader>
-                    <p className="sr-only" role="alert">
-                        Das Spiel ist zu Ende. Die Ergebnisse werden angezeigt.
-                    </p>
-                    <GameResultsList gameResults={gameResults} />
-                    <Divider />
-                    <div className={styles.button_wrapper}>
-                        <GameRoundsOverviewButton
-                            gameConfig={gameConfig}
-                            rounds={gameRounds}
-                            sortedPlayers={sortedPlayers}
-                        />
-                        <HallOfFameButton hallOfFameData={hallOfFameData} />
-                    </div>
+        const gameResultsElement = (
+            <div className="material-card-style">
+                <SectionHeader text="Ergebnis"></SectionHeader>
+                <p className="sr-only" role="alert">
+                    Das Spiel ist zu Ende. Die Ergebnisse werden angezeigt.
+                </p>
+                <GameResultsList gameResults={gameResults} />
+                <Divider />
+                <div className={styles.button_wrapper}>
+                    <GameRoundsOverviewButton
+                        gameConfig={gameConfig}
+                        rounds={gameRounds}
+                        sortedPlayers={sortedPlayers}
+                    />
+                    <HallOfFameButton hallOfFameData={hallOfFameData} />
                 </div>
-                <div className="material-card-style">
-                    <SectionHeader text="Spieleinstellungen"></SectionHeader>
-                    <div className="game-settings">
-                        <h4>Runden</h4>
-                        <p>{gameConfig.numberOfRounds}</p>
-                        <h4>Buchstaben</h4>
-                        <p>{gameConfig.letters.join(', ')}</p>
-                        <h4>Kategorien</h4>
-                        <p>{gameConfig.categories.join(', ')}</p>
-                    </div>
-                    <ScoringOptionsList isForGameResultsPage={true} rules={gameConfig.scoringOptions} />
-                </div>
-                <ToDashboardButton onReturnToDashboard={() => this.props.history.push('/')} />
             </div>
+        );
+        const gameSettingsElement = (
+            <div className="material-card-style">
+                <SectionHeader text="Spieleinstellungen"></SectionHeader>
+                <div className="game-settings">
+                    <h4>Runden</h4>
+                    <p>{gameConfig.numberOfRounds}</p>
+                    <h4>Buchstaben</h4>
+                    <p>{gameConfig.letters.join(', ')}</p>
+                    <h4>Kategorien</h4>
+                    <p>{gameConfig.categories.join(', ')}</p>
+                </div>
+                <ScoringOptionsList isForGameResultsPage={true} rules={gameConfig.scoringOptions} />
+            </div>
+        );
+        return (
+            <React.Fragment>
+                <div className="main-content-wrapper">
+                    {gameResultsElement}
+                    {gameSettingsElement}
+                    <ToDashboardButton onReturnToDashboard={() => this.props.history.push('/')} />
+                </div>
+                <FireworksAnimation duration={5000} />
+            </React.Fragment>
         );
     }
 
