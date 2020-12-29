@@ -28,11 +28,11 @@ const GameResultsList: React.FunctionComponent<GameResultsListProps> = props => 
         <List component="ol">
             {props.gameResults.map((resultsGroup, index) => (
                 <ListItem key={'results-for-player-' + index} className={styles.game_results_item}>
-                    <ListItemIcon className={styles.game_results_icon}>
+                    <ListItemIcon className={styles.icon}>
                         {getIconForPlace(index + 1)}
                     </ListItemIcon>
                     <ListItemText
-                        className={styles.game_results_text}
+                        className={index === 0 ? styles.first_place_text : styles.other_place_text}
                         primary={joinWithAnd(resultsGroup.playerNames, 'und')}
                         secondary={`${resultsGroup.points} Punkte`}
                     />

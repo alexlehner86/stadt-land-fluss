@@ -80,7 +80,7 @@ class GameResults extends Component<GameResultsProps, GameResultsState> {
                     {gameSettingsElement}
                     <ToDashboardButton onReturnToDashboard={() => this.props.history.push('/')} />
                 </div>
-                <FireworksAnimation duration={5000} />
+                <FireworksAnimation duration={6000} />
             </React.Fragment>
         );
     }

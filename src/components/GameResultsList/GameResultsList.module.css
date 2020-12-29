@@ -4,7 +4,7 @@
     justify-content: center;
 }
 
-.game_results_icon {
+.icon {
     flex: 1 0 7rem;
     padding: 0.75rem 1.5rem 0.75rem 0;
     display: flex;
@@ -20,17 +20,23 @@
     height: 5rem;
 }
 
-.game_results_text {
+.first_place_text,
+.other_place_text {
     flex: 1 0 7rem;
     word-wrap: break-word;
 }
-.game_results_text span {
+.first_place_text span,
+.other_place_text span {
     padding-right: 5rem;
+}
+.first_place_text span {
+    font-size: 1.2rem;
+    font-weight: bold;
 }
 
 
 @media only screen and (max-width: 45rem) {
-    .game_results_icon {
+    .icon {
         flex: 1 1 3rem;
         padding: 0.75rem 1.25rem 0.75rem 0;
     }
@@ -43,12 +49,14 @@
     .third_place_trophy {
         height: 4rem;
     }
-    .game_results_text span {
+    .first_place_text span,
+    .other_place_text span {
         padding-right: 2.5rem;
     }
 }
 @media only screen and (max-width: 25rem) {
-    .game_results_text span {
+    .first_place_text span,
+    .other_place_text span {
         padding-right: 0;
     }
 }
