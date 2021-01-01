@@ -24,7 +24,7 @@ interface RoundCountdownProps {
 const RoundCountdown: React.FunctionComponent<RoundCountdownProps> = props => {
     const classes = useStyles();
     const onTick = (timeDelta: CountdownTimeDelta) => {
-        if (timeDelta.seconds === 10) {
+        if (timeDelta.minutes === 0 && timeDelta.seconds === 10) {
             props.onTenSecondsRemaining();
         }
     };
