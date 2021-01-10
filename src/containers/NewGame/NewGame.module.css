@@ -59,6 +59,15 @@
     z-index: 5;
 }
 
+.no_categories_hint {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 2rem;
+    font-size: 0.8125rem;
+    color: #555555;
+}
+
 .jump_to_end_button {
     display: flex;
     flex-direction: column;

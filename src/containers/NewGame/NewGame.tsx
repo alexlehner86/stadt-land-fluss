@@ -144,6 +144,8 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                 {getTooManyLettersExcludedError(this.state.numberOfRoundsInput)}
             </FormHelperText>
         );
+        const noCategoriesSelected = <div className={styles.no_categories_hint}>Keine Kategorien ausgewählt</div>;
+        const noCategoriesAvailable = <div className={styles.no_categories_hint}>Keine weiteren Kategorien verfügbar</div>;
         const newGameForm = (
             <form onSubmit={this.handleSubmit} className="app-form" noValidate autoComplete="off">
                 <label htmlFor="player-name-input" className="sr-only">{playerNameAriaLabel}</label>
@@ -250,11 +252,13 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                                 der ausgewählten Kategorien zu entfernen.
                         </span>
                         </FormLabel>
-                        <ChipsArray
-                            chipsArray={this.state.selectedCategories}
-                            chipType={ChipType.selected}
-                            removeChip={(chipToRemove) => this.updateCategoryArrays(chipToRemove, CategoryArray.selected)}
-                        />
+                        {this.state.selectedCategories.length > 0 ? (
+                            <ChipsArray
+                                chipsArray={this.state.selectedCategories}
+                                chipType={ChipType.selected}
+                                removeChip={(chipToRemove) => this.updateCategoryArrays(chipToRemove, CategoryArray.selected)}
+                            />
+                        ) : noCategoriesSelected}
                     </FormControl>
                     <AddCustomCategory addCustomCategory={this.addCustomCategory} />
                 </div>
@@ -281,11 +285,13 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                             der ausgewählten Kategorien hinzuzufügen.
                         </span>
                     </FormLabel>
-                    <ChipsArray
-                        chipsArray={this.state.availableCategories}
-                        chipType={ChipType.available}
-                        removeChip={(chipToRemove) => this.updateCategoryArrays(chipToRemove, CategoryArray.available)}
-                    />
+                    {this.state.availableCategories.length > 0 ? (
+                        <ChipsArray
+                            chipsArray={this.state.availableCategories}
+                            chipType={ChipType.available}
+                            removeChip={(chipToRemove) => this.updateCategoryArrays(chipToRemove, CategoryArray.available)}
+                        />
+                    ) : noCategoriesAvailable}
                 </FormControl>
                 <div className="button-wrapper add-margin-top">
                     <Button
@@ -408,7 +414,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
         }
         this.setState({
             a11yMessagePolite,
-            availableCategories: newAvailableCategories,
+            availableCategories: newAvailableCategories.sort(),
             selectedCategories: newSelectedCategories
         });
     }
