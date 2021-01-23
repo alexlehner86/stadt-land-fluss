@@ -233,6 +233,11 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                     handleLetterToExcludeChange={this.handleLetterToExcludeChange}
                 />
                 {areTooManyLettersExcluded && !isNumberOfRoundsInvalid ? tooManyLettersExcludedError : null}
+                <div className={styles.info_text} tabIndex={0}>
+                    Klicke auf eine Kategorie in der Liste „Ausgewählte Kategorien“, um diese aus der Liste zu entfernen.
+                    Die darunter liegende Liste „Verfügbare Kategorien“ enthält die nicht ausgewählten Kategorien, welche
+                    durch Klick aus der Liste entfernt und der Liste „Ausgewählte Kategorien“ hinzugefügt werden.
+                </div>
                 <div className={styles.selected_categories_wrapper}>
                     <SelectRandomCategories
                         maxNumberOfCategories={maxNumberOfCategories}
@@ -246,11 +251,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                             component="legend"
                             className={styles.custom_legend}
                         >
-                            Ausgewählte Kategorien (mind. {MIN_NUMBER_OF_CATEGORIES})
-                        <span className="sr-only">
-                                Klicke auf eine Kategorie, um diese aus der Liste
-                                der ausgewählten Kategorien zu entfernen.
-                        </span>
+                            Ausgewählte Kategorien (<abbr title="mindestens">mind.</abbr> {MIN_NUMBER_OF_CATEGORIES})
                         </FormLabel>
                         {this.state.selectedCategories.length > 0 ? (
                             <ChipsArray

@@ -22,7 +22,7 @@
     transform: translateY(-50%);
     padding: 0 0.3rem;
     font-size: 0.75em;
-    color: rgba(0, 0, 0, 0.87);
+    color: #212121;
     background-color: white;
 }
 
@@ -65,7 +65,13 @@
     align-items: center;
     height: 2rem;
     font-size: 0.8125rem;
-    color: #555555;
+    color: #212121;
+}
+
+.info_text {
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    color: #212121;
 }
 
 .jump_to_end_button {
@@ -79,7 +85,7 @@
     font-family: "Roboto", "Helvetica", "Arial", sans-serif;
     font-size: 0.75em;
     text-decoration: underline;
-    color: rgba(0, 0, 0, 0.87);
+    color: #212121;
 }
 .jump_to_end_button:focus,
 .jump_to_end_button:hover {
@@ -87,8 +93,9 @@
     outline-offset: 1px;
 }
 .jump_to_end_button_icon {
-    margin-top: -0.2rem;
-    fill: rgba(0, 0, 0, 0.87);
+    margin-top: -0.3rem;
+    margin-bottom: 0.3rem;
+    fill: #212121;
 }
 
 .alert_snackbar {
