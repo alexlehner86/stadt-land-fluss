@@ -107,3 +107,11 @@
         display: none;
     }
 }
+
+@media only screen and (min-width: 40rem) {
+    /* Define fixed width and height for image to prevent jumping UI elements on load */
+    .slf_image {
+        width: 34rem;
+        height: 19.1rem;
+    }
+}
