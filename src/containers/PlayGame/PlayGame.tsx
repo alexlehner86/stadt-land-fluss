@@ -18,7 +18,13 @@ import PubNubEventHandler from '../../components/PubNubEventHandler/PubNubEventH
 import { PUBNUB_CONFIG } from '../../config/pubnub.config';
 import { GamePhase } from '../../constants/game.constant';
 import { GERMAN_PHONETIC_ALPHABET } from '../../constants/phonetic-alphabet.constant';
-import { CREATED_GAME_ADMIN_MESSAGE, JOINED_GAME_MESSAGE } from '../../constants/sr-message.constant';
+import {
+    GAME_STARTS_MESSAGE,
+    JOINED_GAME_MESSAGE,
+    NEW_GAME_CREATED_MESSAGE,
+    ROUND_EVALUATION_FINISHED_MESSAGE,
+    TEN_SECONDS_REMAINING_MESSAGE,
+} from '../../constants/sr-message.constant';
 import {
     EndRoundMode,
     EqualAnswersOfCategory,
@@ -215,7 +221,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             // and we can hide the loading screen and show PhaseWaitingToStart component right away.
             if (playerInfo.isAdmin) {
                 setRunningGameConfigInLocalStorage(gameConfig as GameConfig);
-                this.setState({ a11yMessagePolite: CREATED_GAME_ADMIN_MESSAGE, allPlayers, gameConfig, showLoadingScreen: false });
+                this.setState({ a11yMessagePolite: NEW_GAME_CREATED_MESSAGE, allPlayers, gameConfig, showLoadingScreen: false });
             } else {
                 this.setState({ allPlayers });
             }
@@ -269,7 +275,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     }
 
     private alertOnTenSecondsRemaining = () => {
-        this.setState({ a11yMessagePolite: 'Noch 10 Sekunden', isCountdownAlarmActive: true });
+        this.setState({ a11yMessagePolite: TEN_SECONDS_REMAINING_MESSAGE, isCountdownAlarmActive: true });
     }
 
     private informScreenReaderUser = (message: string) => this.setState({ a11yMessagePolite: message });
@@ -463,7 +469,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         const gameConfig = this.state.gameConfig as GameConfig;
         const currentRoundEvaluation = createGameRoundEvaluation(this.state.allPlayers, gameConfig.categories);
         this.setState({
-            a11yMessagePolite: `Spiel beginnt. ${this.state.currentRound}. Buchstabe wird ermittelt.`,
+            a11yMessagePolite: GAME_STARTS_MESSAGE,
             currentPhase: GamePhase.fillOutTextfields,
             currentRoundEvaluation,
             currentRoundInputs: getEmptyRoundInputs(gameConfig.categories.length),
@@ -629,7 +635,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             setRunningGameRoundInLocalStorage(this.state.currentRound, gameRounds[currentRound - 1]);
             const nextRound = currentRound + 1;
             this.setState({
-                a11yMessagePolite: 'Auswertung beendet. Der nächste Buchstabe wird ermittelt.',
+                a11yMessagePolite: ROUND_EVALUATION_FINISHED_MESSAGE,
                 currentPhase: GamePhase.fillOutTextfields,
                 currentRoundEqualAnswers: new Map<number, string[]>(),
                 currentRoundEvaluation: createGameRoundEvaluation(allPlayers, gameConfig.categories),

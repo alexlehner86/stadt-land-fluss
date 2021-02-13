@@ -66,7 +66,9 @@ export enum GamePhase {
 
 export const MIN_NUMBER_OF_PLAYERS = 2;
 
+/** Number of letters displayed one after another during the animation that reveals the letter for the next round */
 export const LETTER_ANIMATION_LETTER_COUNT = 5;
+/** Time until the next letter in the "letter reveal" animation is drawn; interval in milliseconds */
 export const LETTER_ANIMATION_REDRAW_SPEED = 800;
 
 export const SAME_WORD_POINTS = 5;

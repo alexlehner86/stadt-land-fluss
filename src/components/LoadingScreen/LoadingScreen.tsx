@@ -43,7 +43,7 @@ const LoadingScreen: React.FunctionComponent<LoadingScreenProps> = props => {
             </div>
             {props.waitingForPlayers ? (
                 <div className={'material-card-style ' + classes.waitingForPlayers} role="alert">
-                    Warte auf Spieler: <span className="bold-text">{props.waitingForPlayers.join(', ')}</span>
+                    Warte auf: <span className="bold-text">{props.waitingForPlayers.join(', ')}</span>
                 </div>
             ) : null}
         </div>
