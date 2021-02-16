@@ -9,33 +9,35 @@ import React, { useState } from 'react';
 
 import { EXTRA_POINTS } from '../../constants/game.constant';
 import {
+    AnswersMarkedCreative,
     EvaluationOfPlayerInput,
     GameConfig,
     GameRound,
     GameRoundEvaluation,
-    IsPlayerInputVeryCreativeStatus,
     PlayerInput,
     PlayerInputEvaluation,
+    PlayerInputMarkedCreativeStatus,
 } from '../../models/game.interface';
 import { PlayerInfo } from '../../models/player.interface';
 import { getPlayersInAlphabeticalOrder, getRejectingPlayers } from '../../utils/game.utils';
-import { joinWithAnd } from '../../utils/general.utils';
+import { joinWithAnd, makePluralIfCountIsNotOne } from '../../utils/general.utils';
 import GameRoundChip from '../GameRoundChip/GameRoundChip';
 import styles from './PhaseEvaluateRound.module.css';
 
 const StyledBadge = withStyles((theme: Theme) =>
     createStyles({
         badge: {
-            right: -3,
+            right: '-0.05rem',
             top: '100%',
             border: `2px solid ${theme.palette.background.paper}`,
-            padding: '0 4px',
+            padding: '0 0.25rem',
         },
     }),
 )(Badge);
 
 interface PhaseEvaluateRoundProps {
     allPlayers: Map<string, PlayerInfo>;
+    answersMarkedCreative: AnswersMarkedCreative;
     currentRound: number;
     currentRoundEvaluation: GameRoundEvaluation;
     gameConfig: GameConfig;
@@ -45,7 +47,7 @@ interface PhaseEvaluateRoundProps {
     playersThatFinishedEvaluation: Map<string, boolean>;
     sendEvaluationFinishedMessage: () => void;
     updateEvaluationOfPlayerInput: (newEvaluation: EvaluationOfPlayerInput) => void;
-    updateIsPlayerInputVeryCreativeStatus: (newStatus: IsPlayerInputVeryCreativeStatus) => void;
+    updatePlayerInputMarkedCreativeStatus: (newStatus: PlayerInputMarkedCreativeStatus) => void;
 }
 const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = props => {
     const [hasFinishedEvaluation, setHasFinishedEvaluation] = useState(props.playersThatFinishedEvaluation.has(props.playerInfo.id));
@@ -90,14 +92,18 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
             const evaluationButton = (
                 <IconButton
                     className="slf-evaluation-button"
-                    color={isInputAcceptedByUser ? 'default' : 'secondary'}
+                    color="secondary"
                     size="small"
                     aria-label={isInputAcceptedByUser ? 'Antwort ablehnen' : 'Antwort akzeptieren'}
                     disabled={hasFinishedEvaluation}
                     onClick={() => handleEvaluationButtonClick(categoryIndex, evaluatedPlayer.id, isInputAcceptedByUser)}
                 >
-                    <StyledBadge badgeContent={rejectingPlayers.length} color="secondary">
-                        <ThumbDownRoundedIcon />
+                    <StyledBadge
+                        badgeContent={rejectingPlayers.length}
+                        color="secondary"
+                        aria-hidden="true"
+                    >
+                        <ThumbDownRoundedIcon color={isInputAcceptedByUser ? 'action' : 'secondary'} />
                     </StyledBadge>
                 </IconButton>
             );
@@ -118,19 +124,19 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                 title="Automatisch abgelehnt"
                 arrow
             >
-                <ThumbDownRoundedIcon color={hasFinishedEvaluation ? 'disabled' : 'secondary'} className={styles.auto_reject_icon} />
+                <ThumbDownRoundedIcon color="secondary" className={styles.auto_reject_icon} />
             </Tooltip>
         );
         return hasPlayerTypedText ? createEvaluationButton() : createAutoRejectIcon();
     };
 
     /**
-      * Toggles the "marked as very creative" status of a player's input for a category.
+      * Add/removes a "creative answer" star to/from a player's input for a category.
       */
     const handleMarkAsCreativeAnswerToggleClick = (
         categoryIndex: number, evaluatedPlayerId: string, isMarkedAsCreative: boolean
     ) => {
-        props.updateIsPlayerInputVeryCreativeStatus({ categoryIndex, evaluatedPlayerId, markedAsCreative: !isMarkedAsCreative });
+        props.updatePlayerInputMarkedCreativeStatus({ categoryIndex, evaluatedPlayerId, markedAsCreative: !isMarkedAsCreative });
     };
 
     /**
@@ -140,20 +146,27 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
         const evaluatedPlayer = sortedPlayers[indexInSortedPlayers];
         const playerInput = (finishedRound.get(evaluatedPlayer.id) as PlayerInput[])[categoryIndex];
         const isDisabled = hasFinishedEvaluation || evaluatedPlayer.id === props.playerInfo.id;
-        const iconColor = hasFinishedEvaluation ? 'disabled' : 'primary';
+        const isMarkedCreative = (props.answersMarkedCreative.get(evaluatedPlayer.id) || []).includes(categoryIndex);
+        const iconColor = evaluatedPlayer.id === props.playerInfo.id ? 'action' : 'primary';
         const createButton = () => (
             <IconButton
                 color="primary"
                 size="small"
                 disabled={isDisabled}
-                onClick={() => handleMarkAsCreativeAnswerToggleClick(categoryIndex, evaluatedPlayer.id, playerInput.star)}
+                onClick={() => handleMarkAsCreativeAnswerToggleClick(categoryIndex, evaluatedPlayer.id, isMarkedCreative)}
             >
-                {playerInput.star ? <StarIcon color={iconColor} /> : <StarBorderIcon color={iconColor} />}
+                <StyledBadge
+                    badgeContent={playerInput.stars}
+                    color="primary"
+                    aria-hidden="true"
+                >
+                    {isMarkedCreative ? <StarIcon color={iconColor} /> : <StarBorderIcon color={iconColor} />}
+                </StyledBadge>
             </IconButton>
         );
         return isDisabled ? createButton() : (
             <Tooltip
-                title={playerInput.star ? 'Kreativ-Markierung aufheben' : 'Als besonders kreativ markieren'}
+                title={isMarkedCreative ? 'Kreativ-Stern zurücknehmen' : 'Kreativ-Stern verleihen'}
                 placement="bottom"
                 arrow
             >
@@ -190,8 +203,8 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
     };
 
     const calculatePoints = (evaluatedPlayerInput: PlayerInput): number => {
-        return gameConfig.scoringOptions.creativeAnswersExtraPoints && evaluatedPlayerInput.star
-            ? evaluatedPlayerInput.points + EXTRA_POINTS : evaluatedPlayerInput.points;
+        return gameConfig.scoringOptions.creativeAnswersExtraPoints && evaluatedPlayerInput.stars > 0
+            ? evaluatedPlayerInput.points + (EXTRA_POINTS * evaluatedPlayerInput.stars) : evaluatedPlayerInput.points;
     };
     const createPointsChip = (evaluatedPlayerInput: PlayerInput): JSX.Element => {
         const label = '+' + (evaluatedPlayerInput.valid ? calculatePoints(evaluatedPlayerInput) : 0);
@@ -211,12 +224,21 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
     const playerEvaluationElements = (categoryIndex: number, indexInSortedPlayers: number): JSX.Element => {
         const evaluatedPlayer = sortedPlayers[indexInSortedPlayers];
         const evaluatedPlayerInput = (finishedRound.get(evaluatedPlayer.id) as PlayerInput[])[categoryIndex];
+
+        // Flags
         const hasPlayerTypedText = !!evaluatedPlayerInput.text;
         const isInputValid = evaluatedPlayerInput.valid;
-        const isCreativeAnswer = isInputValid && evaluatedPlayerInput.star;
-        const emptyAnswerHint = <span className="sr-only">Leere Antwort wurde automatisch abgelehnt.</span>;
-        const answerRejectedHint = <span className="sr-only">Antwort wurde abgelehnt.</span>;
-        const markedCreativeHint = <span className="sr-only">Antwort wurde als besonders kreativ markiert.</span>;
+        const isAnswerMarkedCreative = isInputValid && evaluatedPlayerInput.stars > 0;
+
+        // Screen reader hints
+        const emptyAnswerScreenReaderHint = <span className="sr-only">Leere Antwort wurde automatisch abgelehnt.</span>;
+        const answerRejectedScreenReaderHint = <span className="sr-only">Antwort wurde abgelehnt.</span>;
+        const markedCreativeScreenReaderHint = (stars: number) => (
+            <span className="sr-only">
+                {stars} Spieler {makePluralIfCountIsNotOne(stars, 'hat', 'haben')} Antwort als besonders kreativ markiert.
+            </span>
+        );
+
         return (
             <div
                 key={`slf-answer-box-wrapper-${categoryIndex}-${indexInSortedPlayers}`}
@@ -226,7 +248,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                 <Box
                     boxShadow={1}
                     tabIndex={0}
-                    className={isCreativeAnswer ? styles.answer_box_creative : styles.answer_box}
+                    className={isAnswerMarkedCreative ? styles.answer_box_creative : styles.answer_box}
                 >
 
                     <p className={styles.player_name}>
@@ -242,9 +264,9 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                         {hasPlayerTypedText ? evaluatedPlayerInput.text : '(leer)'}
                         <span className="sr-only">.</span>
                     </p>
-                    {!hasPlayerTypedText ? emptyAnswerHint : null}
-                    {hasPlayerTypedText && !isInputValid ? answerRejectedHint : null}
-                    {isCreativeAnswer ? markedCreativeHint : null}
+                    {!hasPlayerTypedText ? emptyAnswerScreenReaderHint : null}
+                    {hasPlayerTypedText && !isInputValid ? answerRejectedScreenReaderHint : null}
+                    {isAnswerMarkedCreative ? markedCreativeScreenReaderHint(evaluatedPlayerInput.stars) : null}
                     {createPointsChip(evaluatedPlayerInput)}
                 </Box>
                 <div className={styles.button_wrapper}>

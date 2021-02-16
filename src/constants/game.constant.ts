@@ -75,10 +75,10 @@ export const SAME_WORD_POINTS = 5;
 export const STANDARD_POINTS = 10;
 export const ONLY_ANSWER_POINTS = 20;
 /**
- * Extra points for answers that are deemed especially creative or funny by other players.
+ * Extra points for each "creative answer" star received from another player.
  * Are only awarded if the corresponding scoring option was selected.
  */
-export const EXTRA_POINTS = 5;
+export const EXTRA_POINTS = 2;
 
 export const GAME_OPTION_LABEL = {
     checkForDuplicates: `Wenn zwei oder mehr Spieler einen identischen Begriff in einer Kategorie eintragen,

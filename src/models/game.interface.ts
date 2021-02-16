@@ -49,8 +49,8 @@ export interface StoredRunningGameInfo {
 export interface PlayerInput {
     /** The points the player gains with this input if it is valid */
     points: number;
-    /** Whether input is marked as very creative, funny etc answer */
-    star: boolean;
+    /** Number of "creative" stars awarded by other players. Each player can award one star per answer */
+    stars: number;
     /** The text input by the player */
     text: string;
     /** Is the input valid or was it rejected by the other players */
@@ -84,11 +84,21 @@ export interface EvaluationOfPlayerInput {
 }
 
 /**
- * Represents whether a player's input for a category is deemed a very creative answer.
+ * Used to track which answers were marked as creative by the player. This information is used
+ * to determine whether the player can mark a specific answer as creative or undo this decision.
+ * `Key`: other player's id. `Value`: categories (represented by their index) marked creative.
  */
-export interface IsPlayerInputVeryCreativeStatus {
+export type AnswersMarkedCreative = Map<string, number[]>;
+
+/**
+ * Represents a "creative answer" star that a player adds to or removes from another player's input.
+ */
+export interface PlayerInputMarkedCreativeStatus {
     categoryIndex: number;
     evaluatedPlayerId: string;
+    /**
+     * If `true`, then a star is added. `False` means a star is removed.
+     */
     markedAsCreative: boolean;
 }
 
@@ -108,8 +118,8 @@ export interface GameResultsGroup {
 }
 
 /**
- * Player inputs that are marked as "very creative" by other players are
- * displayed in a "Hall of Fame" at the end of the game.
+ * Player inputs that receive "creative answer" stars from other players
+ * are displayed in a "Hall of Fame" at the end of the game.
  */
 export interface HallOfFameEntry {
     category: string;

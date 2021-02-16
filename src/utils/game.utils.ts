@@ -59,10 +59,10 @@ export const getPlayersInAlphabeticalOrder = (players: Map<string, PlayerInfo>):
 };
 
 /**
- * Returns an array of PlayerInput objects with empty strings and default settings (isMarkedCreative=false, valid=true, standard points).
+ * Returns an array of PlayerInput objects with empty strings and default settings (standard points, stars=0, valid=true).
  */
 export const getEmptyRoundInputs = (numberOfInputs: number): PlayerInput[] => {
-    return createAndFillArray<PlayerInput>(numberOfInputs, { points: STANDARD_POINTS, star: false, text: '', valid: true });
+    return createAndFillArray<PlayerInput>(numberOfInputs, { points: STANDARD_POINTS, stars: 0, text: '', valid: true });
 };
 
 /**
@@ -189,16 +189,16 @@ export const getRejectingPlayers = (evaluations: PlayerInputEvaluation, players:
 };
 
 /**
- * Adds extra points for "very creative answers" if scoring option is active
+ * Adds extra points for "creative answer" stars if scoring option is active
  * and sets invalid answer's points to zero.
  */
-export const applyValidFlagAndStarFlagToPoints = (scoringOptions: GameConfigScoringOptions, round: GameRound): void => {
+export const applyValidFlagAndCreativeStarsToPoints = (scoringOptions: GameConfigScoringOptions, round: GameRound): void => {
     round.forEach(playerInputs => {
         playerInputs.forEach(input => {
             if (!input.valid) {
                 input.points = 0;
-            } else if (scoringOptions.creativeAnswersExtraPoints && input.star) {
-                input.points = input.points + EXTRA_POINTS;
+            } else if (scoringOptions.creativeAnswersExtraPoints && input.stars > 0) {
+                input.points += EXTRA_POINTS * input.stars;
             }
         });
     });
@@ -232,7 +232,7 @@ export const calculateGameResults = (allPlayers: Map<string, PlayerInfo>, gameRo
 };
 
 /**
- * Creates a list of entries for the "Hall of Fame", the list of answers marked as "very creative".
+ * Creates a list of entries for the "Hall of Fame", the list of answers that received "creative answer" stars.
  */
 export const createHallOfFameData = (allPlayers: Map<string, PlayerInfo>, gameConfig: GameConfig, gameRounds: GameRound[]): HallOfFameEntry[] => {
     const hallOfFameData: HallOfFameEntry[] = [];
@@ -240,7 +240,7 @@ export const createHallOfFameData = (allPlayers: Map<string, PlayerInfo>, gameCo
         round.forEach((playerInputs, playerId) => {
             const playerInfo = allPlayers.get(playerId) as PlayerInfo;
             playerInputs.forEach((playerInput, categoryIndex) => {
-                if (playerInput.valid && playerInput.star) {
+                if (playerInput.valid && playerInput.stars > 0) {
                     hallOfFameData.push({
                         category: gameConfig.categories[categoryIndex],
                         playerName: playerInfo.name,

@@ -72,7 +72,7 @@ interface HallOfFameButtonProps {
 }
 
 /**
- * Displays a button that opens a dialog with all player inputs that were marked as "very creative".
+ * Displays a button that opens a dialog with all player inputs that received "creative answer" stars.
  */
 const HallOfFameButton: React.FunctionComponent<HallOfFameButtonProps> = props => {
     const [open, setOpen] = useState(false);

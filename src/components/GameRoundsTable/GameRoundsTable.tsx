@@ -97,8 +97,8 @@ const GameRoundsTable: React.FunctionComponent<GameRoundsTableProps> = props => 
                             className={!playerInput.valid ? classes.invalidInput : ''}
                             align="right"
                         >
-                            {playerInput.valid && playerInput.star ? veryCreativeAnswer(playerInput) : null}
-                            {playerInput.valid && !playerInput.star ? `${playerInput.text} (+${playerInput.points})` : null}
+                            {playerInput.valid && playerInput.stars > 0 ? veryCreativeAnswer(playerInput) : null}
+                            {playerInput.valid && playerInput.stars === 0 ? `${playerInput.text} (+${playerInput.points})` : null}
                             {!playerInput.valid && !!playerInput.text ? playerInput.text : null}
                             {!playerInput.valid && !playerInput.text ? <span className="sr-only">Leere Antwort</span> : null}
                         </StyledTableCell>

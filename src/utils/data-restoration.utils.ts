@@ -72,11 +72,11 @@ export const decompressGameRoundEvaluation = (compressedData: boolean[][][], sor
  * Transforms the GameRoundEvaluation object from a nested Map into a nested array.
  * The order of the players in sortedPlayers defines the order of the information in the arrays.
  */
-export const compressMarkedAsCreativeFlags = (round: GameRound, sortedPlayers: PlayerInfo[]): boolean[][] => {
-    const markedAsCreativeArrays: boolean[][] = [];
+export const compressMarkedAsCreativeStars = (round: GameRound, sortedPlayers: PlayerInfo[]): number[][] => {
+    const markedAsCreativeArrays: number[][] = [];
     sortedPlayers.forEach(player => {
         const playerInputs = round.get(player.id) as PlayerInput[];
-        markedAsCreativeArrays.push(playerInputs.map(input => input.star));
+        markedAsCreativeArrays.push(playerInputs.map(input => input.stars));
     });
     return markedAsCreativeArrays;
 };
@@ -127,11 +127,11 @@ export const setPointsAndValidity = (
 };
 
 /**
- * Applies the "marked as very creative" flags to the player inputs for a player who is rejoining the game in evaluation phase.
+ * Sets the "creative answer" stars in the player inputs for a player who is rejoining the game in evaluation phase.
  */
-export const applyMarkedAsCreativeFlags = (compressedData: boolean[][], sortedPlayers: PlayerInfo[], round: GameRound): void => {
+export const applyMarkedAsCreativeStars = (compressedData: number[][], sortedPlayers: PlayerInfo[], round: GameRound): void => {
     sortedPlayers.forEach((player, playerIndex) => {
         const markedAsCreativeAnswer = compressedData[playerIndex];
-        (round.get(player.id) as PlayerInput[]).forEach((input, categoryIndex) => input.star = markedAsCreativeAnswer[categoryIndex]);
+        (round.get(player.id) as PlayerInput[]).forEach((input, categoryIndex) => input.stars = markedAsCreativeAnswer[categoryIndex]);
     });
 };
