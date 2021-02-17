@@ -1,3 +1,9 @@
 .inline_icon {
     vertical-align: text-top;
 }
+
+.nested_list {
+    margin-top: 0.5rem;
+    padding-left: 1.5rem;
+    list-style: disc;
+}

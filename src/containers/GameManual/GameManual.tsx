@@ -2,6 +2,7 @@ import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import BrushIcon from '@material-ui/icons/Brush';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 import FlipCameraAndroidIcon from '@material-ui/icons/FlipCameraAndroid';
+import SearchIcon from '@material-ui/icons/Search';
 import SettingsIcon from '@material-ui/icons/Settings';
 import StarIcon from '@material-ui/icons/Star';
 import ThumbDownRoundedIcon from '@material-ui/icons/ThumbDownRounded';
@@ -11,7 +12,7 @@ import { Link as RouterLink } from 'react-router-dom';
 
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
 import ToDashboardButton from '../../components/ToDashboardButton/ToDashboardButton';
-import { GAME_OPTION_LABEL } from '../../constants/game.constant';
+import { EXTRA_POINTS, GAME_OPTION_LABEL, STANDARD_POINTS } from '../../constants/game.constant';
 import styles from './GameManual.module.css';
 
 class GameManual extends Component<RouteComponentProps> {
@@ -103,18 +104,34 @@ class GameManual extends Component<RouteComponentProps> {
                             rechts unten auf der Seite geklickt hat oder wenn die festgelegte Rundendauer abgelaufen ist.
                         </li>
                         <li>
-                            Nachdem die Runde beendet ist, wird jedem Spieler eine Übersicht aller Begriffe aller Spieler pro
-                            Kategorie angezeigt. Grundsätzlich zählt ein gültiger Begriff 10 Punkte, außer die gewählten Regeln besagen
-                            etwas anderes. Falls ein Spieler in ein Feld nichts eingetragen hat, wird dieses automatisch als 0 Punkte
-                            gewertet. Über den <ThumbDownRoundedIcon fontSize="small" className={styles.inline_icon} />
-                            <span className="sr-only">Antwort ablehnen</span>-Button
-                            können die Spieler konkrete Antworten ablehnen. Abhängig von der Spieleranzahl führt dies dazu, dass
-                            der jeweilige Spieler keine Punkte für die Antwort erhält. Bei zwei bis drei Spielern reicht die Ablehnung
-                            durch einen Mitspieler aus. Bei mehr als drei Spielern müssen mindesten zwei Spieler eine Antwort ablehnen.
-                            Die Ablehnung einer Antwort kann durch erneutes Klicken auf den Button wieder zurückgezogen werden.
-                            Mit dem <StarIcon fontSize="small" className={styles.inline_icon} />
-                            <span className="sr-only">Als besonders kreativ markieren</span>-Button können Begriffe von Mitspielern
-                            als besonders kreativ oder lustig ausgezeichnet werden.
+                            Nachdem die Runde beendet ist, wird jedem Spieler eine Übersicht aller Antworten aller Spieler pro
+                            Kategorie angezeigt. Folgende Informationen und Aktionen stehen zur Verfügung:
+                            <ul className={styles.nested_list}>
+                                <li>
+                                    Zu jeder Antwort wird die aktuell ermittelte Punktzahl angezeigt. Grundsätzlich zählt eine gültige
+                                    Antwort {STANDARD_POINTS} Punkte, außer die gewählten Regeln besagen etwas anderes. Falls ein
+                                    Spieler in ein Feld nichts eingetragen hat, wird dieses automatisch als 0 Punkte gewertet.
+                                </li>
+                                <li>
+                                    Der <SearchIcon fontSize="small" className={styles.inline_icon} />
+                                    <span className="sr-only">Begriff nachschlagen</span>-Link öffnet die Suchmaschine Ecosia in einem
+                                    neuen Tab und führt automatisch eine Suche nach der Kategorie plus Antwort des Spielers durch.
+                                </li>
+                                <li>
+                                    Mit dem <StarIcon fontSize="small" className={styles.inline_icon} />
+                                    <span className="sr-only">Kreativ-Stern verleihen</span>-Button können Antworten von Mitspielern
+                                    als besonders kreativ ausgezeichnet werden. Die dadurch verliehenen Kreativ-Sterne werden addiert
+                                    und bringen zusätzlich {EXTRA_POINTS} Punkte pro Stern, falls diese Regel aktiv ist.
+                                </li>
+                                <li>
+                                    Über den <ThumbDownRoundedIcon fontSize="small" className={styles.inline_icon} />
+                                    <span className="sr-only">Antwort ablehnen</span>-Button können die Spieler konkrete Antworten
+                                    ablehnen. Abhängig von der Spieleranzahl führt dies dazu, dass der jeweilige Spieler keine Punkte
+                                    für die Antwort erhält. Bei zwei bis drei Spielern reicht die Ablehnung durch einen Mitspieler aus.
+                                    Bei mehr als drei Spielern müssen mindesten zwei Spieler eine Antwort ablehnen. Die Ablehnung einer
+                                    Antwort kann durch erneutes Klicken auf den Button wieder zurückgezogen werden.
+                                </li>
+                            </ul>
                         </li>
                         <li>
                             Über den Bestätigen-Button rechts unten auf der Seite muss ein Spieler signalisieren, dass sie oder er
@@ -150,9 +167,9 @@ class GameManual extends Component<RouteComponentProps> {
                     </p>
                     <p>
                         Der Button <span>Alle Runden im Detail</span> öffnet einen Dialog, in dem alle Runden des beendeten Spiels
-                        im Detail (Antworten, Punkte etc.) dargestellt werden. Falls während des Spiels einzelne Begriffe als besonders
-                        kreativ oder lustig ausgezeichnet wurden, so kann man über den <span>Hall of Fame</span>-Button
-                        einen Dialog öffnen, der eine Liste mit allen Begriffen anzeigt.
+                        im Detail (Antworten, Punkte etc.) dargestellt werden. Falls während des Spiels einzelne Antworten als besonders
+                        kreativ ausgezeichnet wurden, so kann man über den <span>Hall of Fame</span>-Button einen Dialog öffnen,
+                        der eine Liste mit allen Antworten anzeigt.
                     </p>
                 </div>
                 <ToDashboardButton onReturnToDashboard={this.returnToDashboard} />
