@@ -9,7 +9,7 @@ import React, { useState } from 'react';
 
 import { EXTRA_POINTS } from '../../constants/game.constant';
 import {
-    AnswersMarkedCreative,
+    CreativeStarsAwardedByPlayer,
     EvaluationOfPlayerInput,
     GameConfig,
     GameRound,
@@ -37,7 +37,7 @@ const StyledBadge = withStyles((theme: Theme) =>
 
 interface PhaseEvaluateRoundProps {
     allPlayers: Map<string, PlayerInfo>;
-    answersMarkedCreative: AnswersMarkedCreative;
+    creativeStarsAwarded: CreativeStarsAwardedByPlayer;
     currentRound: number;
     currentRoundEvaluation: GameRoundEvaluation;
     gameConfig: GameConfig;
@@ -133,7 +133,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
     /**
       * Add/removes a "creative answer" star to/from a player's input for a category.
       */
-    const handleMarkAsCreativeAnswerToggleClick = (
+    const handleMarkCreativeToggleClick = (
         categoryIndex: number, evaluatedPlayerId: string, isMarkedAsCreative: boolean
     ) => {
         props.updatePlayerInputMarkedCreativeStatus({ categoryIndex, evaluatedPlayerId, markedAsCreative: !isMarkedAsCreative });
@@ -142,31 +142,31 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
     /**
      * Creates a "mark as creative answer" toggle button for a specific category and player input.
      */
-    const createMarkAsCreativeAnswerToggle = (categoryIndex: number, indexInSortedPlayers: number): JSX.Element => {
+    const createMarkCreativeAnswerToggle = (categoryIndex: number, indexInSortedPlayers: number): JSX.Element => {
         const evaluatedPlayer = sortedPlayers[indexInSortedPlayers];
         const playerInput = (finishedRound.get(evaluatedPlayer.id) as PlayerInput[])[categoryIndex];
         const isDisabled = hasFinishedEvaluation || evaluatedPlayer.id === props.playerInfo.id;
-        const isMarkedCreative = (props.answersMarkedCreative.get(evaluatedPlayer.id) || []).includes(categoryIndex);
+        const isMarkedCreativeByPlayer = (props.creativeStarsAwarded.get(evaluatedPlayer.id) || []).includes(categoryIndex);
         const iconColor = evaluatedPlayer.id === props.playerInfo.id ? 'action' : 'primary';
         const createButton = () => (
             <IconButton
                 color="primary"
                 size="small"
                 disabled={isDisabled}
-                onClick={() => handleMarkAsCreativeAnswerToggleClick(categoryIndex, evaluatedPlayer.id, isMarkedCreative)}
+                onClick={() => handleMarkCreativeToggleClick(categoryIndex, evaluatedPlayer.id, isMarkedCreativeByPlayer)}
             >
                 <StyledBadge
                     badgeContent={playerInput.stars}
                     color="primary"
                     aria-hidden="true"
                 >
-                    {isMarkedCreative ? <StarIcon color={iconColor} /> : <StarBorderIcon color={iconColor} />}
+                    {isMarkedCreativeByPlayer ? <StarIcon color={iconColor} /> : <StarBorderIcon color={iconColor} />}
                 </StyledBadge>
             </IconButton>
         );
         return isDisabled ? createButton() : (
             <Tooltip
-                title={isMarkedCreative ? 'Kreativ-Stern zurücknehmen' : 'Kreativ-Stern verleihen'}
+                title={isMarkedCreativeByPlayer ? 'Kreativ-Stern zurücknehmen' : 'Kreativ-Stern verleihen'}
                 placement="bottom"
                 arrow
             >
@@ -271,7 +271,7 @@ const PhaseEvaluateRound: React.FunctionComponent<PhaseEvaluateRoundProps> = pro
                 </Box>
                 <div className={styles.button_wrapper}>
                     {hasPlayerTypedText ? createSearchLink(categoryIndex, indexInSortedPlayers) : null}
-                    {isInputValid ? createMarkAsCreativeAnswerToggle(categoryIndex, indexInSortedPlayers) : null}
+                    {isInputValid ? createMarkCreativeAnswerToggle(categoryIndex, indexInSortedPlayers) : null}
                     {createEvaluationButtonOrIcon(categoryIndex, indexInSortedPlayers)}
                 </div>
             </div>

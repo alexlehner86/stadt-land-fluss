@@ -1,6 +1,6 @@
 {
     "name": "stadt-land-fluss",
-    "version": "1.6.8",
+    "version": "1.7.0",
     "homepage": "https://alexlehner86.github.io/stadt-land-fluss",
     "private": true,
     "dependencies": {

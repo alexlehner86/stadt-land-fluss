@@ -15,6 +15,7 @@ import {
 import FaceIcon from '@material-ui/icons/Face';
 import StarIcon from '@material-ui/icons/Star';
 import React, { useState } from 'react';
+
 import { HallOfFameEntry } from '../../models/game.interface';
 
 const useStyles = makeStyles({
@@ -27,6 +28,14 @@ const useStyles = makeStyles({
     listItemAvatar: {
         marginRight: '1rem',
     },
+    primary: {
+        color: '#555555',
+        fontSize: '0.875rem',
+    },
+    secondary: {
+        color: 'black',
+        fontSize: '1rem',
+    }
 });
 
 export interface HallOfFameDialogProps {
@@ -35,17 +44,17 @@ export interface HallOfFameDialogProps {
     onClose: () => void;
 }
 const HallOfFameDialog: React.FunctionComponent<HallOfFameDialogProps> = props => {
-    const classes = useStyles();
+    const styles = useStyles();
     const { hallOfFameData, open, onClose } = props;
     return (
         <Dialog onClose={onClose} open={open} maxWidth="lg">
             <DialogContent>
                 <DialogContentText>Hall of Fame</DialogContentText>
                 <Divider />
-                <List className={classes.list}>
+                <List className={styles.list}>
                     {hallOfFameData.map((item, index) => (
-                        <ListItem key={`slf-hall-of-fame-item-${index}`} className={classes.listItem}>
-                            <ListItemAvatar className={classes.listItemAvatar}>
+                        <ListItem key={`slf-hall-of-fame-item-${index}`} className={styles.listItem}>
+                            <ListItemAvatar className={styles.listItemAvatar}>
                                 <Chip
                                     icon={<FaceIcon />}
                                     color="primary"
@@ -53,8 +62,9 @@ const HallOfFameDialog: React.FunctionComponent<HallOfFameDialogProps> = props =
                                 />
                             </ListItemAvatar>
                             <ListItemText
-                                primary={item.text}
-                                secondary={item.category}
+                                primary={item.category}
+                                secondary={item.text}
+                                classes={{ primary: styles.primary, secondary: styles.secondary }}
                             />
                         </ListItem>
                     ))}

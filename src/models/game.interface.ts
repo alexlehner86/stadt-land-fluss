@@ -84,11 +84,11 @@ export interface EvaluationOfPlayerInput {
 }
 
 /**
- * Used to track which answers were marked as creative by the player. This information is used
- * to determine whether the player can mark a specific answer as creative or undo this decision.
- * `Key`: other player's id. `Value`: categories (represented by their index) marked creative.
+ * Used to track which answers were marked by the player as creative (represented as star shaped toggle buttons).
+ * This information is used to determine whether the player can mark a specific answer as creative or undo this decision.
+ * `Key`: other player's id. `Value`: answers (represented by category index) marked creative.
  */
-export type AnswersMarkedCreative = Map<string, number[]>;
+export type CreativeStarsAwardedByPlayer = Map<string, number[]>;
 
 /**
  * Represents a "creative answer" star that a player adds to or removes from another player's input.

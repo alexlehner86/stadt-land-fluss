@@ -26,7 +26,7 @@ import {
     TEN_SECONDS_REMAINING_MESSAGE,
 } from '../../constants/sr-message.constant';
 import {
-    AnswersMarkedCreative,
+    CreativeStarsAwardedByPlayer,
     EndRoundMode,
     EqualAnswersOfCategory,
     EvaluationOfPlayerInput,
@@ -83,8 +83,11 @@ import {
 import { convertCollectionToMap, convertMapToCollection } from '../../utils/general.utils';
 import {
     getRunningGameConfigFromLocalStorage,
+    getRunningGameCreativeStarsFromLocalStorage,
     removeAllDataOfRunningGameFromLocalStorage,
+    removeRunningGameCreativeStarsFromLocalStorage,
     setRunningGameConfigInLocalStorage,
+    setRunningGameCreativeStarsInLocalStorage,
     setRunningGameRoundInLocalStorage,
 } from '../../utils/local-storage.utils';
 
@@ -105,7 +108,7 @@ export interface PlayGameState {
     allPlayers: Map<string, PlayerInfo>;
     currentPhase: GamePhase;
     currentRound: number;
-    currentRoundAnswersMarkedCreative: AnswersMarkedCreative;
+    currentRoundCreativeStarsAwarded: CreativeStarsAwardedByPlayer;
     currentRoundEqualAnswers: Map<number, string[]>;
     currentRoundEvaluation: GameRoundEvaluation;
     currentRoundInputs: PlayerInput[];
@@ -124,7 +127,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
         allPlayers: new Map<string, PlayerInfo>(),
         currentPhase: GamePhase.waitingToStart,
         currentRound: 1,
-        currentRoundAnswersMarkedCreative: new Map<string, number[]>(),
+        currentRoundCreativeStarsAwarded: new Map<string, number[]>(),
         currentRoundEqualAnswers: new Map<number, string[]>(),
         currentRoundEvaluation: new Map<string, PlayerInputEvaluation[]>(),
         currentRoundInputs: [],
@@ -261,7 +264,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                 return (
                     <PhaseEvaluateRound
                         allPlayers={this.state.allPlayers}
-                        answersMarkedCreative={this.state.currentRoundAnswersMarkedCreative}
+                        creativeStarsAwarded={this.state.currentRoundCreativeStarsAwarded}
                         currentRound={this.state.currentRound}
                         currentRoundEvaluation={this.state.currentRoundEvaluation}
                         gameConfig={this.state.gameConfig as GameConfig}
@@ -354,11 +357,14 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
     private updatePlayerInputMarkedCreativeStatus = (newStatus: PlayerInputMarkedCreativeStatus) => {
         // Update app data for player's "mark as creative" toggle buttons.
         const { categoryIndex, evaluatedPlayerId, markedAsCreative } = newStatus;
-        const creativeCategories = this.state.currentRoundAnswersMarkedCreative.get(evaluatedPlayerId) || [];
-        const newCreativeCategories = markedAsCreative ? [...creativeCategories, categoryIndex] : creativeCategories.filter(c => c != categoryIndex);
-        const newAnswersMarkedCreative = cloneDeep(this.state.currentRoundAnswersMarkedCreative);
-        newAnswersMarkedCreative.set(evaluatedPlayerId, newCreativeCategories);
-        this.setState({ currentRoundAnswersMarkedCreative: newAnswersMarkedCreative });
+        const starsForEvaluatedPlayer = this.state.currentRoundCreativeStarsAwarded.get(evaluatedPlayerId) || [];
+        const newCreativeStarsAwarded = cloneDeep(this.state.currentRoundCreativeStarsAwarded);
+        newCreativeStarsAwarded.set(
+            evaluatedPlayerId, 
+            markedAsCreative ? [...starsForEvaluatedPlayer, categoryIndex] : starsForEvaluatedPlayer.filter(c => c != categoryIndex)
+        );
+        this.setState({ currentRoundCreativeStarsAwarded: newCreativeStarsAwarded });
+        setRunningGameCreativeStarsInLocalStorage(newCreativeStarsAwarded);
 
         // Send PubNub message to all players to update "stars" attribute of player input.
         const message = new PubNubIsPlayerInputVeryCreativeMessage(newStatus);
@@ -644,14 +650,15 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             this.props.onSetDataOfFinishedGame({ allPlayers, gameConfig, gameRounds });
             this.props.history.push('/results');
         } else {
-            // Save finished game round in local storage and start next round of the game.
             setRunningGameRoundInLocalStorage(this.state.currentRound, gameRounds[currentRound - 1]);
+            removeRunningGameCreativeStarsFromLocalStorage();
+            // Start next round of the game.
             const nextRound = currentRound + 1;
             this.setState({
                 a11yMessagePolite: ROUND_EVALUATION_FINISHED_MESSAGE,
                 currentPhase: GamePhase.fillOutTextfields,
                 currentRound: nextRound,
-                currentRoundAnswersMarkedCreative: new Map<string, number[]>(),
+                currentRoundCreativeStarsAwarded: new Map<string, number[]>(),
                 currentRoundEqualAnswers: new Map<number, string[]>(),
                 currentRoundEvaluation: createGameRoundEvaluation(allPlayers, gameConfig.categories),
                 currentRoundInputs: getEmptyRoundInputs(gameConfig.categories.length),
@@ -731,6 +738,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
             const allPlayers = new Map<string, PlayerInfo>();
             payload.sortedPlayers.forEach(player => allPlayers.set(player.id, player));
             const currentRoundEqualAnswers = decompressEqualAnswers(payload.compressedEqualAnswers || []);
+            let currentRoundCreativeStarsAwarded = new Map<string, number[]>();
             let currentRoundEvaluation: GameRoundEvaluation;
             // If we are in evaluation phase, then we received the current evaluations and the
             // compressed "creative answer" stars, which we need to apply to the player inputs.
@@ -740,6 +748,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                 const min = getMinNumberOfInvalids(allPlayers.size);
                 setPointsAndValidity(gameConfig.scoringOptions, currentRoundEvaluation, currentRoundEqualAnswers, min, round);
                 applyMarkedAsCreativeStars(payload.compressedMarkedAsCreativeStars, payload.sortedPlayers, round);
+                currentRoundCreativeStarsAwarded = getRunningGameCreativeStarsFromLocalStorage();
             } else {
                 // If not in evaluation phase, we need to prepare a GameRound and GameRoundEvaluation object for the current round.
                 gameRounds.push(new Map<string, PlayerInput[]>());
@@ -749,6 +758,7 @@ class PlayGame extends Component<PlayGameProps, PlayGameState> {
                 allPlayers,
                 currentPhase: payload.currentPhase,
                 currentRound: payload.currentRound,
+                currentRoundCreativeStarsAwarded,
                 currentRoundEqualAnswers,
                 currentRoundEvaluation,
                 currentRoundInputs: getEmptyRoundInputs(gameConfig.categories.length),

@@ -2,6 +2,12 @@ This project is an online version of the popular European game "Stadt-Land-Fluss
 
 ## Release Notes
 
+### v1.7.0
+
+- Change "mark answer as creative" system: Now every player's decision to mark an answer as creative counts as a separate "creative star". If game option is chosen, players receive extra points per each "creative star".
+- Updated and improved game manual
+- Various bugfixes, UI tweaks
+
 ### v1.6.0
 
 - Major accessibility improvements of the whole app (keyboard interaction, screen reader optimization, etc.)
