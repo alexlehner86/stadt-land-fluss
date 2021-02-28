@@ -81,10 +81,10 @@ export const ONLY_ANSWER_POINTS = 20;
 export const EXTRA_POINTS = 2;
 
 export const GAME_OPTION_LABEL = {
-    checkForDuplicates: `Wenn zwei oder mehr Spieler eine identische Antwort in einer Kategorie eintragen,
+    checkForDuplicates: `Wenn zwei oder mehr Personen eine identische Antwort in einer Kategorie eintragen,
         so zählt diese nur ${SAME_WORD_POINTS} statt ${STANDARD_POINTS} Punkte.`,
-    creativeAnswersExtraPoints: `Von Mitspielern als besonders kreativ ausgezeichnete Antworten bringen
-        ${EXTRA_POINTS} Extrapunkte pro Kreativ-Stern.`,
-    onlyPlayerWithValidAnswer: `Wenn ein Spieler als einziger eine zulässige Antwort in einer Kategorie
+    creativeAnswersExtraPoints: `Von anderen Spielerinnen oder Spielern als besonders kreativ ausgezeichnete
+        Antworten bringen ${EXTRA_POINTS} Extrapunkte pro Kreativ-Stern.`,
+    onlyPlayerWithValidAnswer: `Wenn eine Person als einzige eine zulässige Antwort in einer Kategorie
         einträgt, so zählt diese Antwort ${ONLY_ANSWER_POINTS} statt ${STANDARD_POINTS} Punkte.`
 };

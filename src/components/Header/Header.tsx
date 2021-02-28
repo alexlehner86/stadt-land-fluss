@@ -24,11 +24,12 @@ export class Header extends Component<HeaderProps, HeaderState> {
     public state = { isFullscreenActive: false };
 
     public render() {
+        const subtitle = this.props.playerName ? `Name: ${this.props.playerName}` : '(MALEX-Edition)';
         const fullscreenButtonTitle = this.state.isFullscreenActive ? 'Vollbildmodus beenden' : 'Vollbildmodus starten';
         return (
             <header className={'app-header ' + this.props.theme.className}>
                 <h1>Stadt-Land-Fluss</h1>
-                <p>Spieler: {this.props.playerName ? this.props.playerName : '-'}</p>
+                <p>{subtitle}</p>
                 <div className="about-section">
                     <p>
                         <span aria-hidden="true">v</span>

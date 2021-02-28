@@ -6,6 +6,7 @@ import { useSnackbar } from 'notistack';
 import React from 'react';
 
 import { MIN_NUMBER_OF_PLAYERS } from '../../constants/game.constant';
+import { FASTEST_PLAYER } from '../../constants/text.constant';
 import { EndRoundMode, GameConfig } from '../../models/game.interface';
 import { PlayerInfo } from '../../models/player.interface';
 import { PubNubMessage, PubNubMessageType } from '../../models/pub-nub-data.model';
@@ -43,7 +44,7 @@ const PhaseWaitingToStart: React.FunctionComponent<PhaseWaitingToStartProps> = p
             case EndRoundMode.countdownEnds:
                 return `Countdown (${gameConfig.durationOfCountdown} Sekunden)`;
             case EndRoundMode.firstPlayerSubmits:
-                return 'Schnellster Spieler';
+                return FASTEST_PLAYER;
             default:
                 return '';
         }
@@ -91,7 +92,7 @@ const PhaseWaitingToStart: React.FunctionComponent<PhaseWaitingToStartProps> = p
             <div className="material-card-style">
                 <SectionHeader text="Warteraum"></SectionHeader>
                 <div className="players-wrapper">
-                    <h3>Mitspieler ({props.allPlayers.size}):</h3>
+                    <h3>Spielende ({props.allPlayers.size}):</h3>
                     <PlayerList players={props.allPlayers} />
                 </div>
                 {props.gameConfig ? createGameSettingsElement() : null}

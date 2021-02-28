@@ -43,7 +43,7 @@ import {
     STANDARD_CATEGORIES,
     STANDARD_EXCLUDED_LETTERS,
 } from '../../constants/game.constant';
-import { NUMBER_OF_ROUNDS_LABEL, PLAYER_NAME_LABEL } from '../../constants/text.constant';
+import { FASTEST_PLAYER, NUMBER_OF_ROUNDS_LABEL, PLAYER_NAME_LABEL } from '../../constants/text.constant';
 import { EndRoundMode, GameConfigScoringOptions } from '../../models/game.interface';
 import { PlayerInfo } from '../../models/player.interface';
 import { AppAction, prepareRejoiningGame, setDataForNewGame, SetDataForNewGamePayload } from '../../store/app.actions';
@@ -207,7 +207,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                         <FormControlLabel
                             value={EndRoundMode.firstPlayerSubmits}
                             control={<Radio color="primary" />}
-                            label="Schnellster Spieler"
+                            label={FASTEST_PLAYER}
                         />
                         <div className={styles.countdown_wrapper}>
                             <FormControlLabel

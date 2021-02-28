@@ -59,8 +59,8 @@ const AdminPanel: React.FunctionComponent<AdminPanelProps> = props => {
         <div className={props.isForMobileView ? styles.adminPanelMobile : styles.adminPanel}>
             <IconButton
                 className={styles.menuButton}
-                title="Administrator-Optionen"
-                aria-label="Administrator-Optionen"
+                title="Admin-Optionen"
+                aria-label="Admin-Optionen"
                 aria-controls="admin-panel"
                 aria-haspopup="true"
                 onClick={handleMenuButtonClick}
