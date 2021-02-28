@@ -1,5 +1,6 @@
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import BrushIcon from '@material-ui/icons/Brush';
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 import FlipCameraAndroidIcon from '@material-ui/icons/FlipCameraAndroid';
 import SearchIcon from '@material-ui/icons/Search';
@@ -12,8 +13,14 @@ import { Link as RouterLink } from 'react-router-dom';
 
 import { SectionHeader } from '../../components/SectionHeader/SectionHeader';
 import ToDashboardButton from '../../components/ToDashboardButton/ToDashboardButton';
-import { EXTRA_POINTS, GAME_OPTION_LABEL, STANDARD_POINTS } from '../../constants/game.constant';
-import { FASTEST_PLAYER } from '../../constants/text.constant';
+import {
+    AVAILABLE_CATEGORIES,
+    EXTRA_POINTS,
+    GAME_OPTION_LABEL,
+    STANDARD_CATEGORIES,
+    STANDARD_POINTS,
+} from '../../constants/game.constant';
+import { ALL_PLAYERS_TOGETHER, FASTEST_PLAYER } from '../../constants/text.constant';
 import styles from './GameManual.module.css';
 
 class GameManual extends Component<RouteComponentProps> {
@@ -33,22 +40,15 @@ class GameManual extends Component<RouteComponentProps> {
                         >Spiele-Klassikers</a>
                         {' '}mit neuen, lustigen Kategorien.
                     </p>
-                    <h3>Allgemeines</h3>
-                    <p>
-                        Im Dashboard (Startseite) kann man über <span>Neues Spiel</span> ein neues Spiel erstellen bzw. über <span>Spiel
-                        beitreten</span> einem bereits erstellten Spiel beitreten. Die Webseite bietet fünf verschiedene Designs zur
-                        Auswahl. Das aktuelle Design kann über den <BrushIcon fontSize="small" className={styles.inline_icon} />
-                        <span className="sr-only">Design ändern</span>-Button (rechts oben im zentralen Bild) geändert werden.
-                        Die Design-Auswahl sowie der zuletzt gewählte Spielername werden vom Browser gespeichert.
-                    </p>
-                    <h3>Neues Spiel</h3>
+                    <h3>Neues Spiel erstellen</h3>
                     <p>
                         Um ein neues Spiel zu erstellen, muss man einen Spielernamen eingeben, die Anzahl der zu spielenden
                         Runden festlegen, einen Spielmodus auswählen und mindestens drei Kategorien bestimmen.
                     </p>
                     <p>
-                        Es stehen 45 Kategorien zur Auswahl, darunter Klassiker wie <span>Stadt</span>, <span>Land</span> und{' '}
-                        <span>Fluss/Gewässer</span>, jedoch auch neue Kategorien wie <span>Könnte ein Trump-Tweet sein</span>.
+                        Es stehen {STANDARD_CATEGORIES.length + AVAILABLE_CATEGORIES.length} Kategorien zur Auswahl, darunter
+                        Klassiker wie <span>Stadt</span>, <span>Land</span> und <span>Fluss/Gewässer</span>, jedoch auch neue
+                        Kategorien wie <span>Scheidungsgrund</span>.
                         Der <FlipCameraAndroidIcon fontSize="small" className={styles.inline_icon} />
                         <span className="sr-only">Kategorien zufällig auswählen</span>-Button öffnet einen Dialog, über den eine
                         Zufallsauswahl an Kategorien erstellt werden kann.
@@ -57,17 +57,16 @@ class GameManual extends Component<RouteComponentProps> {
                         lässt sich auch jede beliebige, weitere Kategorie definieren und für das Spiel auswählen.
                     </p>
                     <p>
-                        Standardmäßig ist die Option vorausgewählt, dass eine Runde von allen Spielenden gemeinsam beendet wird.
-                        Das bedeutet, dass alle manuell ihre Antworten abschicken müssen, damit die aktuelle Runde endet.
+                        Standardmäßig ist die Option <span>{ALL_PLAYERS_TOGETHER}</span> vorausgewählt. Das bedeutet, dass alle
+                        manuell ihre Antworten abschicken müssen, damit die aktuelle Runde endet.
                         Beim Spielmodus <span>{FASTEST_PLAYER}</span> wird eine Runde von jener Person beendet, die als erste
                         alle Kategorien beantwortet hat und diese abschickt. Bei der dritten Option <span>Countdown</span> wird
                         eine fixe Rundendauer in Sekunden gewählt.
                     </p>
                     <p>
-                        Im Bereich <span>Weitere Optionen</span> können optional weitere Einstellungen vorgenommen werden. Die
-                        Nutzerin oder der Nutzer kann bestimmen, welche Buchstaben ausgeschlossen werden sollen. Standardmäßig sind
-                        hier Q, X und Y ausgewählt. Weiters stehen drei zusätzliche <span>Regeln für die Punktevergabe</span> zur
-                        Auswahl, die standardmäßig ausgewählt sind:
+                        Im Bereich <span>Weitere Optionen</span> können optionale Einstellungen vorgenommen werden. Man kann bestimmen,
+                        welche Buchstaben ausgeschlossen werden sollen (Q, X und Y sind vorausgewählt). Weiters stehen drei
+                        vorausgewählte <span>Regeln für die Punktevergabe</span> zur Auswahl:
                     </p>
                     <ul>
                         <li>{GAME_OPTION_LABEL.checkForDuplicates}</li>
@@ -76,22 +75,22 @@ class GameManual extends Component<RouteComponentProps> {
                     </ul>
                     <p>
                         Nach einem Klick auf <span>Spiel erstellen</span> gelangt man zur Spiel-Übersicht, wo alle Einstellungen für das
-                        erstellte Spiel sowie die bisher beigetretenen Spielerinnen und Spieler sichtbar sind. Zu Beginn scheint nur die
-                        Person, die das Spiel erstellt hat, als Admin in der Liste auf. Es müssen mindestens zwei Personen an einem
+                        erstellte Spiel sowie die bisher beigetretenen Spielerinnen und Spieler sichtbar sind. Zu Beginn scheint man
+                        nur selbst, gekennzeichnet als Admin, in der Liste auf. Es müssen mindestens zwei Personen an einem
                         Spiel teilnehmen, damit dieses starten kann.
-                    </p>
-                    <p>
-                        Der Administratorin oder dem Administrator wird ein Link angeboten, um andere in das Spiel einzuladen.
-                        Ein Klick auf den <FileCopyIcon fontSize="small" className={styles.inline_icon} />
-                        <span className="sr-only">Link zum Spiel kopieren</span>-Button rechts vom Link kopiert diesen in die Zwischenablage.
-                        Über diesen Link gelangt man direkt zur <span>Spiel beitreten</span>-Seite, wo das Eingabefeld Spiel-ID von der
-                        Webseite bereits vorausgefüllt wird.
                     </p>
                     <h3>Spiel beitreten</h3>
                     <p>
-                        Um einem bereits erstellten Spiel beizutreten, muss man einen Spielernamen sowie die Spiel-ID eingeben. Die Person,
-                        die das Spiel erstellt hat, kann als Admin einen Link zum Spiel teilen. Folgt man diesem Link, wird die Spiel-ID
-                        von der Webseite automatisch in das Feld eingetragen.
+                        Um einem bereits erstellten Spiel beizutreten, muss man einen Spielernamen sowie die Spiel-ID eingeben. Diese ID
+                        wird automatisch generiert, wenn jemand ein neues Spiel erstellt. Die Teilnahme ist nur dann möglich, wenn das
+                        Spiel noch nicht gestartet wurde.
+                    </p>
+                    <p>
+                        Als Admin sollte man die Spiel-ID oder den angezeigten Link teilen, um Freunde ins Spiel einzuladen.
+                        Ein Klick auf den <FileCopyIcon fontSize="small" className={styles.inline_icon} />
+                        <span className="sr-only">Link zum Spiel kopieren</span>-Button kopiert den Link in die Zwischenablage.
+                        Über diesen Link gelangt man direkt zur <span>Spiel beitreten</span>-Seite, wo die Spiel-ID von der
+                        Webseite automatisch in das Eingabefeld eingetragen wird.
                     </p>
                     <h3>Spielablauf</h3>
                     <p>
@@ -100,22 +99,19 @@ class GameManual extends Component<RouteComponentProps> {
                     <ol>
                         <li>Eine kurze Animation offenbart den Buchstaben für die neue Runde.</li>
                         <li>
-                            Die Runde startet: Es erscheint eine Liste an Eingabefeldern, eines pro Kategorie, zum Eintragen der Begriffe bzw.
-                            Phrasen. Hinweis: Mithilfe der Tabulatortaste kann man bequem zwischen den Eingabefeldern navigieren.
+                            Es erscheint eine Liste an Eingabefeldern, eines pro Kategorie, zum Eintragen der Begriffe bzw.
+                            Phrasen.
                         </li>
                         <li>
-                            Abhängig vom gewählten Spielmodus endet die Runde, sobald alle Spielenden ihre Antworten abgeschickt haben,
-                            die erste Person auf den Abschicken-Button rechts unten auf der Seite geklickt hat oder wenn die festgelegte
-                            Rundendauer abgelaufen ist. Wenn der letztgenannte Spielmodus gewählt wurde, zeigt ein Countdown die noch
-                            verbleibende Zeit an. Für Screenreader wird 10 Sekunden vor dem Ende der Runde eine Statusnachricht ausgegeben.
+                            Die Runde endet abhängig vom gewählten Spielmodus (siehe oben).
                         </li>
                         <li>
-                            Nachdem die Runde beendet ist, wird den Spielenden eine Übersicht aller Antworten sortiert nach Kategorie
+                            In der Auswertungsphase wird den Spielenden eine Übersicht aller Antworten sortiert nach Kategorie
                             angezeigt. Folgende Informationen und Aktionen stehen zur Verfügung:
                             <ul className={styles.nested_list}>
                                 <li>
-                                    Zu jeder Antwort wird die aktuell ermittelte Punktzahl angezeigt. Grundsätzlich zählt eine gültige
-                                    Antwort {STANDARD_POINTS} Punkte, außer die gewählten Regeln besagen etwas anderes. Falls eine
+                                    Zu jeder Antwort wird die aktuell ermittelte Punktzahl angezeigt. Eine gültige Antwort
+                                    zählt {STANDARD_POINTS} Punkte, außer die gewählten Regeln besagen etwas anderes. Falls eine
                                     Person in ein Feld nichts eingetragen hat, wird dieses automatisch als 0 Punkte gewertet.
                                 </li>
                                 <li>
@@ -132,25 +128,30 @@ class GameManual extends Component<RouteComponentProps> {
                                 <li>
                                     Über den <ThumbDownRoundedIcon fontSize="small" className={styles.inline_icon} />
                                     <span className="sr-only">Antwort ablehnen</span>-Button können die Spielerinnen und Spieler konkrete
-                                    Antworten ablehnen. Abhängig von der Spieleranzahl führt dies dazu, dass die betroffene Person keine
-                                    Punkte für die Antwort erhält. Bei zwei bis drei Spielenden reicht die Ablehnung durch eine Person aus.
+                                    Antworten ablehnen. Abhängig von der Anzahl der Spielenden führt dies dazu, dass die betroffene Person keine
+                                    Punkte für ihre Antwort erhält. Bei zwei bis drei Spielenden reicht die Ablehnung durch eine Person aus.
                                     Bei mehr als drei Spielenden müssen mindesten zwei Personen eine Antwort ablehnen. Die Ablehnung einer
                                     Antwort kann durch erneutes Klicken auf den Button wieder zurückgezogen werden.
                                 </li>
                             </ul>
                         </li>
                         <li>
-                            Über den Bestätigen-Button rechts unten auf der Seite muss man signalisieren, dass man mit
-                            der Analyse der Antworten fertig und bereit für die nächste Runde ist. Erst wenn alle den
-                            Button geklickt haben, startet die nächste Runde (siehe Schritt 1) bzw. endet das Spiel.
+                            Über den <CheckCircleIcon fontSize="small" className={styles.inline_icon} />
+                            <span className="sr-only">Bestätigen</span>-Button rechts unten auf der Seite bestätigen die Spielenden die
+                            Auswertung der Antworten. Erst wenn alle Spielerinnen und Spieler bestätigt haben, startet die nächste Runde
+                            (siehe Schritt 1) bzw. endet das Spiel.
                         </li>
                     </ol>
+                    <h3>Spielende</h3>
                     <p>
-                        Hinweis: Das Spiel ist so gestaltet, dass man mithilfe der Tabulatortaste schnell navigieren und die wichtigsten
-                        Elemente erreichen kann. Das trifft einerseits auf die Eingabefelder und Schaltflächen zu, aber auch auf die einzelnen
-                        Antworten in der Auswertungsphase einer Runde. Wenn man mit der Tabulatortaste zu einer Antwort springt, lesen
-                        Screenreader den Spielernamen, die Antwort, ihren aktuellen Status (akzeptiert oder abgelehnt), die Anzahl
-                        verliehener Kreativ-Sterne sowie die Punktzahl vor.
+                        Am Ende des Spiels gelangt man auf die <span>Ergebnisseite</span>, wo ein Ranking der Spielenden nach
+                        erzielten Punkten dargestellt werden. Bei gleicher Punktzahl belegen Spielende denselben Platz.
+                    </p>
+                    <p>
+                        Der Button <span>Alle Runden im Detail</span> öffnet einen Dialog, in dem alle Runden des beendeten Spiels
+                        tabellarisch dargestellt werden. Falls während des Spiels einzelne Antworten als besonders kreativ ausgezeichnet
+                        wurden, kann man über den <span lang="en">Hall of Fame</span>-Button einen Dialog öffnen, der eine Liste mit
+                        allen Antworten anzeigt.
                     </p>
                     <h3>Weitere Optionen</h3>
                     <p>
@@ -159,23 +160,36 @@ class GameManual extends Component<RouteComponentProps> {
                         sich auf der Startseite.
                     </p>
                     <p>
-                        Die Person, die das Spiel erstellt hat, hat als Admin in einem laufenden Spiel die Möglichkeit, über
+                        Die Person, die ein Spiel erstellt, kann als Admin im laufenden Spiel auf weitere Optionen über
                         den <SettingsIcon fontSize="small" className={styles.inline_icon} />
-                        <span className="sr-only">Admin-Optionen</span>-Button (rechts oben bzw. auf Mobilgeräten unten) andere
-                        Spielerinnen und Spieler aus dem Spiel zu werfen. Das ist natürlich nur als letztes Mittel gedacht, um ein
-                        Spiel beenden zu können. Darüber hinaus kann über die Menü-Option &bdquo;Gleiche Antworten markieren&rdquo;
-                        ein Dialog geöffnet werden, der die manuelle Markierung von gleichen Antworten pro Kategorie ermöglicht.
+                        <span className="sr-only">Admin-Optionen</span>-Button zugreifen (rechts oben bzw. auf Mobilgeräten unten).
+                        Die Menü-Option <span>Gleiche Antworten markieren</span> öffnet einen Dialog, der die manuelle Markierung
+                        von gleichen Antworten pro Kategorie ermöglicht. Darüber hinaus kann man als Admin andere Spielerinnen und
+                        Spieler rauswerfen. Das ist natürlich nur als letztes Mittel gedacht, um ein laufendes Spiel beenden zu können.
                     </p>
-                    <h3>Spielende</h3>
+                    <h3>Tastaturbedienung und Screenreader-Unterstützung</h3>
                     <p>
-                        Am Ende des Spiels gelangt man auf die <span>Ergebnisseite</span>, wo ein Ranking der Spielenden nach
-                        erzielten Punkten sowie die Details zum Spiel (Buchstaben, Anzahl Runden, Kategorien etc.) dargestellt werden.
+                        Das Spiel ist so gestaltet, dass man mithilfe der Tabulatortaste schnell navigieren und die wichtigsten Elemente
+                        erreichen kann. Das trifft einerseits auf die Eingabefelder und Schaltflächen zu, aber auch auf die einzelnen
+                        Antworten in der Auswertungsphase einer Runde.
                     </p>
                     <p>
-                        Der Button <span>Alle Runden im Detail</span> öffnet einen Dialog, in dem alle Runden des beendeten Spiels
-                        im Detail (Antworten, Punkte etc.) dargestellt werden. Falls während des Spiels einzelne Antworten als besonders
-                        kreativ ausgezeichnet wurden, so kann man über den <span lang="en">Hall of Fame</span>-Button einen Dialog öffnen,
-                        der eine Liste mit allen Antworten anzeigt.
+                        Wenn man mit der Tabulatortaste zu einer Antwort springt, lesen Screenreader den Spielernamen, die Antwort, ihren
+                        aktuellen Status (akzeptiert oder abgelehnt, etc.) sowie die Punktzahl vor. Informationen über den Spielablauf
+                        (z.B. der nächste Buchstabe in der neuen Runde) werden sowohl visuell als auch in Form von Statusnachrichten
+                        für Screenreader ausgegeben.
+                    </p>
+                    <p>
+                        Beim Spielmodus <span>Countdown</span> zeigt in jeder Runde ein sichtbarer Countdown die noch verbleibende Zeit an.
+                        Um Spielende nicht vom Eingeben der Antworten abzulenken, wird in diesem Fall nur 10 Sekunden vor dem Ende einer
+                        Runde eine Statusnachricht ausgegeben.
+                    </p>
+                    <h3>Allgemeines</h3>
+                    <p>
+                        Die Webseite bietet fünf verschiedene Designs zur Auswahl. Das aktuelle Design kann auf der Startseite
+                        (Dashboard) über den <BrushIcon fontSize="small" className={styles.inline_icon} />
+                        <span className="sr-only">Design ändern</span>-Button (rechts oben im zentralen Bild) geändert werden.
+                        Die Design-Auswahl sowie der zuletzt gewählte Spielername werden vom Browser gespeichert.
                     </p>
                 </div>
                 <ToDashboardButton onReturnToDashboard={this.returnToDashboard} />

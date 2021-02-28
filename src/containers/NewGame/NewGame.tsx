@@ -43,7 +43,12 @@ import {
     STANDARD_CATEGORIES,
     STANDARD_EXCLUDED_LETTERS,
 } from '../../constants/game.constant';
-import { FASTEST_PLAYER, NUMBER_OF_ROUNDS_LABEL, PLAYER_NAME_LABEL } from '../../constants/text.constant';
+import {
+    ALL_PLAYERS_TOGETHER,
+    FASTEST_PLAYER,
+    NUMBER_OF_ROUNDS_LABEL,
+    PLAYER_NAME_LABEL,
+} from '../../constants/text.constant';
 import { EndRoundMode, GameConfigScoringOptions } from '../../models/game.interface';
 import { PlayerInfo } from '../../models/player.interface';
 import { AppAction, prepareRejoiningGame, setDataForNewGame, SetDataForNewGamePayload } from '../../store/app.actions';
@@ -202,7 +207,7 @@ class NewGame extends Component<NewGameProps, NewGameState> {
                         <FormControlLabel
                             value={EndRoundMode.allPlayersSubmit}
                             control={<Radio color="primary" />}
-                            label="Alle Spielenden gemeinsam"
+                            label={ALL_PLAYERS_TOGETHER}
                         />
                         <FormControlLabel
                             value={EndRoundMode.firstPlayerSubmits}
