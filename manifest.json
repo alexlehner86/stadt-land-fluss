@@ -327,5 +327,43 @@
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#000000",
-  "background_color": "#AA0000"
+  "background_color": "#AA0000",
+  "shortcuts": [
+    {
+      "name": "Neues Spiel eröffnen",
+      "short_name": "Neues Spiel",
+      "description": "Wähle Kategorien, Anzahl Runden etc. aus und eröffne ein neues Spiel",
+      "url": "\/stadt-land-fluss\/#/stadt-land-fluss/newgame",
+      "icons": [
+        {
+          "src": "\/stadt-land-fluss\/shortcuts/new_game.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Einem eröffneten Spiel beitreten",
+      "short_name": "Spiel beitreten",
+      "description": "Gib deinen Namen und Spiel-ID ein, um einem eröffneten Spiel beizutreten",
+      "url": "\/stadt-land-fluss\/#/stadt-land-fluss/joingame",
+      "icons": [
+        {
+          "src": "\/stadt-land-fluss\/shortcuts/join_game.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Spielanleitung öffnen",
+      "short_name": "Spielanleitung",
+      "description": "Spielanleitung mit Bedienungshinweisen öffnen",
+      "url": "\/stadt-land-fluss\/#/stadt-land-fluss/manual",
+      "icons": [
+        {
+          "src": "\/stadt-land-fluss\/shortcuts/manual.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
 }
